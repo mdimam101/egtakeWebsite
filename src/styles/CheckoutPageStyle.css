@@ -1,0 +1,188 @@
+.checkout-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+  }
+  
+  h2, h3 {
+    margin-bottom: 12px;
+    color: #222;
+  }
+  
+  .checkout-scroll-container {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 12px;
+  padding: 12px 0;
+  scrollbar-width: none; /* Firefox hide scrollbar */
+  -ms-overflow-style: none;  /* IE 10+ */
+}
+
+.checkout-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera hide scrollbar */
+}
+  
+.checkout-item-card {
+  flex: 0 0 auto;
+  width: 100px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  scroll-snap-align: start;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.checkout-item-card:hover {
+  transform: scale(1.05);
+}
+  
+
+.checkout-item-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+  .checkout-item-details {
+    margin-top: 6px;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 4px;
+  }
+  
+  .shipping-form {
+    margin-top: 30px;
+    padding: 16px;
+    background: #f9f9f9;
+    border: 1px solid #e1e1e1;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .shipping-form input,
+  .shipping-form select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  
+  .checkout-summary {
+    margin-top: 30px;
+    padding: 16px;
+    background: #fffdf5;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  }
+  
+  .checkout-summary p {
+    margin: 6px 0;
+    font-size: 15px;
+  }
+  
+  .checkout-summary hr {
+    margin: 12px 0;
+    border: none;
+    border-top: 1px solid #ddd;
+  }
+  
+  .checkout-summary strong {
+    font-size: 16px;
+    color: #000;
+  }
+  
+  .old-price {
+    text-decoration: line-through;
+    color: gray;
+    font-size: 12px;
+  }
+  
+  .new-price {
+    color: #141414;
+    font-size: 16px;
+  }
+  
+  .place-order-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .place-order-btn:hover {
+    background-color: #0056b3;
+  }
+
+  /* Error messages */
+.error {
+    color: red;
+    font-size: 12px;
+    margin-top: -4px;
+    margin-bottom: 6px;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    /* .checkout-scroll-container {
+      flex-direction: column;
+      gap: 12px;
+    } */
+  
+    .shipping-form input,
+    .shipping-form select {
+      font-size: 14px;
+    }
+  
+    .checkout-summary p {
+      font-size: 13px;
+    }
+  
+    .place-order-btn {
+      font-size: 15px;
+      padding: 10px 16px;
+    }
+  }
+
+  .coupon-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .coupon-container input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .apply-coupon-btn {
+    background-color: #006400;
+    color: white;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .apply-coupon-btn:hover {
+    background-color: #007f00;
+  }

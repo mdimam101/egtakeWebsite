@@ -1,0 +1,133 @@
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999; /* ei line ta baray dao */
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.search-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 10px;
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  /* margin: 20px; */
+  width: 100%;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+}
+
+.input-wrapper input {
+  width: 98%;
+  padding: 10px 80px 10px 15px; /* right side padding increase for both icons */
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  font-size: 16px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.clear-icon {
+  position: absolute;
+  right: 50px;  /* move closer inside input */
+  top: 0%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  right: 10px;  /* fully inside input */
+  top: 0%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: #525252;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.styled-suggestion-list {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  min-width: 400px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* z-index: 1001; */
+  z-index: 9999;
+}
+
+.styled-suggestion-list li {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #eee;
+}
+
+.styled-suggestion-list li:hover {
+  background-color: #f9f9f9;
+}
+
+.suggestion-icon {
+  margin-right: 10px;
+  color: #333;
+  font-size: 18px;
+}
+
+.suggestion-text {
+  font-size: 12px;
+  color: #000;
+}
+
+button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #ff5722;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

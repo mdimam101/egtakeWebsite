@@ -1,0 +1,54 @@
+.slide-product-card {
+  width: 120px;
+  height: auto;
+  padding: 1px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  background: #faf7f7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.09);
+  display: flex;
+  flex-direction: column;
+}
+
+.slide-product-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.slide-product-info {
+  text-align: left;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.slide-product-info h3 {
+  font-size: 12px;
+  margin: 0;
+  font-weight: 500;
+}
+
+.slide-news-box {
+  height: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.slide-news-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.slide-news-slide {
+  height: 20px;
+  display: flex;
+  align-items: left;
+  /* justify-content: center; */
+}
+
+.slide-news-slide p {
+  margin: 0;
+  font-size: 12px;
+  color: #d50000;
+}

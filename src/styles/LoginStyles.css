@@ -1,0 +1,95 @@
+/* Base styles */
+#login {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 20px;
+  }
+  
+  .main-login {
+    background-color: white;
+    padding: 30px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  .main-login svg {
+    font-size: 40px;
+    color: #555;
+    margin-bottom: 15px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .email-sec,
+  .pass-sec {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+  
+  .email-sec label,
+  .pass-sec label {
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  
+  input[type="email"],
+  input[type="password"] {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 100%;
+  }
+  
+  button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  button:hover {
+    /* background-color: #0056b3; */
+  }
+  
+  a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  .main-login p {
+    margin-top: 15px;
+    font-size: 14px;
+  }
+  
+  /* Responsive tweaks (optional, already mobile-friendly) */
+  @media (max-width: 480px) {
+    .main-login {
+      padding: 25px 15px;
+    }
+  
+    button {
+      font-size: 15px;
+    }
+  }
+  

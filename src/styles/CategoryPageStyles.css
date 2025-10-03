@@ -1,0 +1,105 @@
+.category-page-container {
+    display: flex;
+    flex-direction: row; /* always row */
+    gap: 10px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    align-items: flex-start;
+  }
+  
+  .category-sidebar {
+    min-width: 150px;
+    flex-shrink: 0;
+    border-right: 1px solid #ddd;
+    padding-right: 10px;
+  }
+  
+  .category-sidebar h3 {
+    margin-bottom: 10px;
+  }
+  
+  .category-sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .category-sidebar li {
+    margin-bottom: 8px;
+  }
+  
+  .category-sidebar button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #333;
+    padding: 5px 10px;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .category-sidebar button:hover,
+  .category-sidebar button.active {
+    /* color: #007bff; */
+    font-weight: bold;
+  }
+  
+  .subcategory-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);  /* 2 কলাম করে দেখাবে */
+    gap: 15px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  .subcategory-card {
+    text-align: center;
+    text-decoration: none;
+    color: #000;
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 10px;
+    transition: transform 0.2s ease;
+  }
+  
+  .subcategory-card img {
+    width: 100%;
+    max-width: 80px;
+    height: auto;
+    display: block;
+    margin: 0 auto 5px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+  }
+
+  .subcategory-icon {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 50%; /* গোলাকার করার জন্য */
+    border: 1px solid #ddd;
+    display: block;
+    margin: 0 auto 8px;
+  }
+  
+  .subcategory-placeholder-icon {
+    width: 60px;
+    height: 60px;
+    background: #ccc;
+    color: #555;
+    font-weight: bold;
+    font-size: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+  }
+  
+  .subcategory-card p {
+    text-align: center;
+    font-size: 14px;
+    margin: 0;
+  }
