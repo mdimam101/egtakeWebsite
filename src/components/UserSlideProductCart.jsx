@@ -1,35 +1,54 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import "../styles/AllProductsStyle.css";
 import { Link } from "react-router";
 
+// Helper: safely get primary image (new API first, old API fallback)
+const getPrimaryImage = (p) => {
+  const v0 = p?.variants?.[0];
+  const img = v0?.images?.[0];
+  return (
+    img ||
+    p?.productImg?.[0] || // fallback for old data
+    "/no-image.png"
+  );
+};
+
 const UserSlideProductCart = ({ productData }) => {
-  const demoNews = ["Free Delivery", "Premium", "New Arrival", "Hot Offer"];
+  // news/labels (আগের লজিকই রাখলাম; শুধু qualityType থাকলে দেখাবো)
+  const demoNews = useMemo(() => {
+    const labels = ["Free Delivery", "New Arrival", "Hot Offer"];
+    if (productData?.qualityType) labels.splice(1, 0, productData.qualityType);
+    return labels;
+  }, [productData?.qualityType]);
+
   const totalItem = demoNews.length;
 
-  const [visibleIndex, setVisibleIndex] = useState(() => {
-    return Math.floor(Math.random() * totalItem);
-  });
+  // const [visibleIndex, setVisibleIndex] = useState(() =>
+  //   Math.floor(Math.random() * totalItem)
+  // );
 
   const intervalRef = useRef(null);
 
   useEffect(() => {
     // random delay create
-    const randomDelay = Math.floor(Math.random() * 2000); // 0-2s random delay
+   // const randomDelay = Math.floor(Math.random() * 2000); // 0-2s random delay
 
-    const startTimer = () => {
-      intervalRef.current = setInterval(() => {
-        setVisibleIndex((prev) => (prev + 1) % totalItem);
-      }, 3000);
-    };
+    // const startTimer = () => {
+    //   intervalRef.current = setInterval(() => {
+    //     setVisibleIndex((prev) => (prev + 1) % totalItem);
+    //   }, 3000);
+    // };
 
     // first delay before starting interval
-    const initialTimeout = setTimeout(startTimer, randomDelay);
+    // const initialTimeout = setTimeout(startTimer, randomDelay);
 
     return () => {
-      clearTimeout(initialTimeout);
+      // clearTimeout(initialTimeout);
       clearInterval(intervalRef.current);
     };
   }, [totalItem]);
+
+  const primaryImg = getPrimaryImage(productData);
 
   return (
     <Link
@@ -41,9 +60,10 @@ const UserSlideProductCart = ({ productData }) => {
       className="slide-product-card"
     >
       <img
-        src={productData?.productImg?.[0]}
+        src={primaryImg}
         alt={productData?.productName}
-        className="product-img"
+        className="slide-product-img"
+        loading="lazy"
       />
       <div className="product-info">
         <h3>{productData?.productName}</h3>
@@ -53,7 +73,7 @@ const UserSlideProductCart = ({ productData }) => {
         </p>
       </div>
 
-      <div className="news-box">
+      {/* <div className="news-box">
         <div
           className="news-container"
           style={{
@@ -68,7 +88,7 @@ const UserSlideProductCart = ({ productData }) => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </Link>
   );
 };

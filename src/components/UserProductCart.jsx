@@ -1,14 +1,31 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import "../styles/UserProductCartStyle.css";
 import { Link } from "react-router";
 
+// Helper: safely get primary image (new API first, old API fallback)
+const getPrimaryImage = (p) => {
+  const v0 = p?.variants?.[0];
+  const img = v0?.images?.[0];
+  return (
+    img ||
+    p?.productImg?.[0] || // fallback for old data
+    "/no-image.png"
+  );
+};
+
 const UserProductCart = ({ productData }) => {
-  const demoNews = ["Free Delivery", "Premium", "New Arrival", "Hot Offer"];
+  // news/labels (আগের লজিকই রাখলাম; শুধু qualityType থাকলে দেখাবো)
+  const demoNews = useMemo(() => {
+    const labels = ["Free Delivery", "New Arrival", "Hot Offer"];
+    if (productData?.qualityType) labels.splice(1, 0, productData.qualityType);
+    return labels;
+  }, [productData?.qualityType]);
+
   const totalItem = demoNews.length;
 
-  const [visibleIndex, setVisibleIndex] = useState(() => {
-    return Math.floor(Math.random() * totalItem);
-  });
+  const [visibleIndex, setVisibleIndex] = useState(() =>
+    Math.floor(Math.random() * totalItem)
+  );
 
   const intervalRef = useRef(null);
 
@@ -31,6 +48,8 @@ const UserProductCart = ({ productData }) => {
     };
   }, [totalItem]);
 
+  const primaryImg = getPrimaryImage(productData);
+
   return (
     <Link
       to={`/product/${productData?._id}`}
@@ -41,10 +60,12 @@ const UserProductCart = ({ productData }) => {
       className="product-card"
     >
       <img
-        src={productData?.productImg?.[0]}
+        src={primaryImg}
         alt={productData?.productName}
         className="product-img"
+        loading="lazy"
       />
+
       <div className="product-info">
         <h3>{productData?.productName}</h3>
         <p>
@@ -53,6 +74,7 @@ const UserProductCart = ({ productData }) => {
         </p>
       </div>
 
+      {/* 🔔 vertical news ticker (unchanged behavior) */}
       <div className="news-box">
         <div
           className="news-container"

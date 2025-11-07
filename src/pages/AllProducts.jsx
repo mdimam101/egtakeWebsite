@@ -4,8 +4,6 @@ import UploadProductComponent from '../components/UploadProductComponent';
 import SummaryApi from '../common';
 import { toast } from 'react-toastify';
 import AdminProductCart from '../components/AdminProductCart';
-import axios from 'axios';
-
 const AllProducts = () => {
   const [openModal, setUploadModal] = useState(false);
   const [allProducts, setAllProducts] = useState([]);
@@ -13,19 +11,18 @@ const AllProducts = () => {
   const fetchAllProducts = async () => {
     try {
        //const response = await fetch(SummaryApi.get_product.url);
-      const res = await axios.get(SummaryApi.get_product.url)
-      //console.log("🦌◆res",res,response );
-      
-      const data = await res.json();
+        const response = await fetch(SummaryApi.get_product.url);
+      const data = await response.json();
+
 
       if (data.success) {
         setAllProducts(data.data || []);
       } else {
         toast.error(data.message);
-        console.error("API Error:", data.message);
+        // console.error("API Error:", data.message);
       }
     } catch (error) {
-      console.error("Fetch Error:", error);
+      // console.error("Fetch Error:", error);
       toast.error("Failed to fetch products");
     }
   };

@@ -1,4 +1,4 @@
-const backendDomain = "https://e4imbebbpb.execute-api.ap-southeast-1.amazonaws.com";//"http://192.168.3.4:8080"//import.meta.env.VITE_APP_BACKEND_URL;
+const backendDomain = "https://api.egtake.com" //"https://e4imbebbpb.execute-api.ap-southeast-1.amazonaws.com";//"http://192.168.1.4:8080"//import.meta.env.VITE_APP_BACKEND_URL;
 
 const SummaryApi = {
   signUp: {
@@ -33,6 +33,11 @@ const SummaryApi = {
     url: `${backendDomain}/api/update-product`,
     method: "post",
   },
+  // when order placeConfirm
+updateProductStock: {
+  url: `${backendDomain}/api/reduce-stock`,
+  method: "put"
+},
   category_product: {
     url: `${backendDomain}/api/get-categoryProduct`,
     method: "get",

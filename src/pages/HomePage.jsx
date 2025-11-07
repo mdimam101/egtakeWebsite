@@ -15,7 +15,6 @@ const HomePage = () => {
   const [banners, setBanners] = useState([]);
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerRef = useRef(null);
-
   const [touchStartX, setTouchStartX] = useState(0);
 
   // 👇 Touch start
@@ -39,18 +38,18 @@ const HomePage = () => {
 
   const fetchAllProducts = async () => {
     try {
-
-        const response1 = await fetch(SummaryApi.current_user.url, {
+      const response1 = await fetch(SummaryApi.current_user.url, {
         method: SummaryApi.current_user.method,
-        // credentials: 'include',
       });
-
+      // you had this for logging/debug
       const result1 = await response1.json();
-      console.log("fetchUserDetails999999",result1);
+      console.log("fetchUserDetails999999", result1);
+
       const response = await fetch(SummaryApi.get_product.url);
       const data = await response.json();
 
       if (data.success) {
+        console.log("productdata", data.data);
         setAllProducts(data.data || []);
       } else {
         toast.error(data.message);
@@ -65,14 +64,14 @@ const HomePage = () => {
     fetchAllProducts();
   }, []);
 
+  // 🔥 ট্রেন্ডিং প্রডাক্ট (ফিল্ড: trandingProduct = true)
   const trandingProducts = allProducts.filter(
-    (product) => product.trandingProduct //trandingProduct true hole return
+    (product) => product?.trandingProduct === true
   );
 
-  console.log("trandingProducts", allProducts, trandingProducts);
-
+  // 💰 ০~৯৯ টাকার লিস্ট
   const productsBelow99 = allProducts.filter(
-    (product) => product.selling <= 99
+    (product) => Number(product?.selling) <= 99
   );
 
   const isTrandingPage = location.pathname === "/tranding";
@@ -91,7 +90,7 @@ const HomePage = () => {
       const data = await res.json();
       console.log("Banner API response:", data);
       if (data.success) {
-        setBanners(data.data);
+        setBanners(data.data || []);
       }
     } catch (err) {
       console.log("Banner fetch error:", err);
@@ -116,7 +115,7 @@ const HomePage = () => {
   console.log("setbanners", banners[0]?.imageUrl);
 
   return (
-   <>
+    <>
       <div
         className="top-slide-category"
         style={{
@@ -125,93 +124,96 @@ const HomePage = () => {
           backgroundColor: "#fff",
           padding: "0px 0",
           borderBottom: "1px solid #eee",
-          width:"100%",
-          marginTop:"0px"
+          width: "100%",
+          marginTop: "0px",
         }}
       >
         <CategoryList />
       </div>
-       <div className="homepage" style={{marginTop:"40px"}}>
-      {/* 🖼️ Auto-Sliding Banner */}
-      {banners.length > 0 && (
-        <div
-          className="banner-container"
-          ref={bannerRef}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          <img
-            src={banners[bannerIndex]?.imageUrl}
-            alt={banners[bannerIndex]?.altText || "Banner"}
-            className="banner-image"
-          />
 
-          {/* 🔘 Dot Navigation */}
-          <div className="banner-dots">
-            {banners.map((_, index) => (
-              <span
-                key={index}
-                className={`dot ${index === bannerIndex ? "active" : ""}`}
-                onClick={() => setBannerIndex(index)}
-              ></span>
-            ))}
+      <div className="homepage" style={{ marginTop: "40px" }}>
+        {/* 🖼️ Auto-Sliding Banner */}
+        {banners.length > 0 && (
+          <div
+            className="banner-container"
+            ref={bannerRef}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <img
+              src={banners[bannerIndex]?.imageUrl}
+              alt={banners[bannerIndex]?.altText || "Banner"}
+              className="banner-image"
+            />
+
+            {/* 🔘 Dot Navigation */}
+            <div className="banner-dots">
+              {banners.map((_, index) => (
+                <span
+                  key={index}
+                  className={`dot ${index === bannerIndex ? "active" : ""}`}
+                  onClick={() => setBannerIndex(index)}
+                ></span>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-      {/* 🔥 Tranding Slide Section */}
-      {!showAllTranding && !isTrandingPage && trandingProducts.length > 0 && (
-        <div className="tranding-section">
-          <h2 className="section-title">🔥 Tranding Products</h2>
-          <div className="tranding-slider">
-            {trandingProducts.slice(0, 10).map((product, idx) => (
-              <UserSlideProductCart productData={product} key={idx} />
-            ))}
+        )}
 
-            {trandingProducts.length > 10 && (
-              <div
-                className="view-more-card"
-                onClick={() => setShowAllTranding(true)}
-              >
-                <p className="view-more-text">View More ➜</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 💰 0~99 টাকা Shop Section */}
-      {!showAllTranding &&
-        !isTrandingPage &&
-        !showAllLowPrice &&
-        productsBelow99.length > 0 && (
-          <div className="low-price-section">
-            <h2 className="section-title">💰 ০~৯৯ টাকা Shop</h2>
+        {/* 🔥 Tranding Slide Section */}
+        {!showAllTranding && !isTrandingPage && trandingProducts.length > 0 && (
+          <div className="tranding-section">
+            <h2 className="section-title">🔥 Tranding Products</h2>
             <div className="tranding-slider">
-              {productsBelow99.slice(0, 12).map((product, idx) => (
+              {trandingProducts.slice(0, 10).map((product, idx) => (
                 <UserSlideProductCart productData={product} key={idx} />
               ))}
 
-              {productsBelow99.length > 12 && (
+              {trandingProducts.length > 10 && (
                 <div
                   className="view-more-card"
-                  onClick={() => setShowAllLowPrice(true)}
+                  onClick={() => setShowAllTranding(true)}
                 >
-                  <p className="view-more-text">View All ➜</p>
+                  <p className="view-more-text">View More ➜</p>
                 </div>
               )}
             </div>
           </div>
         )}
 
-      {/* ✅ Products Grid */}
-      <div className="product-grid">
-        {visibleProducts.length > 0 &&
-          visibleProducts.map((product, idx) => (
-            <UserProductCart productData={product} key={idx} />
-          ))}
+        {/* 💰 0~99 টাকা Shop Section */}
+        {!showAllTranding &&
+          !isTrandingPage &&
+          !showAllLowPrice &&
+          productsBelow99.length > 0 && (
+            <div className="low-price-section">
+              <h2 className="section-title">💰 ০~৯৯ টাকা Shop</h2>
+              <div className="tranding-slider">
+                {productsBelow99.slice(0, 12).map((product, idx) => (
+                  <UserSlideProductCart productData={product} key={idx} />
+                ))}
+
+                {productsBelow99.length > 12 && (
+                  <div
+                    className="view-more-card"
+                    onClick={() => setShowAllLowPrice(true)}
+                  >
+                    <p className="view-more-text">View All ➜</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+        {/* ✅ Products Grid */}
+        <div className="product-grid">
+          {visibleProducts.length > 0 &&
+            visibleProducts.map((product, idx) => (
+              <UserProductCart productData={product} key={idx} />
+            ))}
+        </div>
       </div>
-    </div>
     </>
   );
 };
+
 export default HomePage;

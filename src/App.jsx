@@ -9,10 +9,10 @@ import SummaryApi from "./common";
 import Context from "../src/context/index";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "./store/userSlice";
-// import axios from "axios";
-// import axios from "axios";
+
 
 function App() {
+  const t = localStorage.getItem('authToken');
   const dispatch = useDispatch();
   const [cartCountProduct, setCartCountProduct] = useState(0)
   // its for one product count list
@@ -24,19 +24,19 @@ function App() {
     
     try {
       
-      const t = localStorage.getItem('authToken');
+       
       const response = await fetch(SummaryApi.current_user.url, {
         method: SummaryApi.current_user.method,
-          headers: t ? { Authorization: `Bearer ${t}` } : {},
+         headers: t ? { Authorization: `Bearer ${t}` } : {},
         credentials: 'include',
       });
        
       // const response = await axios({
       //   url: SummaryApi.current_user.url,
       //   method: SummaryApi.current_user.method,
-      //   credentials: 'include',
+      //   withCredentials:true
       // });
-      // console.log("fetchUserDetails1122222221",response.data);
+      console.log("fetchUserDetails1122222221",response.data);
 
       const result = await response.json();
       console.log("fetchUserDetails1122222221",result);
@@ -59,15 +59,12 @@ function App() {
   const fetchUserAddToCart = async() => {
     const response = await fetch(SummaryApi.count_AddToCart_Product.url, {
       method: SummaryApi.count_AddToCart_Product.method,
-     
+     headers: t ? { Authorization: `Bearer ${t}` } : {},
       credentials: 'include',
     });
 
     const result = await response.json();
     setCartCountProduct(result?.data?.count)
-   
-    
-
 }
 
   useEffect(() => {

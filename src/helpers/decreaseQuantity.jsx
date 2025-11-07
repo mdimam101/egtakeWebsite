@@ -3,11 +3,13 @@ import SummaryApi from '../common';
 
 const decreaseQuantity = async (cartItemId) => {
   try {
+    const t = localStorage.getItem('authToken');
     const response = await fetch(SummaryApi.decreaseQuantityProduct.url, {
       method: SummaryApi.decreaseQuantityProduct.method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      // headers: {
+      //   'Content-Type': 'application/json'
+      // },
+      headers: t ? { Authorization: `Bearer ${t}` } : {},
       credentials: 'include',
       body: JSON.stringify({ cartItemId })
     });

@@ -1,23 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SummaryApi from "../common";
 import "../styles/CategoryPageStyles.css";
-import { Link } from "react-router";
+import { Link } from "react-router"; // ✅ make sure this package is installed
+
+// Helper: get a safe thumbnail from new product structure
+const getProductThumb = (product) => {
+  if (!product) return "";
+  // 1) old field (if ever present)
+  if (Array.isArray(product.productImg) && product.productImg.length > 0) {
+    return product.productImg[0];
+  }
+  // 2) new structure: first non-empty image from variants
+  if (Array.isArray(product.variants)) {
+    for (const v of product.variants) {
+      if (Array.isArray(v?.images) && v.images.length > 0 && v.images[0]) {
+        return v.images[0];
+      }
+    }
+  }
+  return "";
+};
+
+const safeText = (v, fallback = "—") =>
+  typeof v === "string" && v.trim().length > 0 ? v : fallback;
 
 const CategoryPage = () => {
-  const [categoryList, setCategoryList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]); // expect [{category: "Home"}, ...]
   const [selectedCategory, setSelectedCategory] = useState("All");
-
   const [allProducts, setAllProducts] = useState([]);
 
   const fetchCategoryProduct = async () => {
     try {
       const response = await fetch(SummaryApi.category_product.url);
       const dataResponse = await response.json();
-      console.log("category_product", dataResponse);
-
-      setCategoryList(dataResponse.data || []);
+      // expecting shape: { data: [{ category: "Men" }, ...] }
+      setCategoryList(Array.isArray(dataResponse?.data) ? dataResponse.data : []);
     } catch (err) {
-      console.log("CategoryPage Error:", err.message);
+      console.log("CategoryPage Error:", err?.message);
+      setCategoryList([]);
     }
   };
 
@@ -25,14 +45,10 @@ const CategoryPage = () => {
     try {
       const response = await fetch(SummaryApi.get_product.url);
       const data = await response.json();
-
-      if (data.success) {
-        setAllProducts(data.data || []);
-      } else {
-        // toast.error(data.message);
-      }
+      setAllProducts(data?.success && Array.isArray(data?.data) ? data.data : []);
     } catch (err) {
-      console.log(err);
+      console.log("Products fetch error:", err);
+      setAllProducts([]);
     }
   };
 
@@ -41,44 +57,33 @@ const CategoryPage = () => {
     fetchAllProducts();
   }, []);
 
+  // Build filtered representative list (one product per unique subCategory)
+  const filteredCategories = useMemo(() => {
+    if (!Array.isArray(allProducts) || allProducts.length === 0) return [];
 
+    const productsSource =
+      selectedCategory === "All"
+        ? allProducts
+        : allProducts.filter(
+            (p) =>
+              typeof p?.category === "string" &&
+              p.category.trim() === selectedCategory
+          );
 
+    // collect valid, non-empty subCategories
+    const subCats = productsSource
+      .map((p) => (typeof p?.subCategory === "string" ? p.subCategory.trim() : ""))
+      .filter((s) => s !== "");
 
-  // এবার প্রতিটি unique subCategory অনুযায়ী একটা করে product select করব
-  let filteredCategories = [];
-    // Right side data filtering (for now: all are same)
-  if (selectedCategory === "All") {
-    // প্রথমে subCategory গুলা বের করব
-    let subCategories = allProducts
-      .map((item) => item.subCategory)
-      .filter((item) => item !== "");
+    const uniqueSubCats = Array.from(new Set(subCats));
 
-    // তারপর unique বানাব
-    let uniqueSubCategories = [...new Set(subCategories)];
+    // For each subCategory, pick the first product as representative
+    const reps = uniqueSubCats
+      .map((sc) => productsSource.find((p) => p?.subCategory?.trim() === sc))
+      .filter(Boolean); // remove undefined
 
-    filteredCategories = uniqueSubCategories.map((subCat) => {
-      return allProducts.find((product) => product.subCategory === subCat);
-    });
-  } else {
-    // প্রথমে ওই category অনুযায়ী filter করি
-    let filteredProducts = allProducts.filter(
-      (item) => item.category === selectedCategory
-    );
-
-    // তারপর valid subCategory গুলা বের করি
-    let subCategories = filteredProducts
-      .map((item) => item.subCategory)
-      .filter((item) => item && item !== ""); // empty subCategory বাদ দেই
-
-    // তারপর unique বানাই
-    let uniqueSubCategories = [...new Set(subCategories)];
-    filteredCategories = uniqueSubCategories.map((subCat) => {
-      return allProducts.find((product) => product.subCategory === subCat);
-    });
-  }
-
-  console.log("filteredCategories", filteredCategories);
-  console.log("categoryList", categoryList);
+    return reps;
+  }, [allProducts, selectedCategory]);
 
   return (
     <div className="category-page-container">
@@ -94,43 +99,55 @@ const CategoryPage = () => {
               All
             </button>
           </li>
-          {categoryList.map((cat) => (
-            <li key={cat.category}>
-              <button
-                onClick={() => setSelectedCategory(cat.category)}
-                className={selectedCategory === cat.category ? "active" : ""}
-              >
-                {cat.category}
-              </button>
-            </li>
-          ))}
+
+          {Array.isArray(categoryList) &&
+            categoryList
+              .filter((c) => typeof c?.category === "string" && c.category.trim() !== "")
+              .map((cat) => {
+                const key = cat.category;
+                return (
+                  <li key={key}>
+                    <button
+                      onClick={() => setSelectedCategory(key)}
+                      className={selectedCategory === key ? "active" : ""}
+                    >
+                      {key}
+                    </button>
+                  </li>
+                );
+              })}
         </ul>
       </aside>
 
-      {/* Right: Showing each category as a "sub" card */}
+      {/* Right: SubCategory cards */}
       <div className="subcategory-grid">
-        {filteredCategories.map((subcat, index) => (
-          <Link
-            to={`/sub-category-wish/${subcat.subCategory}`}
-            className="subcategory-card"
-            key={index}
-          >
-            {subcat.productImg[0] ? (
-              <img
-                src={subcat.productImg[0]}
-                alt={subcat.subCategory}
-                className="subcategory-icon"
-              />
-            ) : (
-              <div className="subcategory-placeholder-icon">
-                {subcat.subCategory[0]}
-              </div>
-            )}
-            <p>{subcat.subCategory}</p>
-          </Link>
-        ))}
+        {filteredCategories.length === 0 && (
+          <div className="subcategory-empty">No items to show.</div>
+        )}
+
+        {filteredCategories.map((item, idx) => {
+          const subCatName = safeText(item?.subCategory, "Unknown");
+          const thumb = getProductThumb(item);
+          return (
+            <Link
+              to={`/sub-category-wish/${encodeURIComponent(subCatName)}`}
+              className="subcategory-card"
+              key={`${subCatName}-${idx}`}
+            >
+              {thumb ? (
+                <img src={thumb} alt={subCatName} className="subcategory-icon" />
+              ) : (
+                <div className="subcategory-placeholder-icon">
+                  {subCatName.charAt(0)}
+                </div>
+              )}
+              <p>{subCatName}</p>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
 };
+
 export default CategoryPage;

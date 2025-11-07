@@ -5,6 +5,26 @@
   font-family: sans-serif;
 }
 
+.size-detail-box {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.size-detail-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.size-detail-text {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #333;
+}
+
 /* New Updated Slider Section */
 .product-image-slider-container {
   position: relative;

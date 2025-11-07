@@ -3,11 +3,13 @@ import { toast } from "react-toastify";
 
 const increaseQuantity = async (cartItemId) => {
   try {
+    const t = localStorage.getItem('authToken');
     const response = await fetch(SummaryApi.increaseQuantity.url, {
       method: SummaryApi.increaseQuantity.method,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      // headers: {
+      //   "Content-Type": "application/json",
+      // },
+      headers: t ? { Authorization: `Bearer ${t}` } : {},
       credentials: "include",
       body: JSON.stringify({ cartItemId }),
     });

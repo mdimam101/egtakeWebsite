@@ -11,6 +11,7 @@ import SummaryApi from "../common";
 import SuccessModal from "../components/SuccessModal";
 import deleteCartItemWhenOrderplace from "../helpers/deleteCartItemWhenOrderplace";
 import Context from "../context";
+import updateProductStock from "../helpers/updateProductStock";
 // import { useSelector } from "react-redux";
 
 const CheckoutPage = () => {
@@ -19,14 +20,13 @@ const CheckoutPage = () => {
 
   const { state } = useLocation();
   const selectedItems = state?.selectedItemsDetails || [];
+  console.log("🦌◆🦌◆cartItem",selectedItems);
+  
 
   // শুধু _id গুলা নিয়ে নতুন array বানানো:
   let idArray = selectedItems.map((item) => item._id);
 
   console.log("selectedItems99", idArray);
-
-  const [couponCode, setCouponCode] = useState("");
-  const [discount, setDiscount] = useState(0);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -42,7 +42,7 @@ const CheckoutPage = () => {
   const baseTotal = useMemo(() => {
     return selectedItems.reduce((acc, item) => {
       const price = item?.productId?.selling || 0;
-      return acc + price * item.Quantity;
+      return acc + price * item.quantity;
     }, 0);
   }, [selectedItems]);
 
@@ -81,19 +81,14 @@ const CheckoutPage = () => {
       console.log("deliveryCharge", deliveryCharge);
 
       let grandTotal =
-        baseTotal + deliveryCharge + handlingCharge + processingFee - discount;
-
-      let saveMoney = 0;
-      if (baseTotal > 1500) {
-        saveMoney = 150;
-        grandTotal -= saveMoney;
-      }
+        baseTotal + deliveryCharge + handlingCharge + processingFee;
 
       const orderPayload = {
         items: selectedItems.map((item) => ({
           productId: item.productId._id,
           productName: item.productId.productName,
-          quantity: item.Quantity,
+          quantity: item.quantity,
+          price: (item?.productId?.selling || 0) * item.quantity,
           size: item.size,
           color: item.color,
           image: item.image,
@@ -106,19 +101,18 @@ const CheckoutPage = () => {
         },
         deliveryType: "district-based",
         totalAmount: grandTotal,
-        discount,
-        couponCode,
-        saveMoney,
       };
 
       console.log("submit", orderPayload);
 
       try {
+        const t = localStorage.getItem('authToken');
         const response = await fetch(SummaryApi.orders.url, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          // headers: {
+          //   "Content-Type": "application/json",
+          // },
+            headers: t ? { Authorization: `Bearer ${t}` } : {},
           credentials: "include",
           body: JSON.stringify(orderPayload),
         });
@@ -130,6 +124,17 @@ const CheckoutPage = () => {
           resetForm();
           handlePlaceOrder();
           handleRemove(idArray);
+          await Promise.all(
+          selectedItems.map((item) =>
+            updateProductStock(
+              item.productId._id,
+              item.image,
+              item.size,
+              item.quantity
+            )
+          )
+        );
+
           console.log("selectedItems------00", selectedItems);
         } else {
           toast.error(data.message || "Failed to place order");
@@ -151,37 +156,11 @@ const CheckoutPage = () => {
     return 9;
   }, [formik.values.district, baseTotal]);
 
-  // Calculate saveMoney and subtotal for display
-  const saveMoney = baseTotal > 1500 ? 150 : 0;
-
   const Subtotal =
     baseTotal +
     deliveryCharge +
     handlingCharge +
-    processingFee -
-    discount -
-    saveMoney;
-
-  const handleApplyCoupon = () => {
-    const code = couponCode.trim().toUpperCase();
-
-    if (code === "SAVE50") {
-      setDiscount(50);
-      toast.success("Coupon applied! ৳50 discount added.");
-    } else if (code === "SAVE10") {
-      setDiscount(10);
-      toast.success("Coupon applied! ৳10 discount added.");
-    } else if (code === "SAVE10P") {
-      const percentageDiscount = Math.floor(baseTotal * 0.1);
-      setDiscount(percentageDiscount);
-      toast.success(
-        `Coupon applied! 10% discount (৳${percentageDiscount}) added.`
-      );
-    } else {
-      setDiscount(0);
-      toast.error("Invalid coupon code.");
-    }
-  };
+    processingFee ;
 
   const handlePlaceOrder = () => {
     // এখানে order place করলে পরে call করবে
@@ -262,13 +241,12 @@ const CheckoutPage = () => {
           <input
             type="text"
             placeholder="Enter coupon code"
-            value={couponCode}
-            onChange={(e) => setCouponCode(e.target.value)}
+            //onChange={(e) => setCouponCode(e.target.value)}
           />
           <button
             type="button"
             className="apply-coupon-btn"
-            onClick={handleApplyCoupon}
+            // onClick={handleApplyCoupon}
           >
             Apply
           </button>
@@ -298,34 +276,6 @@ const CheckoutPage = () => {
               <span className="new-price">৳{processingFee}</span>{" "}
             </div>
           </div>
-          {discount > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <div style={{ fontFamily: "sans-serif", color: "red" }}>
-                {" "}
-                Coupon Discount
-              </div>
-              <div>
-                <span style={{ color: "green", fontWeight: "bold" }}>
-                  -৳{discount}
-                </span>
-              </div>
-            </div>
-          )}
-          {saveMoney > 0 && (
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <div>
-                <span style={{ color: "red" }}>
-                  {" "}
-                  150tk OFF for order 1500+{" "}
-                </span>
-              </div>
-              <div>
-                <span style={{ color: "green", fontWeight: "bold" }}>
-                  -৳{saveMoney}
-                </span>{" "}
-              </div>
-            </div>
-          )}
           <hr />
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <div>

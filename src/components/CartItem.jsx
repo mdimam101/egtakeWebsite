@@ -1,4 +1,5 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
+import { useNavigate } from "react-router";
 import Context from "../context";
 import "../styles/CartItem.css";
 import increaseQuantity from "../helpers/increaseQuantity ";
@@ -6,158 +7,171 @@ import decreaseQuantity from "../helpers/decreaseQuantity";
 import removeFromCart from "../helpers/removeFromCart";
 import { toast } from "react-toastify";
 
+// ছোট helper: http → https
+const ensureHttps = (u = "") => u.replace("http://", "https://");
+
 const CartItem = ({
-  product,
-  refreshCart,
-  isSelected,
-  toggleSelect,
-  latestProducts,
+  product,           // server cart item
+  refreshCart,       // parent refresher
+  isSelected,        // checkbox state (from parent)
+  toggleSelect,      // checkbox toggle (from parent)
+  latestProducts,    // live catalog for stock/price
 }) => {
   const { fetchUserAddToCart } = useContext(Context);
-  const productData = product?.productId;
+  const navigate = useNavigate();
 
-  // Find matching variant by color
-  const variant = productData?.variants?.find(
-    (v) => v.color?.toLowerCase() === product.color?.toLowerCase()
-  );
+  // productId object বা string — দুইটাই সাপোর্ট
+  const productData = typeof product?.productId === "object"
+    ? product?.productId
+    : { _id: product?.productId };
 
-  const variantImage =
-    variant?.images?.[0] || productData?.productImg?.[0] || "/no-image.png";
+  // RN-এর মত: variant match by image (first image)
+  const variantImage = product?.image || productData?.productImg?.[0] || "/no-image.png";
+  const imgIdentity = (variantImage || "").replace("https://", "http://");
 
-  const handleIncrease = async () => {
-    // Step 1: Find variant by color
-    const variant = productData?.variants?.find(
-      (v) => v.color?.toLowerCase() === product.color?.toLowerCase()
-    );
+  // 🔍 Live stock finder (RN logic)
+  const liveStock = useMemo(() => {
+    const latest = latestProducts?.find(p => p?._id === productData?._id);
+    if (!latest) return 0;
 
-    if (!variant) {
-      toast.error("Variant not found!");
-      return;
-    }
+    const variant = (latest?.variants || []).find(v => (v?.images?.[0] || "") === imgIdentity);
+    if (!variant) return 0;
 
-    // Step 2: Find size from variant
-    const sizeObj = variant.sizes?.find(
-      (s) => s.size?.toLowerCase() === product.size?.toLowerCase()
-    );
+    const sizeKey = (product?.size || "").trim().toLowerCase();
 
-    if (!sizeObj) {
-      toast.error("Size not found!");
-      return;
-    }
-
-    const availableStock = sizeObj.stock;
-
-    // Step 3: Compare quantity vs stock
-    if (product.Quantity >= availableStock) {
-      toast.error("Stock limit reached!");
-      return;
-    }
-    const result = await increaseQuantity(product._id);
-    if (result?.success) {
-      fetchUserAddToCart();
-      refreshCart();
-    }
-  };
-
-  const handleDecrease = async () => {
-    const result = await decreaseQuantity(product._id);
-    if (result?.success) {
-      fetchUserAddToCart();
-      refreshCart();
-    }
-  };
-
-  const handleRemove = async () => {
-    const result = await removeFromCart(product._id);
-    if (result?.success) {
-      fetchUserAddToCart();
-      refreshCart();
-    }
-  };
-
-  const sellingPrice =
-    productData?.selling * product.Quantity || productData?.price || 0;
-
-  console.log("product-cart-item", product);
-
-  // 5️⃣ Latest stock calculate
-  const latestProduct = latestProducts?.find(
-    (p) => p._id === product.productId._id
-  );
-
-  let availableStock = null;
-
-  if (latestProduct) {
-    const latestVariant = latestProduct.variants?.find(
-      (v) => v.color?.toLowerCase() === product.color?.toLowerCase()
-    );
-
-    if (latestVariant) {
-      const latestSizeObj = latestVariant.sizes?.find(
-        (s) => s.size?.toLowerCase() === product.size?.toLowerCase()
+    if (sizeKey) {
+      const sizeObj = (variant?.sizes || []).find(
+        s => (s?.size || "").trim().toLowerCase() === sizeKey
       );
-
-      if (latestSizeObj) {
-        availableStock = latestSizeObj.stock;
-      }
+      return sizeObj?.stock || 0;
     }
-  }
+
+    // size না থাকলে সব size যোগ
+    return (variant?.sizes || []).reduce((sum, s) => sum + (s?.stock || 0), 0);
+  }, [latestProducts, productData?._id, imgIdentity, product?.size]);
+
+  // Qty (both quantity/Quantity)
+  const qty = Number(product?.quantity ?? product?.Quantity ?? 1);
+
+  // Unit price (sell || price)
+  const unitPrice =
+    Number(productData?.selling ?? productData?.price ?? 0);
+
+  const sellingPrice = unitPrice * qty;
+
+  // 📈 Increase
+  const handleIncrease = async () => {
+    if (qty >= liveStock) {
+      toast.info("Stock limit reached");
+      return;
+    }
+    const res = await increaseQuantity(product?._id);
+    if (res?.success) {
+      await fetchUserAddToCart(true);
+      refreshCart?.();
+    } else {
+      toast.error(res?.message || "Failed to update quantity");
+    }
+  };
+
+  // 📉 Decrease
+  const handleDecrease = async () => {
+    const res = await decreaseQuantity(product?._id);
+    if (res?.success) {
+      await fetchUserAddToCart(true);
+      refreshCart?.();
+    } else {
+      toast.error(res?.message || "Failed to update quantity");
+    }
+  };
+
+  // 🗑 Remove
+  const handleRemove = async () => {
+    const res = await removeFromCart(product?._id);
+    if (res?.success) {
+      await fetchUserAddToCart(true);
+      refreshCart?.();
+    } else {
+      toast.error(res?.message || "Failed to remove item");
+    }
+  };
+
+  // 🖼️ Image click → ProductDetails
+  const handleOpenDetails = () => {
+    const pid = productData?._id || product?._id;
+    if (!pid) return;
+    navigate(`/product/${pid}`, {
+      state: {
+        id: pid,
+        variantColor: product?.color || null,
+        variantSize: product?.size || null,
+        image: ensureHttps(variantImage),
+      },
+    });
+  };
+
+  // Color/Size text (optional like RN)
+  let colorSize = "";
+  if (product?.color && product?.size) colorSize = `Color: ${product.color} / Size: ${product.size}`;
+  else if (product?.color) colorSize = `Color: ${product.color}`;
+  else if (product?.size) colorSize = `Size: ${product.size}`;
 
   return (
-    <div className="cart-item">
+    <div className={`cart-item ${liveStock === 0 ? "oos-fade" : ""}`}>
       <div className="left-block">
         <input
           type="checkbox"
           checked={isSelected}
           onChange={toggleSelect}
           className="cart-item-checkbox"
-          disabled={availableStock === 0} // ✅ Stock out হলে checkbox disable হবে
+          disabled={liveStock === 0} // Sold out হলে select করা যাবে না
         />
 
         <img
-          src={variantImage}
-          alt={productData?.productName}
+          src={ensureHttps(variantImage)}
+          alt={productData?.productName || "Product"}
           className="cart-item-img"
+          onClick={handleOpenDetails}
+          role="button"
         />
 
         <div className="cart-product-info">
           <div className="top-row">
-            <div className="product-name">{productData?.productName}</div>
-            <button className="remove-btn" onClick={handleRemove}>
+            <div className="product-name" title={productData?.productName}>
+              {productData?.productName || "Unnamed Product"}
+            </div>
+            <button className="remove-btn" onClick={handleRemove} aria-label="Remove from cart">
               ✖
             </button>
           </div>
 
-          <div className="variant">
-            Color: {product.color} / Size: {product.size}
-          </div>
+          {!!colorSize && <div className="variant">{colorSize}</div>}
 
           <div className="price-qty-row">
             <div className="price-section">
               <span className="current-price">৳{sellingPrice}</span>
-              <span className="old-price">৳{productData?.price}</span>
+              {productData?.price && productData?.selling && productData?.price > productData?.selling ? (
+                <span className="old-price">৳{productData?.price}</span>
+              ) : null}
             </div>
 
             <div className="quantity-controls-container">
-              <button className="qty-btn" onClick={handleDecrease}>
-                -
-              </button>
-              <span className="qty-value">{product.Quantity}</span>
-              <button className="qty-btn" onClick={handleIncrease}>
+              <button className="qty-btn" onClick={handleDecrease} aria-label="Decrease quantity">-</button>
+              <span className="qty-value">{qty}</span>
+              <button
+                className="qty-btn"
+                onClick={handleIncrease}
+                aria-label="Increase quantity"
+                disabled={qty >= liveStock}
+                title={qty >= liveStock ? "Stock limit reached" : ""}
+              >
                 +
               </button>
             </div>
           </div>
-          <p
-            className={`stock-status ${
-              availableStock === 0 ? "out-stock" : "in-stock"
-            }`}
-          >
-            {availableStock === 0 ? (
-              <span style={{ color: "red", fontWeight:"bold" }}>Stock of Out</span>
-            ) : (
-              `In Stock: ${availableStock}`
-            )}
+
+          <p className={`stock-status ${liveStock === 0 ? "out-stock" : "in-stock"}`}>
+            {liveStock === 0 ? <span style={{ color: "red", fontWeight: "bold" }}>Sold out</span> : `Only ${liveStock} left`}
           </p>
         </div>
       </div>

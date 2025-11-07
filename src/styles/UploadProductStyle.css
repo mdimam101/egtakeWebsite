@@ -149,3 +149,51 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(22px);
 }
+
+/* Prevent background page scroll when modal open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Make sure overlay sits on top of everything */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;                 /* ⬅️ was 100, bump to 1000 */
+  padding: 10px;                 /* small gutter on tiny screens */
+}
+
+/* Modal box */
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;   /* smooth on iOS */
+  overscroll-behavior: contain;        /* avoid "bouncy" background */
+}
+
+/* Mobile tweaks */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 96%;
+    padding: 1rem;
+    border-radius: 10px;
+  }
+}
+
+/* Optional: close-on-overlay-click UX */
+.modal-overlay[data-closeable="true"] {
+  cursor: pointer;
+}
+.modal-overlay[data-closeable="true"] .modal-content {
+  cursor: auto;
+}
+

@@ -2,9 +2,11 @@ import SummaryApi from "../common";
 
 const removeFromCart = async (cartItemId) => {
   try {
+    const t = localStorage.getItem('authToken');
     const res = await fetch(SummaryApi.removeFromCart.url, {
       method: SummaryApi.removeFromCart.method,
-      headers: { 'Content-Type': 'application/json' },
+      // headers: { 'Content-Type': 'application/json' },
+      headers: t ? { Authorization: `Bearer ${t}` } : {},
       credentials: 'include',
       body: JSON.stringify({ cartItemId })
     });
