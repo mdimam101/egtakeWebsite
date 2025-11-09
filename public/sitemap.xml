@@ -1,40 +1,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 <!--  created with Free Online Sitemap Generator www.xml-sitemaps.com  -->
 <!-- ✅ Home Routes -->
-  <url><loc>https://egtake.com/</loc></url>
-  <url><loc>https://egtake.com/home</loc></url>
+  <url>
+    <loc>https://egtake.com/</loc>
+    <priority>1.0</priority>
+  </url>
 
-  <!-- ✅ Search Pages -->
-  <url><loc>https://egtake.com/search</loc></url>
+  <url>
+    <loc>https://egtake.com/category</loc>
+    <priority>0.8</priority>
+  </url>
 
-  <!-- ✅ Category Pages -->
-  <url><loc>https://egtake.com/category</loc></url>
-
-  <!-- ⚠️ Dynamic Category (not added: /category-wish/:categoryName -->
-  <!-- ⚠️ Dynamic SubCategory (not added: /sub-category-wish/:categoryName -->
-
-  <!-- ✅ Cart -->
-  <url><loc>https://egtake.com/cart</loc></url>
-
-  <!-- ✅ Checkout -->
-  <url><loc>https://egtake.com/checkout</loc></url>
-
-  <!-- ✅ Auth Pages -->
-  <url><loc>https://egtake.com/login</loc></url>
-  <url><loc>https://egtake.com/sign-up</loc></url>
-  <url><loc>https://egtake.com/forgot-password</loc></url>
-
-  <!-- ✅ Profile Page -->
-  <url><loc>https://egtake.com/profile</loc></url>
-
-  <!-- ✅ Admin Panel Main -->
-  <url><loc>https://egtake.com/admin-panel</loc></url>
-
-  <!-- ✅ Admin Child Routes -->
-  <url><loc>https://egtake.com/admin-panel/all-users</loc></url>
-  <url><loc>https://egtake.com/admin-panel/all-products</loc></url>
-  <url><loc>https://egtake.com/admin-panel/all-banners</loc></url>
-  <url><loc>https://egtake.com/admin-panel/orders</loc></url>
-  <url><loc>https://egtake.com/admin-panel/coupons</loc></url>
+  <url>
+    <loc>https://egtake.com/search</loc>
+    <priority>0.7</priority>
+  </url>
 
 </urlset>
