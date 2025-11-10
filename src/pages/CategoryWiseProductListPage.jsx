@@ -49,7 +49,7 @@ const CategoryWiseProductListPage = () => {
           padding: "0px 0",
           borderBottom: "1px solid #eee",
           width:"100%",
-          marginTop:"0px"
+          marginTop:"7px"
         }}
       >
         <CategoryList />

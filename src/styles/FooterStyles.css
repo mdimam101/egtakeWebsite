@@ -1,46 +1,89 @@
-.main-footer {
+.main-footer.rn-footer {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 100px;
-  background-color: #ffffff;
+  height: 60px;
+  background: #fff;
   border-top: 1px solid #ccc;
-  box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.05);
-  z-index: 10;
+  box-shadow: 0 -1px 5px rgba(0,0,0,0.06);
+  z-index: 100;
 }
 
-.main-footer div {
-  text-align: center;
+/* item = icon + label */
+.footer-item {
   flex: 1;
-}
-
-.main-footer a {
-  color: #444;
-  font-size: 26px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
   text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.main-footer a:hover {
-  color: #e53935;
-}
-
-.cart-icon-container {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: #333;
+  padding: 6px 0;
+  transition: all .25s ease;
+  border-radius: 10px;
   position: relative;
 }
 
+/* icon wrapper look */
+.footer-icon {
+  font-size: 22px;
+  line-height: 1;
+  padding: 8px 8px 0px 8px;                 /* some breathing space */
+  border-radius: 50%;           /* round shape for bg */
+  transition: all 0.25s ease;
+  background-color: transparent;
+}
+
+.footer-label {
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* hover */
+.footer-item:hover .footer-icon {
+  /* background-color: rgba(255,70,107,0.1); */
+  color: #FF466B;
+}
+
+/* ✅ active/focus (pink bubble) */
+.footer-item.active {
+  color: #FF466B;
+  font-weight: 600;
+}
+.footer-item.active .footer-icon {
+  /* background-color: rgba(255,70,107,0.15); */
+  color: #FF466B;
+  transform: scale(1.1);
+}
+
+/* remove any dot from before */
+.footer-item::after { content: none !important; }
+
+/* keyboard focus */
+.footer-item:focus-visible {
+  outline: none;
+  /* box-shadow: 0 0 0 3px rgba(255,70,107,0.25); */
+}
+
+/* cart badge */
+.cart-icon-container { position: relative; }
 .cart-count-badge {
   position: absolute;
-  top: -6px;
-  right: -12px;
-  background-color: #e53935;
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
+  top: -4px;
+  right: -10px;
+  background: #FF466B;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
   padding: 2px 6px;
   border-radius: 50%;
+}
+
+@media (max-width:480px){
+  .main-footer.rn-footer{height:56px;}
+  .footer-icon{font-size:20px;}
+  .footer-label{font-size:10px;}
 }

@@ -103,3 +103,38 @@
     font-size: 14px;
     margin: 0;
   }
+  /* === Adjust these two if needed === */
+:root{
+  --headerPlusSearchH: 70px; /* উপরের Search+Header মোট উচ্চতা (তোমার UI অনুযায়ী টিউন করো) */
+  --footerH: 60px;           /* নিচের footer উচ্চতা */
+}
+
+/* parent ঠিক এই উচ্চতার মধ্যে থাকবে; স্ক্রল parent-এ নয় */
+.category-page-container{
+  align-items: stretch !important;            /* দুই কলাম সমান হাইট পায় */
+  height: calc(100dvh - var(--headerPlusSearchH) - var(--footerH));
+  overflow: hidden;                            /* parent স্ক্রল বন্ধ */
+}
+
+/* বাম কলাম: নিজে স্ক্রল করবে, চেহারা অপরিবর্তিত */
+.category-sidebar{
+  height: 100%;
+  overflow: auto;                              /* ✅ আলাদা স্ক্রল */
+  -webkit-overflow-scrolling: touch;
+  /* তোমার আগের border/padding বজায় থাকবে */
+}
+
+/* ডান কলাম: নিজে স্ক্রল করবে, আগের grid স্টাইল ঠিক থাকবে */
+.subcategory-grid{
+  height: 100%;
+  overflow: auto;                              /* ✅ আলাদা স্ক্রল */
+  -webkit-overflow-scrolling: touch;
+
+  /* নিচের ৪টা লাইন তোমার আগের grid সেটিং—থাকলে থাকবে,
+     না থাকলে এইগুলো রেখে দাও */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  padding: 10px;
+  box-sizing: border-box;
+}
