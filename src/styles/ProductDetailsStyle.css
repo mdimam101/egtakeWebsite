@@ -1,7 +1,7 @@
 .product-details-container {
   padding: 16px;
   max-width: 600px;
-  margin: auto;
+  margin: 0px 0px 100px 0px;
   font-family: sans-serif;
 }
 
@@ -317,11 +317,14 @@ button:disabled {
 
 .add-to-cart-fixed {
   position: fixed;
-  bottom: 50px;
+  bottom: 55px;
   left: 0;
   width: 100%;
-  background: #fff;
-  padding: 12px 0px;
+  color:white;
+  font-weight: bold;
+  text-align: center;
+  background: #d20707;
+  padding: 12px;
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
   z-index: 10;
 }

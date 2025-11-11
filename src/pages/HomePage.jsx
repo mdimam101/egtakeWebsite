@@ -6,17 +6,25 @@ import "../styles/HomePage.css";
 import { useLocation } from "react-router";
 import CategoryList from "../components/CategoryList";
 import UserSlideProductCart from "../components/UserSlideProductCart";
+import { useDispatch, useSelector } from "react-redux";
+import { setAllProductList } from "../store/allProductSlice";
+import { generateOptimizedVariants } from "../helpers/variantUtils";
+import {setBanarList} from '../store/banarSlice'
 
 const HomePage = () => {
-  const [allProducts, setAllProducts] = useState([]);
+ // const [allProducts, setAllProducts] = useState([]);
   const [showAllTranding, setShowAllTranding] = useState(false);
   const [showAllLowPrice, setShowAllLowPrice] = useState(false);
   const location = useLocation();
-  const [banners, setBanners] = useState([]);
+  // const [banners, setBanners] = useState([]);
   const [bannerIndex, setBannerIndex] = useState(0);
   const bannerRef = useRef(null);
   const [touchStartX, setTouchStartX] = useState(0);
-
+  const allProducts = useSelector((s) => s.allProductState.productList);
+  const banners = useSelector((s) => s.banarState.banarList)
+  const dispatch = useDispatch();
+    
+ console.log("◆productList◆from store", allProducts);
   // 👇 Touch start
   const handleTouchStart = (e) => {
     setTouchStartX(e.touches[0].clientX);
@@ -50,7 +58,12 @@ const HomePage = () => {
 
       if (data.success) {
         console.log("productdata", data.data);
-        setAllProducts(data.data || []);
+        // setAllProducts(data.data || []);
+         const optimized = generateOptimizedVariants(data.data);
+           console.log("◆productList◆optimized", allProducts);
+
+        dispatch(setAllProductList(optimized))
+       
       } else {
         toast.error(data.message);
       }
@@ -61,9 +74,10 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    fetchAllProducts();
+    if (allProducts.length === 0) {
+      fetchAllProducts();
+    }
   }, []);
-
   // 🔥 ট্রেন্ডিং প্রডাক্ট (ফিল্ড: trandingProduct = true)
   const trandingProducts = allProducts.filter(
     (product) => product?.trandingProduct === true
@@ -90,7 +104,8 @@ const HomePage = () => {
       const data = await res.json();
       console.log("Banner API response:", data);
       if (data.success) {
-        setBanners(data.data || []);
+        // setBanners(data.data || []);
+        dispatch(setBanarList(data.data || []))
       }
     } catch (err) {
       console.log("Banner fetch error:", err);
@@ -99,7 +114,12 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    fetchBanners();
+    if (banners.length == 0 ) {
+      fetchBanners();
+    } else {
+      // setBanners(banarList || []);
+    }
+    
   }, []);
 
   useEffect(() => {

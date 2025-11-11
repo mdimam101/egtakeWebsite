@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import SummaryApi from "../common";
 import UserProductCart from "../components/UserProductCart";
 import CategoryList from "../components/CategoryList";
+import { generateOptimizedVariants } from "../helpers/variantUtils";
 
 const SubCategoryWiseProduct = () => {
   const [wishProductList, setWishProductList] = useState([]);
@@ -26,8 +27,8 @@ const SubCategoryWiseProduct = () => {
 
       if (result.success) {
         console.log("setWishProductList", result.data);
-        
-        setWishProductList(result.data);
+        const optimized = generateOptimizedVariants(result.data);
+        setWishProductList(optimized);
       }
     } catch (error) {
       console.log("Error fetching category product:", error);

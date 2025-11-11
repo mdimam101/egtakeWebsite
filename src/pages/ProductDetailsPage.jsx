@@ -7,6 +7,7 @@ import "../styles/ProductDetailsStyle.css";
 import addToCart from "../helpers/addToCart";
 import Context from "../context";
 import UserProductCart from "../components/UserProductCart";
+import { generateOptimizedVariants } from "../helpers/variantUtils";
 
 const ProductDetailsPage = () => {
   const param = useParams();
@@ -60,7 +61,8 @@ const ProductDetailsPage = () => {
         body: JSON.stringify({ category: d.category }),
       });
       const reco = await res.json();
-      setShowRelatedProduct(reco.data || []);
+       const optimized = generateOptimizedVariants(reco.data );
+      setShowRelatedProduct(optimized || []);
     })();
   }, [param?.id]);
 
@@ -337,8 +339,8 @@ const ProductDetailsPage = () => {
       )}
 
       {/* Add to cart button (final logic) */}
-      <div className="add-to-cart-fixed">
-        <button disabled={buttonState.disabled} onClick={addToCartHandle}>
+      <div >
+        <button className="add-to-cart-fixed" disabled={buttonState.disabled} onClick={addToCartHandle}>
           {buttonState.label}
         </button>
       </div>

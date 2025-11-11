@@ -267,7 +267,7 @@ const styles = {
   tagline: { marginTop: 4, fontSize: "12px", color: "#6b7280", letterSpacing: ".4px" },
 
   card: {
-    width: "100%",
+    width: "90%",
     backgroundColor: "#fff",
     borderRadius: "16px",
     padding: "24px",

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import SummaryApi from "../common";
 import UserProductCart from "../components/UserProductCart";
+import { generateOptimizedVariants } from "../helpers/variantUtils";
 
 const SearchPage = () => {
   const { query } = useParams();
@@ -15,7 +16,8 @@ const SearchPage = () => {
         const res = await fetch(`${SummaryApi.searchProduct.url}?q=${query}`);
         const data = await res.json();
         if (data.success) {
-          setProducts(data.data);
+          const optimized = generateOptimizedVariants(data.data);
+          setProducts(optimized);
         }
       } catch (err) {
         console.error("Search failed", err);

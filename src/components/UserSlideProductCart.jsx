@@ -3,15 +3,15 @@ import "../styles/AllProductsStyle.css";
 import { Link } from "react-router";
 
 // Helper: safely get primary image (new API first, old API fallback)
-const getPrimaryImage = (p) => {
-  const v0 = p?.variants?.[0];
-  const img = v0?.images?.[0];
-  return (
-    img ||
-    p?.productImg?.[0] || // fallback for old data
-    "/no-image.png"
-  );
-};
+// const getPrimaryImage = (p) => {
+//   const v0 = p?.variants?.[0];
+//   const img = v0?.images?.[0];
+//   return (
+//     img ||
+//     p?.productImg?.[0] || // fallback for old data
+//     "/no-image.png"
+//   );
+// };
 
 const UserSlideProductCart = ({ productData }) => {
   // news/labels (আগের লজিকই রাখলাম; শুধু qualityType থাকলে দেখাবো)
@@ -48,7 +48,7 @@ const UserSlideProductCart = ({ productData }) => {
     };
   }, [totalItem]);
 
-  const primaryImg = getPrimaryImage(productData);
+  // const primaryImg = getPrimaryImage(productData);
 
   return (
     <Link
@@ -60,7 +60,7 @@ const UserSlideProductCart = ({ productData }) => {
       className="slide-product-card"
     >
       <img
-        src={primaryImg}
+        src={productData?.img}
         alt={productData?.productName}
         className="slide-product-img"
         loading="lazy"

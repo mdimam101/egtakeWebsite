@@ -12,7 +12,7 @@ const Footer = () => {
   const { cartCountProduct } = useContext(Context);
   const user = useSelector((s) => s?.userState?.user);
   const location = useLocation();
-  const redirectURL = user?._id ? "/profile" : "/login";
+  const redirectURL = user?._id ? "/profile" : "/sign-up";
 
   const path = location.pathname;
 
@@ -26,7 +26,7 @@ const Footer = () => {
       case "cart":
         return path.startsWith("/cart");
       case "account":
-        return path.startsWith("/profile") || path.startsWith("/login");
+        return path.startsWith("/profile") || path.startsWith("/sign-up");
       default:
         return false;
     }
