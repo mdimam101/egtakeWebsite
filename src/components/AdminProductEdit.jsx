@@ -9,7 +9,7 @@ import SummaryApi from "../common";
 import { toast } from "react-toastify";
 
 const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
-  // ---- DEFAULTS (exactly like Upload) ----
+  // ---- DEFAULTS (same as Upload) ----
   const uploadDefaults = {
     productName: "",
     brandName: "",
@@ -33,22 +33,42 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
   const initial = {
     ...uploadDefaults,
     ...paramData,
-    // make sure nested objects/arrays exist even if missing
+
+    // sizeDetails always array
     sizeDetails: Array.isArray(paramData.sizeDetails)
       ? paramData.sizeDetails
       : uploadDefaults.sizeDetails,
+
+    // variants with Spc* fields + sizes/images safe defaults
     variants: Array.isArray(paramData.variants)
       ? paramData.variants.map((v) => ({
+          // 🔽 NEW special fields
+          SpcProductName: v?.SpcProductName || "",
+          SpcPrice:
+            v?.SpcPrice === 0 || v?.SpcPrice ? String(v.SpcPrice) : "",
+          SpcSelling:
+            v?.SpcSelling === 0 || v?.SpcSelling
+              ? String(v.SpcSelling)
+              : "",
+          SpcBuyingPrice:
+            v?.SpcBuyingPrice === 0 || v?.SpcBuyingPrice
+              ? String(v.SpcBuyingPrice)
+              : "",
+          // old fields
           color: v?.color || "",
           images: Array.isArray(v?.images) ? v.images : [],
-          sizes: Array.isArray(v?.sizes) && v.sizes.length
-            ? v.sizes.map((s) => ({
-                size: s?.size ?? "",
-                stock: s?.stock ?? "",
-              }))
-            : [{ size: "", stock: "" }],
+          sizes:
+            Array.isArray(v?.sizes) && v.sizes.length
+              ? v.sizes.map((s) => ({
+                  size: s?.size ?? "",
+                  stock:
+                    s?.stock === 0 || s?.stock ? String(s.stock) : "",
+                }))
+              : [{ size: "", stock: "" }],
         }))
-      : uploadDefaults.variants, // <-- if no variants in DB, keep [] like Upload
+      : uploadDefaults.variants,
+
+    // productVideo safe defaults
     productVideo: {
       url: paramData?.productVideo?.url || "",
       thumbnail: paramData?.productVideo?.thumbnail || "",
@@ -61,9 +81,12 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
           ? paramData.productVideo.muted
           : true,
     },
-    // numbers could be null/number in DB; keep editable as string
+
+    // numbers keep as editable string
     price:
-      paramData.price === 0 || paramData.price ? String(paramData.price) : "",
+      paramData.price === 0 || paramData.price
+        ? String(paramData.price)
+        : "",
     selling:
       paramData.selling === 0 || paramData.selling
         ? String(paramData.selling)
@@ -100,7 +123,10 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
   const addSizeDetail = () =>
     setData((p) => ({
       ...p,
-      sizeDetails: [...(p.sizeDetails || []), { size: "", length: "", chest: "", unit: "inche" }],
+      sizeDetails: [
+        ...(p.sizeDetails || []),
+        { size: "", length: "", chest: "", unit: "inche" },
+      ],
     }));
 
   const removeSizeDetail = (index) =>
@@ -119,11 +145,24 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     setData((p) => ({ ...p, sizeDetails: list }));
   };
 
-  // variants
+  // ===== Variants =====
   const addVariant = () =>
     setData((p) => ({
       ...p,
-      variants: [...(p.variants || []), { color: "", images: [], sizes: [{ size: "", stock: "" }] }],
+      variants: [
+        ...(p.variants || []),
+        {
+          // 🔽 NEW special fields per variant
+          SpcProductName: "",
+          SpcPrice: "",
+          SpcSelling: "",
+          SpcBuyingPrice: "",
+          // existing fields
+          color: "",
+          images: [],
+          sizes: [{ size: "", stock: "" }],
+        },
+      ],
     }));
 
   const removeVariant = (idx) =>
@@ -135,6 +174,13 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
   const handleVariantColorChange = (idx, value) => {
     const variants = [...(data.variants || [])];
     variants[idx].color = value;
+    setData((p) => ({ ...p, variants }));
+  };
+
+  // 🔥 Spc fields change handler
+  const handleVariantSpcChange = (variantIndex, field, value) => {
+    const variants = [...(data.variants || [])];
+    variants[variantIndex][field] = value;
     setData((p) => ({ ...p, variants }));
   };
 
@@ -161,7 +207,8 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const uploaded = await uploadImage(file);
-    if (uploaded?.error) return toast.error(uploaded.message || "Upload failed");
+    if (uploaded?.error)
+      return toast.error(uploaded.message || "Upload failed");
 
     const variants = [...(data.variants || [])];
     variants[vIdx].images.push(uploaded.url);
@@ -181,7 +228,8 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
       const file = e.target.files?.[0];
       if (!file) return;
       const uploaded = await uploadImage(file);
-      if (uploaded?.error) return toast.error(uploaded.message || "Video upload failed");
+      if (uploaded?.error)
+        return toast.error(uploaded.message || "Video upload failed");
       if (uploaded?.url) {
         setVideoField("url", uploaded.url);
         toast.success("Video uploaded");
@@ -195,7 +243,8 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const uploaded = await uploadImage(file);
-    if (uploaded?.error) return toast.error(uploaded.message || "Thumbnail upload failed");
+    if (uploaded?.error)
+      return toast.error(uploaded.message || "Thumbnail upload failed");
     if (uploaded?.url) {
       setVideoField("thumbnail", uploaded.url);
       toast.success("Thumbnail uploaded");
@@ -203,12 +252,18 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
   };
 
   const handleDeleteVideo = () => {
-    setData((p) => ({ ...p, productVideo: { ...p.productVideo, url: "" } }));
+    setData((p) => ({
+      ...p,
+      productVideo: { ...p.productVideo, url: "" },
+    }));
     toast.info("Video removed");
   };
 
   const handleDeleteVideoThumb = () => {
-    setData((p) => ({ ...p, productVideo: { ...p.productVideo, thumbnail: "" } }));
+    setData((p) => ({
+      ...p,
+      productVideo: { ...p.productVideo, thumbnail: "" },
+    }));
     toast.info("Thumbnail removed");
   };
 
@@ -268,15 +323,8 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
   };
 
   return (
-    <div
-      className="modal-overlay"
-      data-closeable="true"
-      onClick={onClose}
-    >
-      <div
-        className="modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="modal-overlay" data-closeable="true" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Edit Product</h2>
           <div className="close-icon" onClick={onClose}>
@@ -285,7 +333,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
         </div>
 
         <form className="form-row" onSubmit={handleSubmit}>
-          {/* Base fields (same as Upload) */}
+          {/* Base fields */}
           <label htmlFor="productName">Product Name:</label>
           <input
             type="text"
@@ -400,7 +448,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             onChange={handleOnChange}
           />
 
-          {/* Switches (Upload-style) */}
+          {/* Switches */}
           <div className="switch-wrapper">
             <label className="switch-label">Trending Product?</label>
             <label className="switch">
@@ -440,7 +488,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             </label>
           </div>
 
-          {/* VIDEO (exactly like Upload) */}
+          {/* VIDEO */}
           <h3 style={{ marginTop: 20 }}>Product Video (Top of Details)</h3>
 
           <label htmlFor="videoUrl">Video URL (mp4/m3u8/YouTube/Vimeo):</label>
@@ -470,18 +518,33 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
 
           {data.productVideo.url && (
             <div className="image-preview-grid" style={{ marginTop: 6 }}>
-              <div className="image-preview-container" style={{ position: "relative" }}>
-                {/^https?:\/\/.*\.(mp4|webm|ogg|m3u8)(\?.*)?$/i.test(data.productVideo.url) ? (
+              <div
+                className="image-preview-container"
+                style={{ position: "relative" }}
+              >
+                {/^https?:\/\/.*\.(mp4|webm|ogg|m3u8)(\?.*)?$/i.test(
+                  data.productVideo.url
+                ) ? (
                   <video
                     src={data.productVideo.url}
-                    style={{ width: 120, height: 70, borderRadius: 8, background: "#000" }}
+                    style={{
+                      width: 120,
+                      height: 70,
+                      borderRadius: 8,
+                      background: "#000",
+                    }}
                     muted
                   />
                 ) : data.productVideo.thumbnail ? (
                   <img
                     src={data.productVideo.thumbnail}
                     alt="video"
-                    style={{ width: 120, height: 70, borderRadius: 8, objectFit: "cover" }}
+                    style={{
+                      width: 120,
+                      height: 70,
+                      borderRadius: 8,
+                      objectFit: "cover",
+                    }}
                   />
                 ) : (
                   <div
@@ -509,7 +572,10 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
           )}
 
           <label style={{ marginTop: 12 }}>Video Thumbnail (poster):</label>
-          <div className="upload-section" onClick={() => videoThumbInputRef.current?.click()}>
+          <div
+            className="upload-section"
+            onClick={() => videoThumbInputRef.current?.click()}
+          >
             <FaCloudDownloadAlt className="upload-icon" />
             <p>Upload Thumbnail (image)</p>
             <input
@@ -528,7 +594,12 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                   src={data.productVideo.thumbnail}
                   alt="thumb"
                   className="preview-image"
-                  style={{ width: 120, height: 70, objectFit: "cover", borderRadius: 8 }}
+                  style={{
+                    width: 120,
+                    height: 70,
+                    objectFit: "cover",
+                    borderRadius: 8,
+                  }}
                 />
                 <div className="delete-icon" onClick={handleDeleteVideoThumb}>
                   <MdDelete />
@@ -540,7 +611,9 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
           {data.productVideo.url ? (
             <div style={{ marginTop: 10 }}>
               <p style={{ fontWeight: "bold" }}>Preview:</p>
-              {/^\s*https?:\/\/.*\.(mp4|webm|ogg|m3u8)(\?.*)?$/i.test(data.productVideo.url) ? (
+              {/^\s*https?:\/\/.*\.(mp4|webm|ogg|m3u8)(\?.*)?$/i.test(
+                data.productVideo.url
+              ) ? (
                 <video
                   src={data.productVideo.url}
                   poster={data.productVideo.thumbnail || undefined}
@@ -549,14 +622,15 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                 />
               ) : (
                 <p style={{ color: "#666" }}>
-                  This looks like a page link (e.g., YouTube/Vimeo). Preview may not render here,
-                  but the app can embed it on details page.
+                  This looks like a page link (e.g., YouTube/Vimeo). Preview
+                  may not render here, but the app can embed it on details
+                  page.
                 </p>
               )}
             </div>
           ) : null}
 
-          {/* SIZE DETAILS (Upload style) */}
+          {/* SIZE DETAILS */}
           <h3 style={{ marginTop: 20 }}>Size Details (Top Section)</h3>
           <p style={{ color: "#666", marginTop: -4, marginBottom: 8 }}>
             Add size guide rows (e.g., M / length 28 / chest 38 / unit inche)
@@ -577,61 +651,183 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                 type="text"
                 placeholder="Size (e.g., S/M/L)"
                 value={row.size}
-                onChange={(e) => handleSizeDetailChange(i, "size", e.target.value)}
+                onChange={(e) =>
+                  handleSizeDetailChange(i, "size", e.target.value)
+                }
               />
               <input
                 type="number"
                 placeholder="Length"
                 min={0}
                 value={row.length}
-                onChange={(e) => handleSizeDetailChange(i, "length", e.target.value)}
+                onChange={(e) =>
+                  handleSizeDetailChange(i, "length", e.target.value)
+                }
               />
               <input
                 type="number"
                 placeholder="Chest"
                 min={0}
                 value={row.chest}
-                onChange={(e) => handleSizeDetailChange(i, "chest", e.target.value)}
+                onChange={(e) =>
+                  handleSizeDetailChange(i, "chest", e.target.value)
+                }
               />
               <select
                 value={row.unit || "inche"}
-                onChange={(e) => handleSizeDetailChange(i, "unit", e.target.value)}
+                onChange={(e) =>
+                  handleSizeDetailChange(i, "unit", e.target.value)
+                }
               >
                 <option value="inche">inche</option>
               </select>
 
-              <button type="button" onClick={() => removeSizeDetail(i)} style={{ background: "red", color: "#fff" }}>
+              <button
+                type="button"
+                onClick={() => removeSizeDetail(i)}
+                style={{ background: "red", color: "#fff" }}
+              >
                 Remove
               </button>
             </div>
           ))}
 
-          <button type="button" onClick={addSizeDetail} style={{ marginBottom: 16 }}>
+          <button
+            type="button"
+            onClick={addSizeDetail}
+            style={{ marginBottom: 16 }}
+          >
             + Add Size Row
           </button>
 
-          {/* VARIANTS (Upload style) */}
+          {/* VARIANTS */}
           <h3>Variants (Color / Size / Stock)</h3>
           <p style={{ fontWeight: "bold", marginTop: 10 }}>
             Total Stock:{" "}
             {(data.variants || []).reduce(
-              (sum, v) => sum + (v.sizes || []).reduce((s, sz) => s + Number(sz.stock || 0), 0),
+              (sum, v) =>
+                sum +
+                (v.sizes || []).reduce(
+                  (s, sz) => s + Number(sz.stock || 0),
+                  0
+                ),
               0
             )}
           </p>
 
           {(data.variants || []).map((variant, vIndex) => (
-            <div key={vIndex} style={{ border: "1px solid #ccc", padding: 10, marginBottom: 10, borderRadius: 8 }}>
+            <div
+              key={vIndex}
+              style={{
+                border: "1px solid #ccc",
+                padding: 10,
+                marginBottom: 10,
+                borderRadius: 8,
+              }}
+            >
               <label>Color:</label>
               <input
                 type="text"
                 value={variant.color}
-                onChange={(e) => handleVariantColorChange(vIndex, e.target.value)}
+                onChange={(e) =>
+                  handleVariantColorChange(vIndex, e.target.value)
+                }
                 placeholder="Enter color"
               />
 
+              {/* 🔽 Variant special fields (same as Upload) */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "8px",
+                  marginTop: "8px",
+                  marginBottom: "8px",
+                }}
+              >
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <label style={{ fontSize: 12 }}>
+                    Variant Name (SpcProductName):
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Red / M Set"
+                    value={variant.SpcProductName || ""}
+                    onChange={(e) =>
+                      handleVariantSpcChange(
+                        vIndex,
+                        "SpcProductName",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <label style={{ fontSize: 12 }}>
+                    Variant Buying Price:
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="SpcBuyingPrice"
+                    min={0}
+                    value={variant.SpcBuyingPrice || ""}
+                    onChange={(e) =>
+                      handleVariantSpcChange(
+                        vIndex,
+                        "SpcBuyingPrice",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <label style={{ fontSize: 12 }}>
+                    Variant Normal Price:
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="SpcPrice"
+                    min={0}
+                    value={variant.SpcPrice || ""}
+                    onChange={(e) =>
+                      handleVariantSpcChange(
+                        vIndex,
+                        "SpcPrice",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <label style={{ fontSize: 12 }}>
+                    Variant Selling Price:
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="SpcSelling"
+                    min={0}
+                    value={variant.SpcSelling || ""}
+                    onChange={(e) =>
+                      handleVariantSpcChange(
+                        vIndex,
+                        "SpcSelling",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+              </div>
+
               <label>Variant Images:</label>
-              <div className="upload-section" onClick={() => variantImageInputRefs.current[vIndex]?.click()}>
+              <div
+                className="upload-section"
+                onClick={() =>
+                  variantImageInputRefs.current[vIndex]?.click()
+                }
+              >
                 <FaCloudDownloadAlt className="upload-icon" />
                 <p>Upload Images for this color variant</p>
                 <input
@@ -648,7 +844,10 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                 {(variant.images || []).map((img, i) => (
                   <div key={i} className="image-preview-container">
                     <img src={img} alt="variant" className="preview-image" />
-                    <div className="delete-icon" onClick={() => handleDeleteVariantImage(vIndex, i)}>
+                    <div
+                      className="delete-icon"
+                      onClick={() => handleDeleteVariantImage(vIndex, i)}
+                    >
                       <MdDelete />
                     </div>
                   </div>
@@ -657,24 +856,43 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
 
               <label>Sizes and Stock:</label>
               {(variant.sizes || []).map((sz, sIndex) => (
-                <div key={sIndex} style={{ display: "flex", gap: 10, marginBottom: 5 }}>
+                <div
+                  key={sIndex}
+                  style={{ display: "flex", gap: 10, marginBottom: 5 }}
+                >
                   <input
                     type="text"
                     placeholder="Size"
                     value={sz.size}
-                    onChange={(e) => handleSizeChange(vIndex, sIndex, "size", e.target.value)}
+                    onChange={(e) =>
+                      handleSizeChange(
+                        vIndex,
+                        sIndex,
+                        "size",
+                        e.target.value
+                      )
+                    }
                   />
                   <input
                     type="number"
                     placeholder="Stock"
                     min={0}
                     value={sz.stock}
-                    onChange={(e) => handleSizeChange(vIndex, sIndex, "stock", e.target.value)}
+                    onChange={(e) =>
+                      handleSizeChange(
+                        vIndex,
+                        sIndex,
+                        "stock",
+                        e.target.value
+                      )
+                    }
                   />
                   {(variant.sizes || []).length > 1 && (
                     <button
                       type="button"
-                      onClick={() => removeSizeFromVariant(vIndex, sIndex)}
+                      onClick={() =>
+                        removeSizeFromVariant(vIndex, sIndex)
+                      }
                       style={{ background: "red", color: "#fff" }}
                     >
                       Remove
@@ -683,16 +901,32 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                 </div>
               ))}
 
-              <button type="button" onClick={() => addSizeToVariant(vIndex)} style={{ marginTop: 6 }}>
+              <button
+                type="button"
+                onClick={() => addSizeToVariant(vIndex)}
+                style={{ marginTop: 6 }}
+              >
                 Add Size
               </button>
-              <button type="button" onClick={() => removeVariant(vIndex)} style={{ marginLeft: 10, background: "red", color: "#fff" }}>
+              <button
+                type="button"
+                onClick={() => removeVariant(vIndex)}
+                style={{
+                  marginLeft: 10,
+                  background: "red",
+                  color: "#fff",
+                }}
+              >
                 Remove Variant
               </button>
             </div>
           ))}
 
-          <button type="button" onClick={addVariant} style={{ marginBottom: 20 }}>
+          <button
+            type="button"
+            onClick={addVariant}
+            style={{ marginBottom: 20 }}
+          >
             + Add Variant
           </button>
 

@@ -92,7 +92,17 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
       ...prev,
       variants: [
         ...prev.variants,
-        { color: "", images: [], sizes: [{ size: "", stock: "" }] },
+        {
+          // 🔽 NEW special fields per variant
+          SpcProductName: "",
+          SpcPrice: "",
+          SpcSelling: "",
+          SpcBuyingPrice: "",
+          // 🔽 existing fields
+          color: "",
+          images: [],
+          sizes: [{ size: "", stock: "" }],
+        },
       ],
     }));
   };
@@ -107,6 +117,13 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
   const handleVariantColorChange = (index, value) => {
     const newVariants = [...data.variants];
     newVariants[index].color = value;
+    setData((prev) => ({ ...prev, variants: newVariants }));
+  };
+
+  // 🔥 NEW: Spc fields change handler
+  const handleVariantSpcChange = (variantIndex, field, value) => {
+    const newVariants = [...data.variants];
+    newVariants[variantIndex][field] = value;
     setData((prev) => ({ ...prev, variants: newVariants }));
   };
 
@@ -683,6 +700,86 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
                 placeholder="Enter color"
               />
 
+              {/* 🔽 NEW: Variant specific info */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "8px",
+                  marginTop: "8px",
+                  marginBottom: "8px",
+                }}
+              >
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <label style={{ fontSize: 12 }}>
+                    Variant Name (SpcProductName):
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Red / M Set"
+                    value={variant.SpcProductName || ""}
+                    onChange={(e) =>
+                      handleVariantSpcChange(
+                        vIndex,
+                        "SpcProductName",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <label style={{ fontSize: 12 }}>Variant Buying Price:</label>
+                  <input
+                    type="number"
+                    placeholder="SpcBuyingPrice"
+                    min={0}
+                    value={variant.SpcBuyingPrice || ""}
+                    onChange={(e) =>
+                      handleVariantSpcChange(
+                        vIndex,
+                        "SpcBuyingPrice",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <label style={{ fontSize: 12 }}>Variant Normal Price:</label>
+                  <input
+                    type="number"
+                    placeholder="SpcPrice"
+                    min={0}
+                    value={variant.SpcPrice || ""}
+                    onChange={(e) =>
+                      handleVariantSpcChange(
+                        vIndex,
+                        "SpcPrice",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <label style={{ fontSize: 12 }}>Variant Selling Price:</label>
+                  <input
+                    type="number"
+                    placeholder="SpcSelling"
+                    min={0}
+                    value={variant.SpcSelling || ""}
+                    onChange={(e) =>
+                      handleVariantSpcChange(
+                        vIndex,
+                        "SpcSelling",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+              </div>
+
               <label>Variant Images:</label>
               <div
                 className="upload-section"
@@ -734,7 +831,12 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
                     min={0}
                     required
                     onChange={(e) =>
-                      handleSizeChange(vIndex, sIndex, "stock", e.target.value)
+                      handleSizeChange(
+                        vIndex,
+                        sIndex,
+                        "stock",
+                        e.target.value
+                      )
                     }
                   />
                   {variant.sizes.length > 1 && (
