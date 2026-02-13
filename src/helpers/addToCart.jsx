@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 //   return headers;
 // };
 
-const addToCart = async ({ productId, size, color, image, price, selling }) => {
+const addToCart = async ({ productId,productName, size, color, image, price, selling }) => {
     const t = localStorage.getItem('authToken');
   try {
     const response = await fetch(SummaryApi.addToCartProduct.url, {
@@ -18,7 +18,7 @@ const addToCart = async ({ productId, size, color, image, price, selling }) => {
       // headers: { "Content-Type": "application/json" },
       headers: t ? { Authorization: `Bearer ${t}` } : {},
       credentials: 'include', // cookie (httpOnly) থাকলে যাবে
-      body: JSON.stringify({ productId, size, color, image, price, selling })
+      body: JSON.stringify({ productId,productName, size, color, image, price, selling })
     });
 
     const result = await response.json();

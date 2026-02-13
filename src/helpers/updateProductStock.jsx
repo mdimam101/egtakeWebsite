@@ -1,7 +1,7 @@
 import axios from 'axios';
 import SummaryApi from '../common';
 
-const updateProductStock = async (productId, variantImage, size, quantity) => {
+const updateProductStock = async (productId, variantImage, size, quantity, isCancelOrder = false) => {
 
   try {
      const t = localStorage.getItem('authToken');
@@ -12,6 +12,7 @@ const updateProductStock = async (productId, variantImage, size, quantity) => {
         variantImage,
         size,
         quantity, // quantity to reduce
+        isCancelOrder, //true/false 
       },
       {
         withCredentials: true,
@@ -19,6 +20,8 @@ const updateProductStock = async (productId, variantImage, size, quantity) => {
          headers: t ? { Authorization: `Bearer ${t}` } : {},
       }
     );
+    console.log("updateProductStock...", res.data);
+    
     return res.data;
   } catch {
     //  console.error('Stock update failed:');

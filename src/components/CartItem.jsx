@@ -54,10 +54,10 @@ const CartItem = ({
   const qty = Number(product?.quantity ?? product?.Quantity ?? 1);
 
   // Unit price (sell || price)
-  const unitPrice =
-    Number(productData?.selling ?? productData?.price ?? 0);
+  // const unitPrice =
+  //   Number(productData?.selling ?? productData?.price ?? 0);
 
-  const sellingPrice = unitPrice * qty;
+  const sellingPrice = product?.selling * qty;
 
   // 📈 Increase
   const handleIncrease = async () => {
@@ -138,7 +138,7 @@ const CartItem = ({
         <div className="cart-product-info">
           <div className="top-row">
             <div className="product-name" title={productData?.productName}>
-              {productData?.productName || "Unnamed Product"}
+              {product.productName || productData?.productName}
             </div>
             <button className="remove-btn" onClick={handleRemove} aria-label="Remove from cart">
               ✖
@@ -150,9 +150,7 @@ const CartItem = ({
           <div className="price-qty-row">
             <div className="price-section">
               <span className="current-price">৳{sellingPrice}</span>
-              {productData?.price && productData?.selling && productData?.price > productData?.selling ? (
-                <span className="old-price">৳{productData?.price}</span>
-              ) : null}
+              <span className="old-price">৳{product?.price}</span>
             </div>
 
             <div className="quantity-controls-container">

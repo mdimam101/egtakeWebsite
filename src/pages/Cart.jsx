@@ -33,9 +33,10 @@ const findStockFromLatest = (item, latestProducts) => {
 
   const price =
     (typeof item?.productId === "object"
-      ? item?.productId?.selling || item?.productId?.price
-      : 0) || 0;
+      ? variant?.SpcSelling || item?.productId?.selling
+      : item?.productId?.selling) || 0;
 
+      
   return { inStock: true, price };
 };
 

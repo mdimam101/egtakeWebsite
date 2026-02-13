@@ -41,7 +41,7 @@ const CheckoutPage = () => {
   // Calculate baseTotal
   const baseTotal = useMemo(() => {
     return selectedItems.reduce((acc, item) => {
-      const price = item?.productId?.selling || 0;
+      const price = item?.selling || item?.productId?.selling;
       return acc + price * item.quantity;
     }, 0);
   }, [selectedItems]);
@@ -86,12 +86,13 @@ const CheckoutPage = () => {
       const orderPayload = {
         items: selectedItems.map((item) => ({
           productId: item.productId._id,
-          productName: item.productId.productName,
+          productName:item?.productName || item.productId?.productName,
           quantity: item.quantity,
-          price: (item?.productId?.selling || 0) * item.quantity,
+          price: (item?.selling || item?.productId?.selling) * item.quantity,
           size: item.size,
           color: item.color,
           image: item.image,
+          productCodeNumber: item.productId?.productCodeNumber,
         })),
         shippingDetails: {
           name: values.name,
@@ -124,18 +125,15 @@ const CheckoutPage = () => {
           resetForm();
           handlePlaceOrder();
           handleRemove(idArray);
-          await Promise.all(
-          selectedItems.map((item) =>
-            updateProductStock(
-              item.productId._id,
-              item.image,
-              item.size,
-              item.quantity
-            )
-          )
-        );
+        for (const item of selectedItems) {
+         await updateProductStock(
+         item.productId._id,
+         item.image,
+         item.size,
+         item.quantity
+         );
+        }
 
-          console.log("selectedItems------00", selectedItems);
         } else {
           toast.error(data.message || "Failed to place order");
         }

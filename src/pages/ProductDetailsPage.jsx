@@ -14,6 +14,7 @@ const ProductDetailsPage = () => {
   const [data, setData] = useState({
     _id: "",
     productName: "",
+    productCodeNumber: "",
     brandName: "",
     category: "",
     subCategory: "",
@@ -67,6 +68,20 @@ const ProductDetailsPage = () => {
   }, [param?.id]);
 
   const selectedVariant = data.variants[selectedVariantIndex] || {};
+  console.log("🦌◆🦌◆selectedVariant", selectedVariant);
+
+   // check in variant (productName/price/selling) if have it will be update
+  let updateProductName = selectedVariant?.SpcProductName
+    ? selectedVariant.SpcProductName
+    : data.productName;
+  let updateSelling = selectedVariant?.SpcSelling
+    ? selectedVariant.SpcSelling
+    : data.selling;
+  let UpdatePrice = selectedVariant?.SpcPrice
+    ? selectedVariant.SpcPrice
+    : data.price;
+
+  
   const variantSizes = selectedVariant.sizes || [];
 
   // ---------- SIZE AVAILABILITY (ONLY FROM sizeDetails) ----------
@@ -95,8 +110,8 @@ const ProductDetailsPage = () => {
   }, [data.totalStock, data.variants]);
 
   const discount =
-    data.price && data.selling
-      ? Math.floor(((data.price - data.selling) / data.price) * 100)
+    UpdatePrice && updateSelling
+      ? Math.floor(((UpdatePrice - updateSelling) / UpdatePrice) * 100)
       : 0;
 
   const addToCartHandle = async () => {
@@ -108,11 +123,12 @@ const ProductDetailsPage = () => {
     // if no sizes, proceed directly
     await addToCart({
       productId: data._id,
+      productName: updateProductName,
       size: hasSizes ? selectedSize : undefined,
       color: selectedVariant.color,
       image: selectedImg,
-      price: data.price,
-      selling: data.selling,
+      price: UpdatePrice,
+      selling: updateSelling,
     });
     fetchUserAddToCart();
   };
@@ -203,14 +219,12 @@ const ProductDetailsPage = () => {
       <div className="product-price-info">
         <span className="selling-price">
           <span>৳</span>
-          {data.selling}
+          {updateSelling}
         </span>
         {discount > 0 && <span className="discount">Save {discount}%</span>}
-        {data.price ? <span className="original-price">৳{data.price}</span> : null}
+        {UpdatePrice ? <span className="original-price">৳{UpdatePrice}</span> : null}
       </div>
-
-      <div className="offer-box">৳200 OFF For orders ৳1500+</div>
-      <div className="product-name">{data.productName}</div>
+      <div className="product-name">{updateProductName}</div>
 
       {selectedVariant.color && (
         <div className="color-info">Color: {selectedVariant.color}</div>
@@ -324,6 +338,9 @@ const ProductDetailsPage = () => {
         <TbTruckReturn className="icon" />
         <strong>Free Return Within 15 days</strong>
       </div>
+      {/* product code number */}
+      <div>Code number : {data?.productCodeNumber}</div>
+      
 
       {/* Description */}
       <div
