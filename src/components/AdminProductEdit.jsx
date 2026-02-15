@@ -44,12 +44,9 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
       ? paramData.variants.map((v) => ({
           // 🔽 NEW special fields
           SpcProductName: v?.SpcProductName || "",
-          SpcPrice:
-            v?.SpcPrice === 0 || v?.SpcPrice ? String(v.SpcPrice) : "",
+          SpcPrice: v?.SpcPrice === 0 || v?.SpcPrice ? String(v.SpcPrice) : "",
           SpcSelling:
-            v?.SpcSelling === 0 || v?.SpcSelling
-              ? String(v.SpcSelling)
-              : "",
+            v?.SpcSelling === 0 || v?.SpcSelling ? String(v.SpcSelling) : "",
           SpcBuyingPrice:
             v?.SpcBuyingPrice === 0 || v?.SpcBuyingPrice
               ? String(v.SpcBuyingPrice)
@@ -61,8 +58,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             Array.isArray(v?.sizes) && v.sizes.length
               ? v.sizes.map((s) => ({
                   size: s?.size ?? "",
-                  stock:
-                    s?.stock === 0 || s?.stock ? String(s.stock) : "",
+                  stock: s?.stock === 0 || s?.stock ? String(s.stock) : "",
                 }))
               : [{ size: "", stock: "" }],
         }))
@@ -84,9 +80,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
 
     // numbers keep as editable string
     price:
-      paramData.price === 0 || paramData.price
-        ? String(paramData.price)
-        : "",
+      paramData.price === 0 || paramData.price ? String(paramData.price) : "",
     selling:
       paramData.selling === 0 || paramData.selling
         ? String(paramData.selling)
@@ -448,7 +442,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             onChange={handleOnChange}
           />
 
-          {/* Switches */}
+          {/* Switches (same UI) */}
           <div className="switch-wrapper">
             <label className="switch-label">Trending Product?</label>
             <label className="switch">
@@ -462,7 +456,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             </label>
           </div>
 
-          <div className="switch-wrapper" style={{ marginTop: 10 }}>
+          <div className="switch-wrapper">
             <label className="switch-label">Hand Craft?</label>
             <label className="switch">
               <input
@@ -475,7 +469,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             </label>
           </div>
 
-          <div className="switch-wrapper" style={{ marginTop: 10 }}>
+          <div className="switch-wrapper">
             <label className="switch-label">Sales On?</label>
             <label className="switch">
               <input
@@ -488,7 +482,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             </label>
           </div>
 
-          {/* VIDEO */}
+          {/* Video Section */}
           <h3 style={{ marginTop: 20 }}>Product Video (Top of Details)</h3>
 
           <label htmlFor="videoUrl">Video URL (mp4/m3u8/YouTube/Vimeo):</label>
@@ -522,7 +516,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                 className="image-preview-container"
                 style={{ position: "relative" }}
               >
-                {/^https?:\/\/.*\.(mp4|webm|ogg|m3u8)(\?.*)?$/i.test(
+                {/^\s*https?:\/\/.*\.(mp4|webm|ogg|m3u8)(\?.*)?$/i.test(
                   data.productVideo.url
                 ) ? (
                   <video
@@ -564,6 +558,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                     Video
                   </div>
                 )}
+
                 <div className="delete-icon" onClick={handleDeleteVideo}>
                   <MdDelete />
                 </div>
@@ -608,45 +603,14 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             </div>
           )}
 
-          {data.productVideo.url ? (
-            <div style={{ marginTop: 10 }}>
-              <p style={{ fontWeight: "bold" }}>Preview:</p>
-              {/^\s*https?:\/\/.*\.(mp4|webm|ogg|m3u8)(\?.*)?$/i.test(
-                data.productVideo.url
-              ) ? (
-                <video
-                  src={data.productVideo.url}
-                  poster={data.productVideo.thumbnail || undefined}
-                  controls
-                  style={{ width: "100%", borderRadius: 8 }}
-                />
-              ) : (
-                <p style={{ color: "#666" }}>
-                  This looks like a page link (e.g., YouTube/Vimeo). Preview
-                  may not render here, but the app can embed it on details
-                  page.
-                </p>
-              )}
-            </div>
-          ) : null}
-
-          {/* SIZE DETAILS */}
+          {/* Size Details */}
           <h3 style={{ marginTop: 20 }}>Size Details (Top Section)</h3>
           <p style={{ color: "#666", marginTop: -4, marginBottom: 8 }}>
             Add size guide rows (e.g., M / length 28 / chest 38 / unit inche)
           </p>
 
           {(data.sizeDetails || []).map((row, i) => (
-            <div
-              key={i}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr 1fr auto",
-                gap: 8,
-                alignItems: "center",
-                marginBottom: 8,
-              }}
-            >
+            <div key={i} className="size-row">
               <input
                 type="text"
                 placeholder="Size (e.g., S/M/L)"
@@ -673,21 +637,12 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                   handleSizeDetailChange(i, "chest", e.target.value)
                 }
               />
-              <select
-                value={row.unit || "inche"}
-                onChange={(e) =>
-                  handleSizeDetailChange(i, "unit", e.target.value)
-                }
-              >
-                <option value="inche">inche</option>
-              </select>
-
               <button
                 type="button"
+                className="danger-btn"
                 onClick={() => removeSizeDetail(i)}
-                style={{ background: "red", color: "#fff" }}
               >
-                Remove
+                Remove Size Details
               </button>
             </div>
           ))}
@@ -700,17 +655,14 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             + Add Size Row
           </button>
 
-          {/* VARIANTS */}
+          {/* Variants */}
           <h3>Variants (Color / Size / Stock)</h3>
           <p style={{ fontWeight: "bold", marginTop: 10 }}>
             Total Stock:{" "}
             {(data.variants || []).reduce(
               (sum, v) =>
                 sum +
-                (v.sizes || []).reduce(
-                  (s, sz) => s + Number(sz.stock || 0),
-                  0
-                ),
+                (v.sizes || []).reduce((s, sz) => s + Number(sz.stock || 0), 0),
               0
             )}
           </p>
@@ -719,10 +671,11 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             <div
               key={vIndex}
               style={{
-                border: "1px solid #ccc",
-                padding: 10,
-                marginBottom: 10,
-                borderRadius: 8,
+                border: "1px solid #eef1f6",
+                padding: 12,
+                marginBottom: 12,
+                borderRadius: 14,
+                background: "#fff",
               }}
             >
               <label>Color:</label>
@@ -735,20 +688,9 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                 placeholder="Enter color"
               />
 
-              {/* 🔽 Variant special fields (same as Upload) */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "8px",
-                  marginTop: "8px",
-                  marginBottom: "8px",
-                }}
-              >
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ fontSize: 12 }}>
-                    Variant Name (SpcProductName):
-                  </label>
+              <div className="variant-spc-grid">
+                <div className="field">
+                  <label>Variant Name (SpcProductName)</label>
                   <input
                     type="text"
                     placeholder="e.g., Red / M Set"
@@ -763,10 +705,8 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                   />
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ fontSize: 12 }}>
-                    Variant Buying Price:
-                  </label>
+                <div className="field">
+                  <label>Variant Buying Price</label>
                   <input
                     type="number"
                     placeholder="SpcBuyingPrice"
@@ -782,29 +722,21 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                   />
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ fontSize: 12 }}>
-                    Variant Normal Price:
-                  </label>
+                <div className="field">
+                  <label>Variant Normal Price</label>
                   <input
                     type="number"
                     placeholder="SpcPrice"
                     min={0}
                     value={variant.SpcPrice || ""}
                     onChange={(e) =>
-                      handleVariantSpcChange(
-                        vIndex,
-                        "SpcPrice",
-                        e.target.value
-                      )
+                      handleVariantSpcChange(vIndex, "SpcPrice", e.target.value)
                     }
                   />
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ fontSize: 12 }}>
-                    Variant Selling Price:
-                  </label>
+                <div className="field">
+                  <label>Variant Selling Price</label>
                   <input
                     type="number"
                     placeholder="SpcSelling"
@@ -823,10 +755,8 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
 
               <label>Variant Images:</label>
               <div
-                className="upload-section"
-                onClick={() =>
-                  variantImageInputRefs.current[vIndex]?.click()
-                }
+                className="upload-section variant-upload"
+                onClick={() => variantImageInputRefs.current[vIndex]?.click()}
               >
                 <FaCloudDownloadAlt className="upload-icon" />
                 <p>Upload Images for this color variant</p>
@@ -840,7 +770,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                 />
               </div>
 
-              <div className="image-preview-grid" style={{ marginTop: 5 }}>
+              <div className="image-preview-grid" style={{ marginTop: 8 }}>
                 {(variant.images || []).map((img, i) => (
                   <div key={i} className="image-preview-container">
                     <img src={img} alt="variant" className="preview-image" />
@@ -856,21 +786,13 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
 
               <label>Sizes and Stock:</label>
               {(variant.sizes || []).map((sz, sIndex) => (
-                <div
-                  key={sIndex}
-                  style={{ display: "flex", gap: 10, marginBottom: 5 }}
-                >
+                <div key={sIndex} className="variant-size-row">
                   <input
                     type="text"
                     placeholder="Size"
                     value={sz.size}
                     onChange={(e) =>
-                      handleSizeChange(
-                        vIndex,
-                        sIndex,
-                        "size",
-                        e.target.value
-                      )
+                      handleSizeChange(vIndex, sIndex, "size", e.target.value)
                     }
                   />
                   <input
@@ -879,43 +801,30 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                     min={0}
                     value={sz.stock}
                     onChange={(e) =>
-                      handleSizeChange(
-                        vIndex,
-                        sIndex,
-                        "stock",
-                        e.target.value
-                      )
+                      handleSizeChange(vIndex, sIndex, "stock", e.target.value)
                     }
                   />
                   {(variant.sizes || []).length > 1 && (
                     <button
                       type="button"
-                      onClick={() =>
-                        removeSizeFromVariant(vIndex, sIndex)
-                      }
-                      style={{ background: "red", color: "#fff" }}
+                      className="danger-btn danger-btn-outline"
+                      onClick={() => removeSizeFromVariant(vIndex, sIndex)}
                     >
-                      Remove
+                      Remove Size & Stock
                     </button>
                   )}
                 </div>
               ))}
 
-              <button
-                type="button"
-                onClick={() => addSizeToVariant(vIndex)}
-                style={{ marginTop: 6 }}
-              >
+              <button type="button" onClick={() => addSizeToVariant(vIndex)}>
                 Add Size
               </button>
+
               <button
                 type="button"
+                className="danger-btn"
                 onClick={() => removeVariant(vIndex)}
-                style={{
-                  marginLeft: 10,
-                  background: "red",
-                  color: "#fff",
-                }}
+                style={{ marginTop: 8 }}
               >
                 Remove Variant
               </button>

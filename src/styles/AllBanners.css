@@ -1,0 +1,364 @@
+/* =========================
+   Banner Admin (Clean + Responsive)
+========================= */
+
+.banner-page {
+  padding: 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+/* Header */
+.banner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.banner-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.banner-subtitle {
+  margin: 6px 0 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+/* Buttons */
+.banner-btn {
+  border: 1px solid #e6e9f0;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 14px;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.banner-btn:hover {
+  background: #f8fafc;
+}
+
+.banner-btn:active {
+  transform: scale(0.99);
+}
+
+.banner-btn.primary {
+  border: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  box-shadow: 0 10px 18px rgba(29, 78, 216, 0.22);
+}
+
+.banner-btn.primary:hover {
+  filter: brightness(0.98);
+}
+
+.banner-btn.primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Card */
+.banner-card {
+  border: 1px solid #e6e9f0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.banner-card-title {
+  margin: 0 0 12px 0;
+  font-size: 15px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+/* Upload row */
+.banner-upload-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.banner-drop {
+  border: 2px dashed #d9dde6;
+  border-radius: 14px;
+  background: #f8fafc;
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.banner-drop:hover {
+  background: #f3f7ff;
+  border-color: #b7cffb;
+}
+
+.banner-drop.disabled {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.banner-drop-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #e6e9f0;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.banner-drop-strong {
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.banner-drop-muted {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+/* Preview (Upload section preview) */
+.banner-preview {
+  position: relative;
+  width: 100%;
+  height: auto;
+  /* height: 90px;              */
+  background: #f3f5f9;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.banner-preview img {
+  width: 100%;
+  height: auto;
+  object-fit: contain; /* ✅ preview = full visible */
+  background: #ffffff;
+  display: block;
+  padding: 0px;
+}
+
+.banner-preview-remove {
+   position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: none;
+  background: #ef4444;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.35);
+  padding:1px
+}
+
+.banner-preview-remove:hover {
+  background: #df4545;
+}
+
+/* Form grid */
+.banner-form-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  margin-top: 12px;
+  align-items: end;
+}
+
+.banner-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.banner-field input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d9dde6;
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+  font-size: 14px;
+  background: #fff;
+}
+
+.banner-field input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.banner-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* List head */
+.banner-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.banner-list-head h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.banner-count {
+  font-size: 12px;
+  font-weight: 900;
+  color: #334155;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #e6e9f0;
+  background: #f8fafc;
+}
+
+.banner-empty {
+  border: 1px solid #e6e9f0;
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  text-align: center;
+  font-weight: 900;
+  color: #64748b;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* =========================
+   Banner Grid (like your screenshot)
+========================= */
+.banner-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.banner-item {
+  border: 1px solid #e6e9f0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* Thumbnail area */
+.banner-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 90px;                 /* ✅ small card like screenshot */
+  background: #f3f5f9;
+  border-bottom: 1px solid #eef1f6;
+}
+
+.banner-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;            /* ✅ thumbnail = nice crop */
+  display: block;
+}
+
+/* Delete button (red circle X) */
+.banner-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: none;
+  background: #ef4444;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.35);
+  padding:1px
+}
+
+.banner-delete:active {
+  transform: scale(0.98);
+}
+
+/* Caption */
+.banner-meta {
+  padding: 8px 10px 10px;
+}
+
+.banner-alt {
+  font-size: 13px;
+  font-weight: 900;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  .banner-upload-row {
+    grid-template-columns: 1fr;
+  }
+
+  .banner-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .banner-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 420px) {
+  .banner-page {
+    padding: 12px;
+  }
+
+  .banner-card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .banner-preview {
+    min-height: 160px;
+  }
+
+  .banner-img-wrap {
+    height: 86px;
+  }
+}

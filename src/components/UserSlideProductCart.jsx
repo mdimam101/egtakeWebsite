@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useMemo } from "react";
-import "../styles/AllProductsStyle.css";
+import "../styles/UserSlideProductCar.css";
 import { Link } from "react-router";
 
 // Helper: safely get primary image (new API first, old API fallback)

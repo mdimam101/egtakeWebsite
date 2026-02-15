@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import SummaryApi from "../common";
+import "../styles/AdminCoupons.css";
 
 const emptyForm = {
   code: "",
-  type: "PERCENT",              // "PERCENT" | "FLAT"
+  type: "PERCENT", // "PERCENT" | "FLAT"
   discountPercent: 10,
   discountAmount: 50,
   maxDiscountAmount: 200,
   minOrderAmount: 0,
-  usageLimitTotal: 0,           // 0 = unlimited
-  usageLimitPerUser: 0,         // 0 = unlimited
+  usageLimitTotal: 0, // 0 = unlimited
+  usageLimitPerUser: 0, // 0 = unlimited
   firstOrderOnly: false,
-  startAt: "",                  // datetime-local
+  startAt: "", // datetime-local
   endAt: "",
   isActive: true,
 };
@@ -29,10 +30,15 @@ export default function AdminCoupons() {
   const fetchList = async () => {
     try {
       setLoading(true);
-      const url = new URL(SummaryApi.admin_coupons_list.url, window.location.origin);
+      const url = new URL(
+        SummaryApi.admin_coupons_list.url,
+        window.location.origin
+      );
       if (search.trim()) url.searchParams.set("search", search.trim());
+
       const res = await fetch(url.toString(), { credentials: "include" });
       const data = await res.json();
+
       if (data.success) setList(data.data || []);
       else toast.error(data.message || "Failed to load");
     } catch {
@@ -42,23 +48,33 @@ export default function AdminCoupons() {
     }
   };
 
-  useEffect(() => { fetchList(); /* load initial */ }, []);
-  const resetForm = () => { setForm(emptyForm); setEditingId(null); };
+  useEffect(() => {
+    fetchList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const onChange = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+  const resetForm = () => {
+    setForm(emptyForm);
+    setEditingId(null);
+  };
+
+  const onChange = (k, v) => setForm((prev) => ({ ...prev, [k]: v }));
 
   // Prepare payload for server (ISO date from datetime-local)
   const buildPayload = () => {
     const payload = { ...form };
+
     if (payload.type === "PERCENT") {
       payload.discountAmount = undefined;
     } else {
       payload.discountPercent = undefined;
       payload.maxDiscountAmount = undefined;
     }
-    // transform datetime-local -> ISO
-    if (payload.startAt) payload.startAt = new Date(payload.startAt).toISOString();
-    if (payload.endAt)   payload.endAt   = new Date(payload.endAt).toISOString();
+
+    // datetime-local -> ISO
+    if (payload.startAt)
+      payload.startAt = new Date(payload.startAt).toISOString();
+    if (payload.endAt) payload.endAt = new Date(payload.endAt).toISOString();
 
     payload.code = payload.code.trim().toUpperCase();
     return payload;
@@ -67,11 +83,18 @@ export default function AdminCoupons() {
   const submitForm = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+
     try {
       const payload = buildPayload();
       const isEdit = !!editingId;
-      const url = isEdit ? SummaryApi.admin_coupons_update.url(editingId) : SummaryApi.admin_coupons_create.url;
-      const method = isEdit ? SummaryApi.admin_coupons_update.method : SummaryApi.admin_coupons_create.method;
+
+      const url = isEdit
+        ? SummaryApi.admin_coupons_update.url(editingId)
+        : SummaryApi.admin_coupons_create.url;
+
+      const method = isEdit
+        ? SummaryApi.admin_coupons_update.method
+        : SummaryApi.admin_coupons_create.method;
 
       const res = await fetch(url, {
         method,
@@ -79,7 +102,9 @@ export default function AdminCoupons() {
         credentials: "include",
         body: JSON.stringify(payload),
       });
+
       const data = await res.json();
+
       if (data.success) {
         toast.success(isEdit ? "Coupon updated" : "Coupon created");
         resetForm();
@@ -106,11 +131,13 @@ export default function AdminCoupons() {
       usageLimitTotal: c.usageLimitTotal ?? 0,
       usageLimitPerUser: c.usageLimitPerUser ?? 0,
       firstOrderOnly: !!c.firstOrderOnly,
-      // Convert ISO -> datetime-local format
-      startAt: c.startAt ? new Date(c.startAt).toISOString().slice(0,16) : "",
-      endAt:   c.endAt   ? new Date(c.endAt).toISOString().slice(0,16)   : "",
+      // ISO -> datetime-local
+      startAt: c.startAt ? new Date(c.startAt).toISOString().slice(0, 16) : "",
+      endAt: c.endAt ? new Date(c.endAt).toISOString().slice(0, 16) : "",
       isActive: !!c.isActive,
     });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const toggleActive = async (id) => {
@@ -120,6 +147,7 @@ export default function AdminCoupons() {
         credentials: "include",
       });
       const data = await res.json();
+
       if (data.success) {
         toast.success("Toggled");
         fetchList();
@@ -131,12 +159,14 @@ export default function AdminCoupons() {
 
   const onDelete = async (id) => {
     if (!window.confirm("Delete this coupon?")) return;
+
     try {
       const res = await fetch(SummaryApi.admin_coupons_delete.url(id), {
         method: SummaryApi.admin_coupons_delete.method,
         credentials: "include",
       });
       const data = await res.json();
+
       if (data.success) {
         toast.success("Deleted");
         fetchList();
@@ -149,34 +179,50 @@ export default function AdminCoupons() {
   const percentMode = form.type === "PERCENT";
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="coupon-page">
       <h2>Coupons</h2>
 
       {/* Search + Refresh */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+      <div className="coupon-topbar">
         <input
+          className="coupon-search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by CODE..."
-          style={{ padding: 8, border: "1px solid #ddd", borderRadius: 6 }}
         />
-        <button onClick={fetchList}>Search / Refresh</button>
-        {editingId ? <button onClick={resetForm}>New</button> : null}
+
+        <button className="coupon-btn" onClick={fetchList}>
+          Search / Refresh
+        </button>
+
+        {editingId ? (
+          <button className="coupon-btn" onClick={resetForm}>
+            New
+          </button>
+        ) : null}
       </div>
 
       {/* Create / Edit Form */}
-      <form onSubmit={submitForm} style={{ border: "1px solid #eee", padding: 16, borderRadius: 8, marginBottom: 16, background: "#fafafa" }}>
+      <form onSubmit={submitForm} className="coupon-card">
         <h3>{editingId ? "Edit Coupon" : "Create Coupon"}</h3>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <div>
+        <div className="coupon-form-grid">
+          <div className="coupon-field">
             <label>Code</label>
-            <input value={form.code} onChange={e => onChange("code", e.target.value)} placeholder="SAVE10P" required />
+            <input
+              value={form.code}
+              onChange={(e) => onChange("code", e.target.value)}
+              placeholder="SAVE10P"
+              required
+            />
           </div>
 
-          <div>
+          <div className="coupon-field">
             <label>Type</label>
-            <select value={form.type} onChange={e => onChange("type", e.target.value)}>
+            <select
+              value={form.type}
+              onChange={(e) => onChange("type", e.target.value)}
+            >
               <option value="PERCENT">PERCENT</option>
               <option value="FLAT">FLAT</option>
             </select>
@@ -184,142 +230,291 @@ export default function AdminCoupons() {
 
           {percentMode ? (
             <>
-              <div>
+              <div className="coupon-field">
                 <label>Discount Percent</label>
-                <input type="number" min="1" max="100" value={form.discountPercent}
-                  onChange={e => onChange("discountPercent", e.target.value)} required />
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={form.discountPercent}
+                  onChange={(e) => onChange("discountPercent", e.target.value)}
+                  required
+                />
               </div>
-              <div>
+
+              <div className="coupon-field">
                 <label>Max Discount Amount (cap)</label>
-                <input type="number" min="0" value={form.maxDiscountAmount ?? 0}
-                  onChange={e => onChange("maxDiscountAmount", e.target.value)} />
+                <input
+                  type="number"
+                  min="0"
+                  value={form.maxDiscountAmount ?? 0}
+                  onChange={(e) =>
+                    onChange("maxDiscountAmount", e.target.value)
+                  }
+                />
               </div>
             </>
           ) : (
-            <div>
+            <div className="coupon-field">
               <label>Flat Discount Amount</label>
-              <input type="number" min="1" value={form.discountAmount}
-                onChange={e => onChange("discountAmount", e.target.value)} required />
+              <input
+                type="number"
+                min="1"
+                value={form.discountAmount}
+                onChange={(e) => onChange("discountAmount", e.target.value)}
+                required
+              />
             </div>
           )}
 
-          <div>
+          <div className="coupon-field">
             <label>Min Order Amount</label>
-            <input type="number" min="0" value={form.minOrderAmount}
-              onChange={e => onChange("minOrderAmount", e.target.value)} />
+            <input
+              type="number"
+              min="0"
+              value={form.minOrderAmount}
+              onChange={(e) => onChange("minOrderAmount", e.target.value)}
+            />
           </div>
 
-          <div>
+          <div className="coupon-field">
             <label>Usage Limit (Total)</label>
-            <input type="number" min="0" value={form.usageLimitTotal}
-              onChange={e => onChange("usageLimitTotal", e.target.value)} />
+            <input
+              type="number"
+              min="0"
+              value={form.usageLimitTotal}
+              onChange={(e) => onChange("usageLimitTotal", e.target.value)}
+            />
           </div>
 
-          <div>
+          <div className="coupon-field">
             <label>Usage Limit (Per User)</label>
-            <input type="number" min="0" value={form.usageLimitPerUser}
-              onChange={e => onChange("usageLimitPerUser", e.target.value)} />
+            <input
+              type="number"
+              min="0"
+              value={form.usageLimitPerUser}
+              onChange={(e) => onChange("usageLimitPerUser", e.target.value)}
+            />
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <input id="firstOrderOnly" type="checkbox"
+          <div className="coupon-check">
+            <input
+              id="firstOrderOnly"
+              type="checkbox"
               checked={form.firstOrderOnly}
-              onChange={e => onChange("firstOrderOnly", e.target.checked)} />
+              onChange={(e) => onChange("firstOrderOnly", e.target.checked)}
+            />
             <label htmlFor="firstOrderOnly">First Order Only</label>
           </div>
 
-          <div>
+          <div className="coupon-field">
             <label>Start At</label>
-            <input type="datetime-local" value={form.startAt}
-              onChange={e => onChange("startAt", e.target.value)} required />
-          </div>
-          <div>
-            <label>End At</label>
-            <input type="datetime-local" value={form.endAt}
-              onChange={e => onChange("endAt", e.target.value)} required />
+            <input
+              type="datetime-local"
+              value={form.startAt}
+              onChange={(e) => onChange("startAt", e.target.value)}
+              required
+            />
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <input id="isActive" type="checkbox"
+          <div className="coupon-field">
+            <label>End At</label>
+            <input
+              type="datetime-local"
+              value={form.endAt}
+              onChange={(e) => onChange("endAt", e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="coupon-check">
+            <input
+              id="isActive"
+              type="checkbox"
               checked={form.isActive}
-              onChange={e => onChange("isActive", e.target.checked)} />
+              onChange={(e) => onChange("isActive", e.target.checked)}
+            />
             <label htmlFor="isActive">Active</label>
           </div>
         </div>
 
-        <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-          <button type="submit" disabled={submitting}>
-            {submitting ? "Saving..." : (editingId ? "Update" : "Create")}
+        <div className="coupon-actions">
+          <button
+            className="coupon-btn primary"
+            type="submit"
+            disabled={submitting}
+          >
+            {submitting ? "Saving..." : editingId ? "Update" : "Create"}
           </button>
-          {editingId && <button type="button" onClick={resetForm}>Cancel Edit</button>}
+
+          {editingId && (
+            <button className="coupon-btn" type="button" onClick={resetForm}>
+              Cancel Edit
+            </button>
+          )}
         </div>
       </form>
 
       {/* List */}
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "#f0f0f0" }}>
-              <th style={th}>Code</th>
-              <th style={th}>Type</th>
-              <th style={th}>Value</th>
-              <th style={th}>MinOrder</th>
-              <th style={th}>Usage: total/user</th>
-              <th style={th}>FirstOnly</th>
-              <th style={th}>Start</th>
-              <th style={th}>End</th>
-              <th style={th}>Active</th>
-              <th style={th}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan="10" style={{ textAlign: "center", padding: 16 }}>Loading...</td></tr>
-            ) : list.length === 0 ? (
-              <tr><td colSpan="10" style={{ textAlign: "center", padding: 16 }}>No coupons</td></tr>
-            ) : (
-              list.map(c => {
-                const value = c.type === "PERCENT"
-                  ? `${c.discountPercent}% (cap ${c.maxDiscountAmount ?? "—"})`
-                  : `৳${c.discountAmount}`;
-                return (
-                  <tr key={c._id} style={{ borderTop: "1px solid #eee" }}>
-                    <td style={td}><code>{c.code}</code></td>
-                    <td style={td}>{c.type}</td>
-                    <td style={td}>{value}</td>
-                    <td style={td}>{c.minOrderAmount}</td>
-                    <td style={td}>{c.usageLimitTotal}/{c.usageLimitPerUser}</td>
-                    <td style={td}>{c.firstOrderOnly ? "Yes" : "No"}</td>
-                    <td style={td}>{new Date(c.startAt).toLocaleString()}</td>
-                    <td style={td}>{new Date(c.endAt).toLocaleString()}</td>
-                    <td style={td}>
-                      <span style={{
-                        padding: "2px 8px",
-                        borderRadius: 12,
-                        background: c.isActive ? "#e8f8ee" : "#ffecec",
-                        color: c.isActive ? "#117a3e" : "#b00020",
-                        fontWeight: 600,
-                      }}>
-                        {c.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td style={td}>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <button onClick={() => startEdit(c)}>Edit</button>
-                        <button onClick={() => toggleActive(c._id)}>{c.isActive ? "Deactivate" : "Activate"}</button>
-                        <button onClick={() => onDelete(c._id)} style={{ color: "#b00020" }}>Delete</button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+<div className="coupon-list-wrap">
+  {/* Desktop table */}
+  <div className="coupon-table-wrap">
+    <table className="coupon-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Type</th>
+          <th>Value</th>
+          <th>MinOrder</th>
+          <th>Usage: total/user</th>
+          <th>FirstOnly</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Active</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {loading ? (
+          <tr>
+            <td colSpan="10" className="coupon-empty">
+              Loading...
+            </td>
+          </tr>
+        ) : list.length === 0 ? (
+          <tr>
+            <td colSpan="10" className="coupon-empty">
+              No coupons
+            </td>
+          </tr>
+        ) : (
+          list.map((c) => {
+            const value =
+              c.type === "PERCENT"
+                ? `${c.discountPercent}% (cap ${c.maxDiscountAmount ?? "—"})`
+                : `৳${c.discountAmount}`;
+
+            return (
+              <tr key={c._id}>
+                <td>
+                  <span className="coupon-code">{c.code}</span>
+                </td>
+                <td>{c.type}</td>
+                <td>{value}</td>
+                <td>{c.minOrderAmount}</td>
+                <td>
+                  {c.usageLimitTotal}/{c.usageLimitPerUser}
+                </td>
+                <td>{c.firstOrderOnly ? "Yes" : "No"}</td>
+                <td>{c.startAt ? new Date(c.startAt).toLocaleString() : "—"}</td>
+                <td>{c.endAt ? new Date(c.endAt).toLocaleString() : "—"}</td>
+                <td>
+                  <span
+                    className={`coupon-badge ${c.isActive ? "active" : "inactive"}`}
+                  >
+                    {c.isActive ? "Active" : "Inactive"}
+                  </span>
+                </td>
+                <td>
+                  <div className="coupon-row-actions">
+                    <button className="coupon-btn" onClick={() => startEdit(c)}>
+                      Edit
+                    </button>
+                    <button
+                      className="coupon-btn"
+                      onClick={() => toggleActive(c._id)}
+                    >
+                      {c.isActive ? "Deactivate" : "Activate"}
+                    </button>
+                    <button
+                      className="coupon-btn danger"
+                      onClick={() => onDelete(c._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })
+        )}
+      </tbody>
+    </table>
+  </div>
+
+  {/* Mobile cards */}
+  <div className="coupon-cards">
+    {loading ? (
+      <div className="coupon-card-row coupon-empty-card">Loading...</div>
+    ) : list.length === 0 ? (
+      <div className="coupon-card-row coupon-empty-card">No coupons</div>
+    ) : (
+      list.map((c) => {
+        const value =
+          c.type === "PERCENT"
+            ? `${c.discountPercent}% (cap ${c.maxDiscountAmount ?? "—"})`
+            : `৳${c.discountAmount}`;
+
+        return (
+          <div key={c._id} className="coupon-card-row">
+            <div className="coupon-card-head">
+              <span className="coupon-code">{c.code}</span>
+              <span className={`coupon-badge ${c.isActive ? "active" : "inactive"}`}>
+                {c.isActive ? "Active" : "Inactive"}
+              </span>
+            </div>
+
+            <div className="coupon-card-grid">
+              <div className="kv">
+                <span className="k">Type</span>
+                <span className="v">{c.type}</span>
+              </div>
+              <div className="kv">
+                <span className="k">Value</span>
+                <span className="v">{value}</span>
+              </div>
+              <div className="kv">
+                <span className="k">Min Order</span>
+                <span className="v">{c.minOrderAmount}</span>
+              </div>
+              <div className="kv">
+                <span className="k">Usage</span>
+                <span className="v">
+                  {c.usageLimitTotal}/{c.usageLimitPerUser}
+                </span>
+              </div>
+              <div className="kv">
+                <span className="k">First Only</span>
+                <span className="v">{c.firstOrderOnly ? "Yes" : "No"}</span>
+              </div>
+              <div className="kv">
+                <span className="k">Start</span>
+                <span className="v">{c.startAt ? new Date(c.startAt).toLocaleString() : "—"}</span>
+              </div>
+              <div className="kv">
+                <span className="k">End</span>
+                <span className="v">{c.endAt ? new Date(c.endAt).toLocaleString() : "—"}</span>
+              </div>
+            </div>
+
+            <div className="coupon-card-actions">
+              <button className="coupon-btn" onClick={() => startEdit(c)}>
+                Edit
+              </button>
+              <button className="coupon-btn" onClick={() => toggleActive(c._id)}>
+                {c.isActive ? "Deactivate" : "Activate"}
+              </button>
+              <button className="coupon-btn danger" onClick={() => onDelete(c._id)}>
+                Delete
+              </button>
+            </div>
+          </div>
+        );
+      })
+    )}
+  </div>
+</div>
     </div>
   );
 }
-
-const th = { textAlign: "left", padding: 8, fontWeight: 700, fontSize: 13 };
-const td = { textAlign: "left", padding: 8, fontSize: 13 };

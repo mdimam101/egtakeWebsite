@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { MdEdit } from "react-icons/md";
 import { createPortal } from "react-dom";          // ⬅️ NEW
-import "../styles/AllProductsStyle.css";
+import "../styles/AdminProductCart.css";
 import AdminProductEdit from "./AdminProductEdit";
 
 const getPrimaryImage = (p) => {
@@ -24,32 +24,33 @@ const AdminProductCart = ({ data, fatchData }) => {
     return () => document.body.classList.remove("modal-open");
   }, [editProduct]);
 
-  return (
-    <div className="product-card">
-      <img src={primaryImg} alt={data.productName} className="product-img" />
-      <div className="product-info">
-        <h3>{data.productName}</h3>
-        <p>৳{data.selling}</p>
-      </div>
+ return (
+  <div className="admin-product-card">
+    <img src={primaryImg} alt={data.productName} className="admin-product-img" />
 
-      <MdEdit
-        className="edit-icon"
-        title="Edit Product"
-        onClick={() => setEditProduct(true)}
-      />
-
-      {/* ⬇️ Render modal as a PORTAL into document.body */}
-      {editProduct &&
-        createPortal(
-          <AdminProductEdit
-            paramData={data}
-            onClose={() => setEditProduct(false)}
-            fatchData={fatchData}
-          />,
-          document.body
-        )}
+    <div className="admin-product-info">
+      <h3>{data.productName}</h3>
+      <p>৳{data.selling}</p>
     </div>
-  );
+
+    <MdEdit
+      className="admin-edit-icon"
+      title="Edit Product"
+      onClick={() => setEditProduct(true)}
+    />
+
+    {editProduct &&
+      createPortal(
+        <AdminProductEdit
+          paramData={data}
+          onClose={() => setEditProduct(false)}
+          fatchData={fatchData}
+        />,
+        document.body
+      )}
+  </div>
+);
+
 };
 
 export default AdminProductCart;

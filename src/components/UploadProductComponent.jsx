@@ -602,60 +602,47 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
           </p>
 
           {data.sizeDetails.map((row, i) => (
-            <div
-              key={i}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr 1fr auto",
-                gap: "8px",
-                alignItems: "center",
-                marginBottom: "8px",
-              }}
-            >
-              <input
-                type="text"
-                placeholder="Size (e.g., S/M/L)"
-                value={row.size}
-                onChange={(e) =>
-                  handleSizeDetailChange(i, "size", e.target.value)
-                }
-              />
-              <input
-                type="number"
-                placeholder="Length"
-                min={0}
-                value={row.length}
-                onChange={(e) =>
-                  handleSizeDetailChange(i, "length", e.target.value)
-                }
-              />
-              <input
-                type="number"
-                placeholder="Chest"
-                min={0}
-                value={row.chest}
-                onChange={(e) =>
-                  handleSizeDetailChange(i, "chest", e.target.value)
-                }
-              />
-              <select
-                value={row.unit || "inche"}
-                onChange={(e) =>
-                  handleSizeDetailChange(i, "unit", e.target.value)
-                }
-              >
-                <option value="inche">inche</option>
-              </select>
+  <div key={i} className="size-row">
+    <input
+      type="text"
+      placeholder="Size (e.g., S/M/L)"
+      value={row.size}
+      onChange={(e) => handleSizeDetailChange(i, "size", e.target.value)}
+    />
 
-              <button
-                type="button"
-                onClick={() => removeSizeDetail(i)}
-                style={{ background: "red", color: "white" }}
-              >
-                Remove
-              </button>
-            </div>
-          ))}
+    <input
+      type="number"
+      placeholder="Length"
+      min={0}
+      value={row.length}
+      onChange={(e) => handleSizeDetailChange(i, "length", e.target.value)}
+    />
+
+    <input
+      type="number"
+      placeholder="Chest"
+      min={0}
+      value={row.chest}
+      onChange={(e) => handleSizeDetailChange(i, "chest", e.target.value)}
+    />
+
+    {/* <select
+      value={row.unit || "inche"}
+      onChange={(e) => handleSizeDetailChange(i, "unit", e.target.value)}
+    >
+      <option value="inche">inche</option>
+    </select> */}
+
+    <button
+      type="button"
+      className="danger-btn"
+      onClick={() => removeSizeDetail(i)}
+    >
+      Remove Size Details
+    </button>
+  </div>
+))}
+
 
           <button
             type="button"
@@ -701,84 +688,57 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
               />
 
               {/* 🔽 NEW: Variant specific info */}
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "8px",
-                  marginTop: "8px",
-                  marginBottom: "8px",
-                }}
-              >
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ fontSize: 12 }}>
-                    Variant Name (SpcProductName):
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Red / M Set"
-                    value={variant.SpcProductName || ""}
-                    onChange={(e) =>
-                      handleVariantSpcChange(
-                        vIndex,
-                        "SpcProductName",
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
+              <div className="variant-spc-grid">
+  <div className="field">
+    <label>Variant Name (SpcProductName)</label>
+    <input
+      type="text"
+      placeholder="e.g., Red / M Set"
+      value={variant.SpcProductName || ""}
+      onChange={(e) =>
+        handleVariantSpcChange(vIndex, "SpcProductName", e.target.value)
+      }
+    />
+  </div>
 
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ fontSize: 12 }}>Variant Buying Price:</label>
-                  <input
-                    type="number"
-                    placeholder="SpcBuyingPrice"
-                    min={0}
-                    value={variant.SpcBuyingPrice || ""}
-                    onChange={(e) =>
-                      handleVariantSpcChange(
-                        vIndex,
-                        "SpcBuyingPrice",
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
+  <div className="field">
+    <label>Variant Buying Price</label>
+    <input
+      type="number"
+      placeholder="SpcBuyingPrice"
+      min={0}
+      value={variant.SpcBuyingPrice || ""}
+      onChange={(e) =>
+        handleVariantSpcChange(vIndex, "SpcBuyingPrice", e.target.value)
+      }
+    />
+  </div>
 
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ fontSize: 12 }}>Variant Normal Price:</label>
-                  <input
-                    type="number"
-                    placeholder="SpcPrice"
-                    min={0}
-                    value={variant.SpcPrice || ""}
-                    onChange={(e) =>
-                      handleVariantSpcChange(
-                        vIndex,
-                        "SpcPrice",
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
+  <div className="field">
+    <label>Variant Normal Price</label>
+    <input
+      type="number"
+      placeholder="SpcPrice"
+      min={0}
+      value={variant.SpcPrice || ""}
+      onChange={(e) => handleVariantSpcChange(vIndex, "SpcPrice", e.target.value)}
+    />
+  </div>
 
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  <label style={{ fontSize: 12 }}>Variant Selling Price:</label>
-                  <input
-                    type="number"
-                    placeholder="SpcSelling"
-                    min={0}
-                    value={variant.SpcSelling || ""}
-                    onChange={(e) =>
-                      handleVariantSpcChange(
-                        vIndex,
-                        "SpcSelling",
-                        e.target.value
-                      )
-                    }
-                  />
-                </div>
-              </div>
+  <div className="field">
+    <label>Variant Selling Price</label>
+    <input
+      type="number"
+      placeholder="SpcSelling"
+      min={0}
+      value={variant.SpcSelling || ""}
+      onChange={(e) =>
+        handleVariantSpcChange(vIndex, "SpcSelling", e.target.value)
+      }
+    />
+  </div>
+</div>
+
 
               <label>Variant Images:</label>
               <div
@@ -811,45 +771,36 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
               </div>
 
               <label>Sizes and Stock:</label>
-              {variant.sizes.map((sizeItem, sIndex) => (
-                <div
-                  key={sIndex}
-                  style={{ display: "flex", gap: "10px", marginBottom: "5px" }}
-                >
-                  <input
-                    type="text"
-                    placeholder="Size"
-                    value={sizeItem.size}
-                    onChange={(e) =>
-                      handleSizeChange(vIndex, sIndex, "size", e.target.value)
-                    }
-                  />
-                  <input
-                    type="number"
-                    placeholder="Stock"
-                    value={sizeItem.stock}
-                    min={0}
-                    required
-                    onChange={(e) =>
-                      handleSizeChange(
-                        vIndex,
-                        sIndex,
-                        "stock",
-                        e.target.value
-                      )
-                    }
-                  />
-                  {variant.sizes.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeSizeFromVariant(vIndex, sIndex)}
-                      style={{ background: "red", color: "white" }}
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              ))}
+             {variant.sizes.map((sizeItem, sIndex) => (
+  <div key={sIndex} className="variant-size-row">
+    <input
+      type="text"
+      placeholder="Size"
+      value={sizeItem.size}
+      onChange={(e) => handleSizeChange(vIndex, sIndex, "size", e.target.value)}
+    />
+
+    <input
+      type="number"
+      placeholder="Stock"
+      value={sizeItem.stock}
+      min={0}
+      required
+      onChange={(e) => handleSizeChange(vIndex, sIndex, "stock", e.target.value)}
+    />
+
+    {variant.sizes.length > 1 && (
+      <button
+        type="button"
+        className="danger-btn danger-btn-outline"
+        onClick={() => removeSizeFromVariant(vIndex, sIndex)}
+      >
+        Remove Size & Stock
+      </button>
+    )}
+  </div>
+))}
+
 
               <button
                 type="button"
