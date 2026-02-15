@@ -14,7 +14,7 @@
 
 .modal-content {
   width: min(720px, 100%);
-  max-height: 92vh;
+  max-height: 85vh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -275,9 +275,8 @@ input:checked + .slider:before {
 
   .modal-content {
     width: 100%;
-    max-height: 85vh;
+    height: 80vh;
     border-radius: 18px 18px 0 0;
-    padding: 14px;
     margin-bottom: 50px;
   }
 
