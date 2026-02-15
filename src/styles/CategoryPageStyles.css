@@ -72,13 +72,14 @@
     margin: 0 auto 5px;
     border-radius: 50%;
     border: 1px solid #ddd;
+    object-fit: cover;
   }
 
   .subcategory-icon {
-    width: 60px;
-    height: 60px;
+    /* width: 60px;
+    height: 60px; */
     object-fit: cover;
-    border-radius: 50%; /* গোলাকার করার জন্য */
+    /* border-radius: 50%; */
     border: 1px solid #ddd;
     display: block;
     margin: 0 auto 8px;
