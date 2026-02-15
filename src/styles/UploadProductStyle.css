@@ -272,7 +272,7 @@ input:checked + .slider:before {
     align-items: flex-end;
     padding: 0;
     height: 85vh;
-    margin-top: 100px;
+    margin-top: 80px;
     /* margin-bottom: 50px; */
   }
 
@@ -280,7 +280,7 @@ input:checked + .slider:before {
     width: 100%;
     height: 80vh;
     border-radius: 18px 18px 0 0;
-    margin-bottom: 0px;
+    margin-bottom: 30px;
   }
 
   /* Make long inline style rows not overflow */
