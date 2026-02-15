@@ -91,14 +91,16 @@
 }
 
 .menu-btn {
- border: 1px solid #cfd4de;
-    background: #242323;
-    border-radius: 10px;
+ /* border: 1px solid #cfd4de; */
+    /* background: #242323; */
+    border-radius: 5px;
     padding: 5px;
     font-size: 16px;
-    cursor: pointer;
+    /* cursor: pointer; */
     width: 30px;
+    color: #010101;
     text-align: center;
+    font-weight: 500;
 }
 
 .menu-btn:active {
