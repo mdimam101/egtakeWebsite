@@ -65,7 +65,7 @@ const CategoryList = () => {
             ref={(el) => (itemRefs.current["ALL"] = el)}
             onClick={() => setActiveCategory("ALL")}
           >
-            ALL
+            All
           </Link>
         ) : (
           <Link

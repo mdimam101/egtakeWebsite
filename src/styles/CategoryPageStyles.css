@@ -112,8 +112,9 @@
 /* parent ঠিক এই উচ্চতার মধ্যে থাকবে; স্ক্রল parent-এ নয় */
 .category-page-container{
   align-items: stretch !important;            /* দুই কলাম সমান হাইট পায় */
-  height: calc(100dvh - var(--headerPlusSearchH) - var(--footerH));
+  height: calc(100dvh - var(--headerPlusSearchH) );
   overflow: hidden;                            /* parent স্ক্রল বন্ধ */
+  padding-bottom: 30px;
 }
 
 /* বাম কলাম: নিজে স্ক্রল করবে, চেহারা অপরিবর্তিত */
@@ -125,16 +126,21 @@
 }
 
 /* ডান কলাম: নিজে স্ক্রল করবে, আগের grid স্টাইল ঠিক থাকবে */
+/* ডান কলাম: নিজে স্ক্রল করবে, আগের grid স্টাইল ঠিক থাকবে */
 .subcategory-grid{
   height: 100%;
-  overflow: auto;                              /* ✅ আলাদা স্ক্রল */
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
 
-  /* নিচের ৪টা লাইন তোমার আগের grid সেটিং—থাকলে থাকবে,
-     না থাকলে এইগুলো রেখে দাও */
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  padding: 10px;
+
+  /* ✅ ফাঁকা কম দেখাবে */
+  align-content: start;
+
+  /* (optional) একটু compact চাইলে এই দুইটা কমাও */
+  gap: 10px;        /* আগে 15px ছিল */
+  padding: 8px;     /* আগে 10px ছিল */
+
   box-sizing: border-box;
 }
