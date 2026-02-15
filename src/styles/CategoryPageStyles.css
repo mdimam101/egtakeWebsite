@@ -137,7 +137,8 @@
   grid-template-columns: repeat(2, 1fr);
 
   /* ✅ ফাঁকা কম দেখাবে */
-  align-content: start;
+  /* align-content: start; */
+   align-content: start;
 
   /* (optional) একটু compact চাইলে এই দুইটা কমাও */
   gap: 10px;        /* আগে 15px ছিল */
