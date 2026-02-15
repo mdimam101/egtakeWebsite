@@ -230,6 +230,9 @@ const OrderList = () => {
       <OrderDetailsModal
         show={!!selectedOrder}
         onClose={() => setSelectedOrder(null)}
+        selectedOrder={selectedOrder}
+        renderItems={renderItems}
+        getStatusBadgeClass={getStatusBadgeClass}
       >
         {selectedOrder && (
           <div className="od-details">

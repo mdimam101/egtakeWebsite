@@ -275,9 +275,10 @@ input:checked + .slider:before {
 
   .modal-content {
     width: 100%;
-    max-height: 92vh;
+    max-height: 85vh;
     border-radius: 18px 18px 0 0;
     padding: 14px;
+    margin-bottom: 50px;
   }
 
   /* Make long inline style rows not overflow */

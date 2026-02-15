@@ -6,34 +6,34 @@
   justify-content: center;
   align-items: center;
   z-index: 2000;
-  /* padding: 10px; */
+  margin-top: 150px;
+  margin-bottom: 100px;
 }
 
 .od-modal-content {
   width: min(760px, 100%);
-  max-height: 95vh;
+  max-height: 85vh;
   background: #fff;
   border-radius: 16px;
   border: 1px solid #e6e9f0;
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
   overflow: hidden;
-  padding-bottom: 60px;
 }
 
-/* ✅ Header fixed like */
+/* Header fixed-like */
 .od-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px;
-  padding-top: 45px;
+  padding: 14px 14px;
   border-bottom: 1px solid #eef1f6;
+  background: #fff;
 }
 
 .od-modal-title {
   margin: 0;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 900;
   color: #0f172a;
 }
 
@@ -42,18 +42,94 @@
   height: 38px;
   border-radius: 12px;
   border: 1px solid #e6e9f0;
-  background: #282727;
+  background: #0f172a;
+  color: #fff;
   cursor: pointer;
   font-size: 26px;
-  line-height: 0;
+  display: grid;
+  place-items: center;
   padding: 5px;
 }
 
-/* ✅ This body will scroll if many items */
+.od-modal-close:active {
+  transform: scale(0.98);
+}
+
+/* Only body scrolls */
 .od-modal-body {
-  padding: 20px 14px 14px;
+  padding: 14px;
   max-height: calc(92vh - 60px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* margin-top: -60px; */
+  padding-top: 60px;
+}
+
+/* Optional content styling */
+.od-details .order-details-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.order-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.od-box {
+  border: 1px solid #eef1f6;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #fbfcfe;
+}
+
+.od-box.od-full {
+  grid-column: 1 / -1;
+}
+
+.od-label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 900;
+  color: #64748b;
+}
+
+.od-value {
+  margin: 6px 0 0 0;
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.od-section-title {
+  margin: 14px 0 8px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.od-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.od-empty {
+  padding: 14px;
+  text-align: center;
+  font-weight: 900;
+  color: #64748b;
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .order-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .od-modal-body {
+    padding: 12px;
+  }
 }
