@@ -1,5 +1,5 @@
 import SummaryApi from "../common";
-import { toast } from "react-toastify";
+//import { toast } from "react-toastify";
 
 const increaseQuantity = async (cartItemId) => {
   try {
@@ -17,14 +17,14 @@ const increaseQuantity = async (cartItemId) => {
     const result = await response.json();
 
     if (result.success) {
-      toast.success(result.message || "Quantity increased");
+      //toast.success(result.message || "Quantity increased");
     } else {
-      toast.error(result.message || "Failed to increase quantity");
+      //toast.error(result.message || "Failed to increase quantity");
     }
 
     return result;
   } catch (err) {
-    toast.error("Error increasing quantity");
+    //toast.error("Error increasing quantity");
     console.error(err);
     return { success: false };
   }

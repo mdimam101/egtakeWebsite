@@ -8,8 +8,8 @@
   box-sizing: border-box;
   background: #fff;
   border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 16px;
+  padding: 5px;
+  margin-bottom: 2px;
   box-shadow: 0 1px 5px rgba(0,0,0,0.1);
 }
 
@@ -52,7 +52,7 @@
   min-width: 0;                  /* ✅ overflow stop */
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 1px;
 }
 
 /* top row */
@@ -64,11 +64,12 @@
 }
 
 /* product name (no overflow) */
-.product-name{
+.cart-product-name{
   min-width: 0;
   font-weight: 700;
   font-size: 14px;
   color: #222;
+  margin-top: 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -77,13 +78,14 @@
 /* remove button */
 .remove-btn{
   flex-shrink: 0;
+  margin-top: 3px;
   width: 32px;
   height: 32px;
-  padding: 0;                    /* ✅ remove weird right space */
+  padding: 0px;                    /* ✅ remove weird right space */
   background: #fff;
-  border: 1px solid #eef1f6;
-  border-radius: 10px;
-  color: #64748b;
+  /* border: 1px solid #eef1f6; */
+  /* border-radius: 10px; */
+  color: #f40707;
   font-size: 18px;
   cursor: pointer;
   display: grid;
@@ -178,9 +180,10 @@
 
 /* stock line */
 .stock-status{
-  margin: 2px 0 0;
+  margin: 1px 0 0;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 500;
+
 }
 
 .stock-status.out-stock{
@@ -188,7 +191,7 @@
 }
 
 .stock-status.in-stock{
-  color: #0f172a;
+  color: #0f1422;
 }
 
 /* Small phones: keep everything stable */

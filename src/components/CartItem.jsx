@@ -137,7 +137,7 @@ const CartItem = ({
 
         <div className="cart-product-info">
           <div className="top-row">
-            <div className="product-name" title={productData?.productName}>
+            <div className="cart-product-name" title={productData?.productName}>
               {product.productName || productData?.productName}
             </div>
             <button className="remove-btn" onClick={handleRemove} aria-label="Remove from cart">

@@ -1,4 +1,4 @@
-import { toast } from 'react-toastify';
+// import { toast } from 'react-toastify';
 import SummaryApi from '../common';
 
 const decreaseQuantity = async (cartItemId) => {
@@ -17,16 +17,16 @@ const decreaseQuantity = async (cartItemId) => {
     const result = await response.json();
 
     if (result.success) {
-      toast.success(result.message || "Quantity decreased");
+      // toast.success(result.message || "Quantity decreased");
     } else {
-      toast.error(result.message || "Failed to decrease quantity");
+      // toast.error(result.message || "Failed to decrease quantity");
     }
 
     return result;
 
   } catch (error) {
     console.error("Error decreasing quantity:", error);
-    toast.error("Something went wrong!");
+    // toast.error("Something went wrong!");
     return { success: false };
   }
 };

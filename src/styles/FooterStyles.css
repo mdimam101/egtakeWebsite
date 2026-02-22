@@ -21,17 +21,18 @@
   justify-content: center;
   gap: 3px;
   color: #333;
-  padding: 6px 0;
+  /* padding: 6px 0; */
   transition: all .25s ease;
   border-radius: 10px;
   position: relative;
+  margin-bottom: 10px;
 }
 
 /* icon wrapper look */
 .footer-icon {
   font-size: 22px;
   line-height: 1;
-  padding: 8px 8px 0px 8px;                 /* some breathing space */
+  /* padding: 8px 8px 0px 8px;               */
   border-radius: 50%;           /* round shape for bg */
   transition: all 0.25s ease;
   background-color: transparent;
@@ -40,6 +41,8 @@
 .footer-label {
   font-size: 11px;
   line-height: 1;
+  text-decoration: none;
+  border-bottom: none;
 }
 
 /* hover */
@@ -52,6 +55,8 @@
 .footer-item.active {
   color: #FF466B;
   font-weight: 600;
+  text-decoration: none;
+  border-bottom: none;
 }
 .footer-item.active .footer-icon {
   /* background-color: rgba(255,70,107,0.15); */
@@ -83,7 +88,7 @@
 }
 
 @media (max-width:480px){
-  .main-footer.rn-footer{height:56px;}
+  .main-footer.rn-footer{height:62px;}
   .footer-icon{font-size:20px;}
-  .footer-label{font-size:10px;}
+  .footer-label{font-size:12px;}
 }

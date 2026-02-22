@@ -50,6 +50,9 @@ const Cart = () => {
   // Live products for stock/price
   const [latestProducts, setLatestProducts] = useState([]);
 
+    // Loading state (new)
+  const [isLoading, setIsLoading] = useState(true);
+
   // ---- Fetch: latest products (for stock validation) ----
   const fetchLatestProducts = async () => {
     try {
@@ -63,6 +66,7 @@ const Cart = () => {
 
   // ---- Fetch: cart from server (no localStorage fallback) ----
   const fetchCartItems = async () => {
+    setIsLoading(true); // NEW
     try {
       const t = localStorage.getItem('authToken');
       const res = await fetch(SummaryApi.getCartProduct.url, {
@@ -72,8 +76,12 @@ const Cart = () => {
       });
       const data = await res.json();
       if (data?.success) setCartItems(data?.data || []);
+      else setCartItems([]); // NEW (safe fallback)
     } catch (err) {
       console.error("Failed to fetch cart items:", err);
+      setCartItems([]); // NEW (safe fallback)
+    } finally {
+      setIsLoading(false); // NEW
     }
   };
 
@@ -155,7 +163,7 @@ const Cart = () => {
     </div>
 
     <div className="contain-cart-page">
-      <div className="select-all-container">
+      {!isLoading && cartItems.length > 0 && <div className="select-all-container">
         <input
           id="select-all-checkbox"
           type="checkbox"
@@ -163,9 +171,13 @@ const Cart = () => {
           onChange={(e) => toggleSelectAll(e.target.checked)}
         />
         <label htmlFor="select-all-checkbox">Select All</label>
-      </div>
-
-      {cartItems.length === 0 ? (
+      </div>}
+            {isLoading ? (
+        <div className="cart-loading-wrap">
+          <div className="cart-spinner" />
+          <div className="cart-loading-text">Loading your cart...</div>
+        </div>
+      ) : cartItems.length === 0 ? (
         <div className="empty-cart">
           <div className="empty-illustration">🛒</div>
           <h3>Your cart is empty</h3>
@@ -189,7 +201,7 @@ const Cart = () => {
         </div>
       )}
 
-      {canCheckout && (
+      {!isLoading && canCheckout && (
         <div className="checkout-bar">
           <div className="checkout-price-summary">
             <span className="total-amount">৳{totalAmount}</span>
