@@ -88,12 +88,11 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
   background-color: #fff;
   border-top: 1px solid #e5e7eb;
   box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
   position: fixed;
-  bottom: 55px; /* your footer height */
+  bottom: 70px; /* your footer height */
   left: 0;
   right: 0;
   z-index: 100;
@@ -145,8 +144,8 @@
 /* Small screens */
 @media (max-width: 480px){
   .contain-cart-page{ padding: 6px 10px 0; }
-  .checkout-bar{ padding: 10px 12px; }
-  .checkout-cart-btn{ padding: 10px 14px; border-radius: 8px; }
+  .checkout-bar{ padding: 0px 12px; }
+  .checkout-cart-btn{ padding: 15px 10px; border-radius: 8px; }
 }
 
 /* Loading state */

@@ -226,7 +226,7 @@ const HomePage = () => {
           <p style={{paddingLeft:"10px", fontWeight:'bold'}}>For Yours</p>
 
         {/* ✅ Products Grid */}
-        <div className="product-grid">
+        <div className="home-product-grid">
           {visibleProducts.length > 0 &&
             visibleProducts.map((product, idx) => (
               <UserProductCart productData={product} key={idx} />

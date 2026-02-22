@@ -10,11 +10,16 @@ import { useSelector } from "react-redux";
 
 const Footer = () => {
   const { cartCountProduct } = useContext(Context);
+  
   const user = useSelector((s) => s?.userState?.user);
   const location = useLocation();
   const redirectURL = user?._id ? "/profile" : "/sign-up";
 
   const path = location.pathname;
+
+  // product details 
+  if (path.startsWith('/product')) return 
+  
 
   // RN-এর মত active চেক
   const isActive = (name) => {

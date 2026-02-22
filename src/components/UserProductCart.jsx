@@ -57,15 +57,15 @@ const UserProductCart = ({ productData }) => {
         e.preventDefault();
         window.location.href = `/product/${productData?._id}`;
       }}
-      className="product-card" 
-      style={{width:"100%",height:"300px"}}
+      className="user-product-card" 
+      //style={{width:"100%",height:"auto"}}
     >
       <img
         src={productData?.img}
         alt={productData?.productName}
-        className="product-img"
+        className="user-product-img"
         loading="lazy"
-         style={{width:"100%",height:"220px"}}
+        //  style={{width:"100%",height:"280px"}}
       />
 
       <div className="product-info">

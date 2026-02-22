@@ -169,3 +169,17 @@
   .dot.active {
     background-color: #333;
   }
+
+  .home-product-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 4px;
+}
+
+/* ✅ Desktop view responsive */
+@media (min-width: 768px) {
+  .home-product-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

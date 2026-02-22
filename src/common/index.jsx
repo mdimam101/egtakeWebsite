@@ -136,6 +136,14 @@ updateProductStock: {
     url: (id) => `${backendDomain}/api/admin/coupons/${id}`, 
     method: "DELETE" 
   },
+  // get review data 
+    get_product_reviews: (productId) => `${backendDomain}/api/reviews/${productId}`,
+
+    //commitInfo
+     get_common_info: {
+  url: `${backendDomain}/api/get-common-info`,
+  method: "get",
+},
 };
 
 export default SummaryApi;

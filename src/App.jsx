@@ -1,4 +1,4 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import CategoryList from "./components/CategoryList";
@@ -9,11 +9,14 @@ import SummaryApi from "./common";
 import Context from "../src/context/index";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "./store/userSlice";
+import { setCommonGetInfoList } from "./store/commonInfoSlice";
+
 
 
 function App() {
   const t = localStorage.getItem('authToken');
   const dispatch = useDispatch();
+     const location = useLocation();
   const [cartCountProduct, setCartCountProduct] = useState(0)
   // its for one product count list
   const [cartListData, setCartListData] = useState([]);
@@ -75,8 +78,26 @@ function App() {
     
   }, []);
 
-  console.log("fetchUserAddToCart", cartCountProduct);
+    useEffect(() => {
+    const getCommonInfo = async () => {
+      try {
+          const response = await fetch(SummaryApi.get_common_info.url, {
+      method: SummaryApi.get_common_info.method,
+     headers: t ? { Authorization: `Bearer ${t}` } : {},
+      credentials: 'include',
+    });
+        const result = response.data;
+        if (result.success) {
+          dispatch(setCommonGetInfoList(result.data));
+        }
+      } catch (error) {console.log(error);
+      }
+    };
 
+    getCommonInfo();
+  }, []);
+
+    const path = location.pathname;
 
 
   return (
@@ -90,8 +111,12 @@ function App() {
         }}
       >
         <ToastContainer />
-        <Header />
-        <main className="main-content">
+       {!path.startsWith("/product") && <Header />} 
+        <main className={`${
+          path.startsWith("/product")
+          ? "main-content-without-product-page"
+          : "main-content"
+          }`}>
           <Outlet />
         </main>
         <Footer />

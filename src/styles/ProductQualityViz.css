@@ -1,0 +1,88 @@
+/* src/components/ProductQualityViz.css */
+/* ✅ Same look as RN card */
+.pq-card {
+  padding: 10px;
+  border-radius: 10px;
+  background: #fefff5ff;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+  display: grid;
+  gap: 8px;
+}
+
+.pq-heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1c1d1f;
+}
+
+.pq-trackWrap {
+  margin-top: 4px;
+}
+
+.pq-track {
+  width: 100%;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 6px; /* same "small gap" feel */
+}
+
+.pq-seg {
+  flex: 1;
+  border-radius: 999px;
+}
+
+/* stops & labels */
+.pq-stopsRow {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.pq-stopCell {
+  width: 25%;
+  display: grid;
+  justify-items: center;
+}
+
+.pq-dotWrap {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+}
+
+.pq-halo {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  will-change: transform, opacity;
+}
+
+.pq-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 2px solid #e5e8ec;
+  z-index: 1;
+}
+
+.pq-label {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transform-origin: center;
+  will-change: transform;
+  white-space: nowrap;
+}
+
+.pq-micro {
+  margin-top: 8px;
+  color: #3a3d40;
+  font-size: 13px;
+}

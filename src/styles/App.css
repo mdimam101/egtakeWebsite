@@ -30,6 +30,12 @@ html, body {
   background-color: #f9f9f9;
   overflow-y: auto;
 }
+.main-content-without-product-page {
+  flex: 1;
+  padding: 0px 2px 2px 2px; 
+  background-color: #f9f9f9;
+  overflow-y: auto;
+}
 /* Footer (fixed at bottom) */
 .main-footer {
   display: flex;
