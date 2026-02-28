@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState, useMemo } from "react";
 import axios from "axios";
 import SummaryApi from "../common";
-import { useNavigate, useParams } from "react-router";
+import { Link, Navigate, useNavigate, useParams } from "react-router";
 import { CiDeliveryTruck, CiBoxes } from "react-icons/ci";
 import { TbTruckReturn } from "react-icons/tb";
 import "../styles/ProductDetailsStyle.css";
@@ -11,7 +11,9 @@ import UserProductCart from "../components/UserProductCart";
 import { generateOptimizedVariants } from "../helpers/variantUtils";
 import ProductQualityViz from "../components/ProductQualityViz";
 import { EGtakeCommitment } from "../components/EGtakeCommitment";
-// import ProductQualityViz from "../components/ProductQualityViz";
+import { MdOutlineArrowBackIos } from "react-icons/md";
+import { FaCartArrowDown } from "react-icons/fa";
+import ProductDetailsSkeleton from "../components/skeletonAnime/ProductDetailsSkeleton";
 
 /* =========================
    ✅ Web FullscreenImageModal (React)
@@ -209,6 +211,8 @@ const ProductDetailsPage = () => {
   // ✅ Reviews state
   const [reviews, setReviews] = useState([]);
 
+  const [loading, setloading] = useState()
+
   // ✅ show top 3
   const previewReviews = useMemo(
     () => (Array.isArray(reviews) ? reviews.slice(0, 3) : []),
@@ -253,6 +257,7 @@ useEffect(() => {
 }, [data?.description]);
 
   useEffect(() => {
+    setloading(true);
     (async () => {
       const response = await fetch(SummaryApi.product_details.url, {
         method: SummaryApi.product_details.method,
@@ -264,6 +269,7 @@ useEffect(() => {
 
       const d = result.data || {};
       setData(d);
+      setloading(false)
 
       const images = (d.variants || []).flatMap((v) => v.images || []);
       setAllImages(images);
@@ -392,15 +398,24 @@ useEffect(() => {
   })();
   const navigate = useNavigate();
 
+    const { cartCountProduct } = useContext(Context);
+    console.log("h🌻Cart🌻",cartCountProduct);
+
+    if (!data || loading )  {
+  return <ProductDetailsSkeleton />;
+}
+    
   return (
     <div className="product-details-container">
+
+      {/* back button */}
       <button
       type="button"
-      className="backButton"
+      className="p-back-button"
       onClick={() => navigate(-1)}
     >
-      <span className="backIcon">←</span>
-      <span className="backText">Back</span>
+
+    <MdOutlineArrowBackIos  className="backIcon"/>
     </button>
       {/* Image gallery */}
       <div className="product-image-wrapper">
@@ -534,7 +549,7 @@ useEffect(() => {
       {hasSizes && AVAILABLE_SIZES.length > 0 && (
         <div className="size-section">
           <div className="size-header">
-            <p>Size</p>
+            <p style={{marginLeft:"5px"}}>Size</p>
           </div>
           <div className="size-options">
             {AVAILABLE_SIZES.map((size) => {
@@ -618,7 +633,10 @@ useEffect(() => {
         <EGtakeCommitment />
 
       {/* product code number */}
-      <div style={{color:"gray", paddingTop:"10px"}}>Product code: {data?.productCodeNumber}</div>
+      <div style={{color:"gray", paddingTop:"10px"}}>Product code: {data?.productCodeNumber}
+        <span style={{paddingLeft:"10px"}}>|</span>
+        <span className="cod-badge"> Cash on Delivery</span>
+        </div>
 
       {/* ✅ Product Description (RN-like preview) */}
 <div className="review-preview">
@@ -680,15 +698,24 @@ useEffect(() => {
   </button>
 </div>
 
-      {/* Add to cart button (final logic) */}
+      {/* Add to cart & cart button */}
       <div  className="addbar">
-        <button
+         <div className="p-cart-icon-container">
+          <Link to={"/cart"} className="p-footer-icon" >
+            <FaCartArrowDown />           
+            <span className="p-cart-count-badge">{cartCountProduct}</span>
+          </Link>
+        </div>
+        <div className="p-add-name-btn">
+           <button
           className="add-to-cart-fixed"
           disabled={buttonState.disabled}
           onClick={addToCartHandle}
         >
           {buttonState.label}
         </button>
+        </div>
+        
       </div>
 
        {/* ✅ Reviews area */}

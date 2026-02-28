@@ -24,6 +24,7 @@ import SuccessModal from "../components/SuccessModal";
 import deleteCartItemWhenOrderplace from "../helpers/deleteCartItemWhenOrderplace";
 import Context from "../context";
 import updateProductStock from "../helpers/updateProductStock";
+import { MdOutlineArrowBackIos } from "react-icons/md";
 
 const PROCESSING_FEE = 5;
 
@@ -368,7 +369,9 @@ const CheckoutPage = () => {
     return (
       <div className="checkout-page">
         <div className="checkout-header">
-          <button className="back-btn" onClick={() => navigate(-1)}>←</button>
+          <button className="back-btn" onClick={() => navigate(-1)}>
+            <MdOutlineArrowBackIos/>
+          </button>
           <h2>Order Confirmation</h2>
         </div>
 
@@ -391,7 +394,7 @@ const CheckoutPage = () => {
       {/* Header (RN style) */}
       <div className="checkout-header">
         <button className="back-btn" onClick={() => navigate(-1)} disabled={isSubmitting}>
-          ←
+          <MdOutlineArrowBackIos/>
         </button>
         <h2>Order Confirmation</h2>
       </div>

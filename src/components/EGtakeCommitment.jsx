@@ -47,8 +47,8 @@ console.log("🌻🌻🌻",commonInfo);
             </div>
 
             <div className="egc-check">
-              <span className="egc-green">✓</span> Able from{" "}
-        <span style={{ fontWeight: "bold", color: "red" }}>EGtake</span> apps 
+              <span className="egc-green">✓</span> Available on the{" "}
+        <span style={{ fontWeight: "bold", color: "red" }}>EGtake</span> App
             </div>
           </button>
 
@@ -72,7 +72,7 @@ console.log("🌻🌻🌻",commonInfo);
 
             <div className="egc-row">
               <div className="egc-check">
-                <span className="egc-green">✓</span> ৳100 coupon code if delayed
+                <span className="egc-green">✓</span> ৳100 coupon if late
               </div>
               <div className="egc-check">
                 <span className="egc-green">✓</span> Refund if items damaged
@@ -82,7 +82,6 @@ console.log("🌻🌻🌻",commonInfo);
             <div className="egc-row">
               <div className="egc-check">
                 <span className="egc-green">✓</span> Refund if wrong items
-                delivery
               </div>
               <div className="egc-check">
                 <span className="egc-green">✓</span> Refund if no delivery
@@ -112,20 +111,19 @@ console.log("🌻🌻🌻",commonInfo);
 
             <div className="egc-row">
               <div className="egc-check">
-                <span className="egc-green">✓</span> Wrong Item Delivered
+                <span className="egc-green">✓</span> Wrong item delivered
               </div>
               <div className="egc-check">
-                <span className="egc-green">✓</span> Damaged or Defective
-                Product
+                <span className="egc-green">✓</span> Damaged or defective item
               </div>
             </div>
 
             <div className="egc-row">
               <div className="egc-check">
-                <span className="egc-green">✓</span> Size/Color Mismatch
+                <span className="egc-green">✓</span> Size/Color mismatch
               </div>
               <div className="egc-check">
-                <span className="egc-green">✓</span> For more details click here
+                <span className="egc-green">✓</span> See full return policy
               </div>
             </div>
           </button>

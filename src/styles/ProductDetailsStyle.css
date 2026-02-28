@@ -171,12 +171,14 @@
   margin-top: 12px;
   font-size: 18px;
   font-weight: 600;
+  margin-left: 5px;
 }
 
 .color-info {
   margin-top: 6px;
   font-size: 14px;
   color: #555;
+   margin-left: 5px;
 }
 
 .color-selector-thumbnail {
@@ -186,6 +188,7 @@
   overflow-x: auto;
   /* padding: 8px 0; */
   scrollbar-width: none;
+  margin-left: 5px;
 }
 
 .color-selector-thumbnail::-webkit-scrollbar {
@@ -237,6 +240,7 @@
   gap: 12px;
   margin-top: 8px;
   flex-wrap: wrap;
+  margin-left: 5px;
 }
 
 .size-box {
@@ -255,6 +259,7 @@
   margin-top: 12px;
   font-weight: bold;
   font-size: 14px;
+  margin-left: 5px;
 }
 
 .service-title {
@@ -299,21 +304,19 @@
 
 /* ✅ Bottom bar wrapper (background) */
 .addbar{
+  display: flex;
+  justify-content:space-between;
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-
   height: 74px;            /* 100px চাইলে 100px করে দাও */
   background: #fff;
-
   border-top: 1px solid rgba(0,0,0,0.08);
   box-shadow: 0 -8px 18px rgba(0,0,0,0.10);
-
   display: flex;
   align-items: center;
-  justify-content: center;
-
+  /* justify-content: center; */
   padding: 10px 12px;
   z-index: 9998;
 }
@@ -329,24 +332,23 @@
 }
 
 /* ✅ Fixed Add-to-Cart Button (RN-like) */
+.p-add-name-btn{
+
+  margin-right: 140px
+}
 .add-to-cart-fixed{
   position: fixed;
-  left: 50%;
   transform: translateX(-50%);
   bottom: 55px;
-
   width: 220px;
   height: 44px;
-
   background: #ff2c55;
   color: #fff;
   border: none;
   border-radius: 999px;
-
   font-size: 16px;
   font-weight: 800;
   letter-spacing: 0.2px;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -372,6 +374,38 @@
   box-shadow: none;
 }
 
+/* cart badge */
+.p-cart-icon-container { position: relative; left: 17px;}
+.p-cart-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -10px;
+  background: #FF466B;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+/* icon wrapper look */
+.p-footer-icon {
+  font-size: 30px;
+  line-height: 1;
+  /* padding: 8px 8px 0px 8px;               */
+  border-radius: 50%;           /* round shape for bg */
+  transition: all 0.25s ease;
+  background-color: transparent;
+  color:#000
+}
+
+@media (max-width:480px){
+  .main-footer.rn-footer{height:62px;}
+  .footer-icon{font-size:20px;}
+  .footer-label{font-size:12px;}
+}
+
+
 /* ✅ If you want to keep page content visible above button */
 .product-details-container{
   padding-bottom: 90px;
@@ -380,7 +414,7 @@
 /* ✅ Mobile adjust */
 @media (max-width: 480px){
   .add-to-cart-fixed{
-    width: 88%;
+    width: 70%;
     max-width: 360px;
     height: 46px;
     bottom: 20px;
@@ -393,7 +427,7 @@
     max-width: 100%;
   }
   .product-details-container {
-    padding: 12px;
+    padding: 5px;
   }
   .selling-price {
     font-size: 20px;
@@ -532,7 +566,7 @@
 }
 /* product review section  */
 .review-preview{
-  margin-top:16px;
+  margin-top:10px;
   background:#fff;
   border-radius:10px;
   padding:12px;
@@ -715,17 +749,6 @@
   cursor: not-allowed;
 }
 
-/* =========================
-   Reviews UI (Web)
-   ========================= */
-.review-preview {
-  margin-top: 16px;
-  background: #fff;
-  border-radius: 10px;
-  padding: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
 .review-preview-header {
   display: flex;
   align-items: center;
@@ -860,20 +883,21 @@
 
 /* back button */
 
-.backButton{
+.p-back-button{
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: #b1b0b0;
+  border-radius: 60px;
+  border: 2px solid rgba(0,0,0,0.12);
+  background:#bfbfbf;
   cursor: pointer;
-  width: 80px;
-  font-weight: 600;
+  width: 45px;
+  font-weight: 800;
   position: fixed;
   color:black;
-  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+  z-index: 999;
+  text-align: center;
+  margin-left: 10px;
+  background-color: transparent;
 }
 
 .backButton:hover{
@@ -886,10 +910,114 @@
 }
 
 .backIcon{
-  font-size: 16px;
-  line-height: 1;
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
 }
 
-.backText{
-  font-size: 14px;
+/* cash on delivery  */
+.cod-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #ff2c55;
+  background: rgba(255, 44, 85, 0.08);
+  border: 1px solid rgba(255, 44, 85, 0.25);
+  user-select: none;
+  white-space: nowrap;
+  margin-left: 15px;
+}
+
+/* optional small icon before text */
+.cod-badge::before{
+  content: "💵";
+  font-size: 13px;
+  line-height: 1;
+  padding-bottom: 2px;
+}
+
+/* mobile tweak */
+@media (max-width: 480px){
+  .cod-badge{
+    font-size: 12px;
+    padding: 5px 9px;
+    padding-bottom: 6px
+  }
+}
+
+
+/* =========================
+   Product Details Skeleton
+   ========================= */
+.pd-skel .skel {
+  background: #eee;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+/* shimmer animation */
+.pd-skel .skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.55) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  animation: skelShimmer 1.1s infinite;
+}
+
+@keyframes skelShimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* shapes */
+.pd-skel .skel-line { height: 14px; border-radius: 8px; }
+.pd-skel .skel-pill { height: 18px; border-radius: 999px; }
+.pd-skel .skel-rect { border-radius: 12px; }
+.pd-skel .skel-circle { width: 22px; height: 22px; border-radius: 50%; }
+
+/* specific sizes to match your layout */
+.pd-skel-slider { width: 100%; height: 340px; border-radius: 14px; }
+@media (max-width: 480px) { .pd-skel-slider { height: 300px; } }
+
+.pd-skel-counter { width: 170px; margin: 10px auto 0; }
+.pd-skel-price { width: 110px; height: 22px; border-radius: 10px; }
+.pd-skel-discount { width: 90px; }
+.pd-skel-original { width: 70px; }
+
+.pd-skel-name { width: 88%; height: 18px; margin-top: 12px; }
+.pd-skel-color { width: 52%; margin-top: 8px; }
+
+.pd-skel-size-title { width: 90px; margin-top: 18px; }
+.pd-skel-size { width: 56px; height: 30px; border-radius: 999px; }
+
+.pd-skel-section-title { width: 140px; height: 18px; border-radius: 10px; }
+
+.pd-skel-line1 { width: 92%; margin: 10px 0 6px; }
+.pd-skel-line2 { width: 80%; margin: 0 0 6px; }
+.pd-skel-line3 { width: 60%; }
+
+/* back button keeps same place */
+.skel-btn {
+  pointer-events: none;
+}
+
+/* bottom bar skeleton pieces */
+.pd-skel-addname { width: 140px; height: 14px; border-radius: 8px; }
+.pd-skel-addbtn { width: 140px; height: 18px; border-radius: 999px; }
+
+/* Prevent skeleton button text showing */
+.pd-skel .add-to-cart-fixed {
+  color: transparent;
 }

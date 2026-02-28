@@ -286,12 +286,12 @@
 /* Bottom fixed submit button */
 .bottom-submit{
   position: fixed;
-  left: 12px;
-  right: 12px;
+  left: 15%;
+  right: 15%px;
   bottom: 12px;
-  max-width: 980px;
+  width: 70%;
   margin: 0 auto;
-  margin-bottom: 50px
+  margin-bottom: 55px
 }
 
 .submit-btn{
