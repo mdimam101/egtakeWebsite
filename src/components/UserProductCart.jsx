@@ -1,4 +1,5 @@
 // import React, { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "../styles/UserProductCartStyle.css";
 import { Link } from "react-router";
 
@@ -15,38 +16,38 @@ import { Link } from "react-router";
 
 const UserProductCart = ({ productData }) => {
   // news/labels (আগের লজিকই রাখলাম; শুধু qualityType থাকলে দেখাবো)
-  // const demoNews = useMemo(() => {
-  //   const labels = ["Free Delivery", "New Arrival", "Hot Offer"];
-  //   if (productData?.qualityType) labels.splice(1, 0, productData.qualityType);
-  //   return labels;
-  // }, [productData?.qualityType]);
+  const demoNews = useMemo(() => {
+    const labels = ["Free Delivery", "New Arrival", "Most selling product","stock limit"];
+    if (productData?.qualityType) labels.splice(1, 0, productData.qualityType);
+    return labels;
+  }, [productData?.qualityType]);
 
-  // const totalItem = demoNews.length;
+  const totalItem = demoNews.length;
 
-  // const [visibleIndex, setVisibleIndex] = useState(() =>
-  //   Math.floor(Math.random() * totalItem)
-  // );
+  const [visibleIndex, setVisibleIndex] = useState(() =>
+    Math.floor(Math.random() * totalItem)
+  );
 
-  // const intervalRef = useRef(null);
+  const intervalRef = useRef(null);
 
-  // useEffect(() => {
-  //   // random delay create
-  //   const randomDelay = Math.floor(Math.random() * 2000); // 0-2s random delay
+  useEffect(() => {
+    // random delay create
+    const randomDelay = Math.floor(Math.random() * 2000); // 0-2s random delay
 
-  //   const startTimer = () => {
-  //     intervalRef.current = setInterval(() => {
-  //       setVisibleIndex((prev) => (prev + 1) % totalItem);
-  //     }, 3000);
-  //   };
+    const startTimer = () => {
+      intervalRef.current = setInterval(() => {
+        setVisibleIndex((prev) => (prev + 1) % totalItem);
+      }, 3000);
+    };
 
-  //   // first delay before starting interval
-  //   const initialTimeout = setTimeout(startTimer, randomDelay);
+    // first delay before starting interval
+    const initialTimeout = setTimeout(startTimer, randomDelay);
 
-  //   return () => {
-  //     clearTimeout(initialTimeout);
-  //     clearInterval(intervalRef.current);
-  //   };
-  // }, [totalItem]);
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(intervalRef.current);
+    };
+  }, [totalItem]);
 
   // const primaryImg = getPrimaryImage(productData);
 
@@ -77,7 +78,7 @@ const UserProductCart = ({ productData }) => {
       </div>
 
       {/* 🔔 vertical news ticker (unchanged behavior) */}
-      {/* <div className="news-box">
+      <div className="news-box">
         <div
           className="news-container"
           style={{
@@ -85,14 +86,14 @@ const UserProductCart = ({ productData }) => {
             transform: `translateY(-${visibleIndex * 20}px)`,
             transition: "transform 0.5s ease",
           }}
-        > */}
-          {/* {demoNews.map((news, idx) => (
+        >
+          {demoNews.map((news, idx) => (
             <div className="news-slide" key={idx}>
               <p>{news}</p>
             </div>
-          ))} */}
-        {/* </div> */}
-      {/* </div> */}
+          ))}
+        </div>
+      </div>
     </Link>
   );
 };

@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAllProductList } from "../store/allProductSlice";
 import { generateOptimizedVariants } from "../helpers/variantUtils";
 import {setBanarList} from '../store/banarSlice'
+import TrendingGlassSlideCard from "../components/TrendingGlassSlideCard";
 
 const HomePage = () => {
  // const [allProducts, setAllProducts] = useState([]);
@@ -145,13 +146,13 @@ const HomePage = () => {
           padding: "0px 0",
           borderBottom: "1px solid #eee",
           width: "100%",
-          marginTop: "5px",
+          marginTop: "0px",
         }}
       >
         <CategoryList />
       </div>
 
-      <div className="homepage" style={{ marginTop: "40px" }}>
+      <div className="homepage" style={{ marginTop: "45px" ,marginBottom:"65px"}}>
         {/* 🖼️ Auto-Sliding Banner */}
         {banners.length > 0 && (
           <div
@@ -181,23 +182,21 @@ const HomePage = () => {
 
         {/* 🔥 Tranding Slide Section */}
         {!showAllTranding && !isTrandingPage && trandingProducts.length > 0 && (
-          <div className="tranding-section">
-            <h2 className="section-title">🔥 Tranding Products</h2>
-            <div className="tranding-slider">
-              {trandingProducts.slice(0, 10).map((product, idx) => (
-                <UserSlideProductCart productData={product} key={idx} />
-              ))}
+          <div className="tranding-section tranding-bg">
+  <h2 className="home-section-title section-trending">🔥 Tranding</h2>
 
-              {trandingProducts.length > 10 && (
-                <div
-                  className="view-more-card"
-                  onClick={() => setShowAllTranding(true)}
-                >
-                  <p className="view-more-text">View More ➜</p>
-                </div>
-              )}
-            </div>
-          </div>
+  <div className="tranding-slider">
+    {trandingProducts.slice(0, 10).map((product, idx) => (
+      <TrendingGlassSlideCard productData={product} key={idx} />
+    ))}
+
+    {trandingProducts.length > 10 && (
+      <div className="view-more-card" onClick={() => setShowAllTranding(true)}>
+        <p className="view-more-text">View More ➜</p>
+      </div>
+    )}
+  </div>
+</div>
         )}
 
         {/* 💰 0~99 টাকা Shop Section */}
@@ -206,7 +205,7 @@ const HomePage = () => {
           !showAllLowPrice &&
           productsBelow99.length > 0 && (
             <div className="low-price-section">
-              <h2 className="section-title">💰 ০~৯৯ টাকা Shop</h2>
+              <h2 className="home-section-title section-budget">💰 ০~৯৯ টাকা</h2>
               <div className="tranding-slider">
                 {productsBelow99.slice(0, 12).map((product, idx) => (
                   <UserSlideProductCart productData={product} key={idx} />
@@ -223,7 +222,7 @@ const HomePage = () => {
               </div>
             </div>
           )}
-          <p style={{paddingLeft:"10px", fontWeight:'bold'}}>For Yours</p>
+          <h2 className="home-section-title section-budget">For Yours</h2>
 
         {/* ✅ Products Grid */}
         <div className="home-product-grid">

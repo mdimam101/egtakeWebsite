@@ -887,7 +887,7 @@
   display: inline-flex;
   align-items: center;
   border-radius: 60px;
-  border: 2px solid rgba(0,0,0,0.12);
+  border: 2px solid rgba(255, 0, 0, 0.12);
   background:#bfbfbf;
   cursor: pointer;
   width: 45px;
@@ -912,7 +912,7 @@
 .backIcon{
   font-size: 18px;
   font-weight: bold;
-  color: #000;
+  color: #020202;
 }
 
 /* cash on delivery  */
@@ -939,7 +939,7 @@
   content: "💵";
   font-size: 13px;
   line-height: 1;
-  padding-bottom: 2px;
+  /* padding-bottom: 2px; */
 }
 
 /* mobile tweak */

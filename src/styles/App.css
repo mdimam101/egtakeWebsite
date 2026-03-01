@@ -12,17 +12,6 @@ html, body {
   min-height: 100vh;
 }
 
-/* .main-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 999;
-  background-color: #fff;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-} */
-
 /* main content should be pushed down */
 .main-content {
   flex: 1;

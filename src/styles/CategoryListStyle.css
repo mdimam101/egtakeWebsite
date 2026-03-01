@@ -1,58 +1,120 @@
-.top-slide-category { 
+/* =========================
+   Category Slider - Premium Chips
+   (NO JSX/logic change)
+========================= */
+
+:root{
+  --eg-pink:#ff2c55;
+  --text:#111827;
+  --muted:#6b7280;
+  --line:rgba(0,0,0,0.08);
+  --chip:#f4f5f7;
+}
+
+/* container */
+.top-slide-category{
+  position: relative;
   display: flex;
+  align-items: center;
+  gap: 10px;
+
   overflow-x: auto;
+  overflow-y: hidden;
   white-space: nowrap;
-  gap: 5px;
-  padding: 5px 10px;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
+
+  padding: 10px 10px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(10px);
+
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+
   scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.top-slide-category::-webkit-scrollbar {
-  display: none;
+.top-slide-category::-webkit-scrollbar{ display:none; }
+
+/* premium edge fade */
+.top-slide-category::before,
+.top-slide-category::after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  width: 18px;
+  pointer-events:none;
+  z-index: 2;
 }
 
-.category-item {
+.top-slide-category::before{
+  left:0;
+  background: linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0));
+}
+
+.top-slide-category::after{
+  right:0;
+  background: linear-gradient(270deg, rgba(255,255,255,1), rgba(255,255,255,0));
+}
+
+/* chip */
+.category-item{
   flex: 0 0 auto;
   scroll-snap-align: start;
-  padding: 5px 10px;
-  background-color: #f3f3f3;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #333;
+
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  background: var(--chip);
+  color: rgba(17,24,39,0.85);
+  border: 1px solid rgba(0,0,0,0.06);
+
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+
   text-decoration: none;
-  border: 1px solid #ddd;
-  transition: 0.3s;
+  user-select: none;
+
+  transition: transform .16s ease, background-color .16s ease, box-shadow .16s ease, border-color .16s ease, color .16s ease;
 }
 
-/* Hover effect */
-.category-item:hover {
-  background-color: #e0e0e0;
-  color: #000;
-}
-
-/* ✅ Active (clicked/focused) style */
-.category-item.active {
-  background-color: #FF466B;
-  color: #fff;
-  border-color: #FF466B;
-  font-weight: 600;
-  box-shadow: 0 0 6px rgba(74, 108, 255, 0.4);
-}
-
-@media (max-width: 768px) {
-  .category-item {
-    font-size: 13px;
-    padding: 6px 14px;
+/* hover (desktop only) */
+@media (hover:hover){
+  .category-item:hover{
+    transform: translateY(-1px);
+    background: #eeeeef;
+    border-color: rgba(0,0,0,0.10);
+    box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+    color: rgba(17,24,39,0.95);
   }
 }
 
-@media (max-width: 480px) {
-  .category-item {
+/* active chip */
+.category-item.active{
+  background: var(--eg-pink);
+  color: #fff;
+  border-color: rgba(255,44,85,0.55);
+  box-shadow: 0 14px 22px rgba(255,44,85,0.22);
+}
+
+/* keyboard focus */
+.category-item:focus-visible{
+  outline: 2px solid rgba(255,44,85,0.35);
+  outline-offset: 2px;
+}
+
+/* mobile tweaks */
+@media (max-width: 480px){
+  .top-slide-category{
+    gap: 8px;
+    padding: 9px 8px;
+  }
+  .category-item{
+    padding: 7px 12px;
     font-size: 12px;
-    padding: 5px 12px;
   }
 }

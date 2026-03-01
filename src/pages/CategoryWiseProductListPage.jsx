@@ -55,7 +55,7 @@ const CategoryWiseProductListPage = () => {
       >
         <CategoryList />
       </div>
-      <div className="product-grid" style={{marginTop:"40px"}}>
+      <div className="product-grid" style={{marginTop:"40px", marginBottom:"65px"}}>
         {wishProductList.length > 0 ? (
           wishProductList.map((ele, idx) => (
             <UserProductCart productData={ele} key={idx} />
