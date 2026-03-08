@@ -1,6 +1,5 @@
 /* =========================
    Category Slider - Premium Chips
-   (NO JSX/logic change)
 ========================= */
 
 :root{
@@ -36,7 +35,9 @@
   -ms-overflow-style: none;
 }
 
-.top-slide-category::-webkit-scrollbar{ display:none; }
+.top-slide-category::-webkit-scrollbar{
+  display:none;
+}
 
 /* premium edge fade */
 .top-slide-category::before,
@@ -64,7 +65,7 @@
 .category-item{
   flex: 0 0 auto;
   scroll-snap-align: start;
-
+  text-decoration: none;
   padding: 8px 14px;
   border-radius: 999px;
 
@@ -76,13 +77,10 @@
   font-weight: 800;
   letter-spacing: 0.2px;
 
-  text-decoration: none;
   user-select: none;
-
   transition: transform .16s ease, background-color .16s ease, box-shadow .16s ease, border-color .16s ease, color .16s ease;
 }
 
-/* hover (desktop only) */
 @media (hover:hover){
   .category-item:hover{
     transform: translateY(-1px);
@@ -90,6 +88,7 @@
     border-color: rgba(0,0,0,0.10);
     box-shadow: 0 10px 18px rgba(0,0,0,0.10);
     color: rgba(17,24,39,0.95);
+    text-decoration: none;
   }
 }
 
@@ -99,12 +98,57 @@
   color: #fff;
   border-color: rgba(255,44,85,0.55);
   box-shadow: 0 14px 22px rgba(255,44,85,0.22);
+  text-decoration: none;
 }
 
 /* keyboard focus */
 .category-item:focus-visible{
   outline: 2px solid rgba(255,44,85,0.35);
   outline-offset: 2px;
+  text-decoration: none;
+}
+
+/* =========================
+   Skeleton Chip Design
+========================= */
+.category-skeleton-chip{
+  flex: 0 0 auto;
+  height: 34px;
+  min-width: 68px;
+  border-radius: 999px;
+  position: relative;
+  overflow: hidden;
+
+  background: linear-gradient(
+    90deg,
+    #f1f2f4 0%,
+    #e7e9ee 20%,
+    #f8f9fb 40%,
+    #e7e9ee 60%,
+    #f1f2f4 100%
+  );
+  background-size: 300% 100%;
+  animation: categoryShimmer 1.3s ease-in-out infinite;
+
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+.category-skeleton-chip:nth-child(1){ width: 62px; }
+.category-skeleton-chip:nth-child(2){ width: 92px; }
+.category-skeleton-chip:nth-child(3){ width: 78px; }
+.category-skeleton-chip:nth-child(4){ width: 110px; }
+.category-skeleton-chip:nth-child(5){ width: 85px; }
+.category-skeleton-chip:nth-child(6){ width: 95px; }
+.category-skeleton-chip:nth-child(7){ width: 72px; }
+
+@keyframes categoryShimmer{
+  0%{
+    background-position: 100% 0;
+  }
+  100%{
+    background-position: -100% 0;
+  }
 }
 
 /* mobile tweaks */
@@ -113,8 +157,13 @@
     gap: 8px;
     padding: 9px 8px;
   }
+
   .category-item{
     padding: 7px 12px;
     font-size: 12px;
+  }
+
+  .category-skeleton-chip{
+    height: 32px;
   }
 }

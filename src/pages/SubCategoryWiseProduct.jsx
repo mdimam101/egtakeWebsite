@@ -4,6 +4,7 @@ import SummaryApi from "../common";
 import UserProductCart from "../components/UserProductCart";
 import CategoryList from "../components/CategoryList";
 import { generateOptimizedVariants } from "../helpers/variantUtils";
+import UserProductCartSkeleton from "../components/skeletonAnime/UserProductCartSkeleton";
 
 const SubCategoryWiseProduct = () => {
   const [wishProductList, setWishProductList] = useState([]);
@@ -55,15 +56,17 @@ const SubCategoryWiseProduct = () => {
       >
         <CategoryList />
       </div>
-      <div className="product-grid" style={{marginTop:"40px",marginBottom:"65px"}}>
+      <div className="product-grid" style={{marginTop:"50px",marginBottom:"65px"}}>
         {wishProductList.length > 0 ? (
           wishProductList.map((ele, idx) => (
             <UserProductCart productData={ele} key={idx} />
           ))
         ) : (
-          <p style={{ padding: "1rem", textAlign: "center" }}>
-            No products found in this category
-          </p>
+          Array.from({ length: 4 }).map((_, idx) => (
+        <div style={{ width: "160px", flex: "0 0 auto" }} key={idx}>
+          <UserProductCartSkeleton />
+        </div>
+      ))
         )}
       </div>
     </>

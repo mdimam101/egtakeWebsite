@@ -26,6 +26,7 @@
   border-radius: 10px;
   position: relative;
   margin-bottom: 10px;
+  text-decoration: none;
 }
 
 /* icon wrapper look */
@@ -50,6 +51,7 @@
 .footer-item:hover .footer-icon {
   /* background-color: rgba(255,70,107,0.1); */
   color: #FF466B;
+  text-decoration: none;
 }
 
 /* ✅ active/focus (pink bubble) */
@@ -58,19 +60,22 @@
   /* font-weight: 600; */
   text-decoration: none;
   border-bottom: none;
+  text-decoration: none;
 }
 .footer-item.active .footer-icon {
   /* background-color: rgba(255,70,107,0.15); */
   color: #FF466B;
   transform: scale(1.1);
+  text-decoration: none;
 }
 
 /* remove any dot from before */
-.footer-item::after { content: none !important; }
+.footer-item::after { content: none !important; text-decoration: none;}
 
 /* keyboard focus */
 .footer-item:focus-visible {
   outline: none;
+  text-decoration: none;
   /* box-shadow: 0 0 0 3px rgba(255,70,107,0.25); */
 }
 
@@ -91,5 +96,5 @@
 @media (max-width:480px){
   .main-footer.rn-footer{height:62px;}
   .footer-icon{font-size:20px;}
-  .footer-label{font-size:12px;}
+  .footer-label{font-size:12px; text-decoration: none;}
 }

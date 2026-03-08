@@ -4,13 +4,13 @@ import SummaryApi from "../common";
 import UserProductCart from "../components/UserProductCart";
 import CategoryList from "../components/CategoryList";
 import { generateOptimizedVariants } from "../helpers/variantUtils";
+import UserProductCartSkeleton from "../components/skeletonAnime/UserProductCartSkeleton";
 
 const CategoryWiseProductListPage = () => {
   const [wishProductList, setWishProductList] = useState([]);
   const params = useParams();
 
   console.log("params.categoryName", params.categoryName);
-  
 
   const fetchWishCategoryProduct = async () => {
     try {
@@ -27,7 +27,7 @@ const CategoryWiseProductListPage = () => {
 
       if (result.success) {
         console.log("setWishProductList", result.data);
-         const optimized = generateOptimizedVariants(result.data);
+        const optimized = generateOptimizedVariants(result.data);
         setWishProductList(optimized);
       }
     } catch (error) {
@@ -49,22 +49,25 @@ const CategoryWiseProductListPage = () => {
           backgroundColor: "#fff",
           padding: "0px 0",
           borderBottom: "1px solid #eee",
-          width:"100%",
-          marginTop:"7px"
+          width: "100%",
+          marginTop: "0px",
         }}
       >
         <CategoryList />
       </div>
-      <div className="product-grid" style={{marginTop:"40px", marginBottom:"65px"}}>
-        {wishProductList.length > 0 ? (
-          wishProductList.map((ele, idx) => (
-            <UserProductCart productData={ele} key={idx} />
-          ))
-        ) : (
-          <p style={{ padding: "1rem", textAlign: "center" }}>
-            No products found in this category
-          </p>
-        )}
+      <div
+        className="product-grid"
+        style={{ marginTop: "50px", marginBottom: "75px" }}
+      >
+        {wishProductList.length > 0
+          ? wishProductList.map((ele, idx) => (
+              <UserProductCart productData={ele} key={idx} />
+            ))
+          : Array.from({ length: 4 }).map((_, idx) => (
+              <div style={{ width: "160px", flex: "0 0 auto" }} key={idx}>
+                <UserProductCartSkeleton />
+              </div>
+            ))}
       </div>
     </>
   );

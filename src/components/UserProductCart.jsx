@@ -3,17 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import "../styles/UserProductCartStyle.css";
 import { Link } from "react-router";
 
-// Helper: safely get primary image (new API first, old API fallback)
-// const getPrimaryImage = (p) => {
-//   const v0 = p?.variants?.[0];
-//   const img = v0?.images?.[0];
-//   return (
-//     img ||
-//     p?.productImg?.[0] || // fallback for old data
-//     "/no-image.png"
-//   );
-// };
-
 const UserProductCart = ({ productData }) => {
   // news/labels (আগের লজিকই রাখলাম; শুধু qualityType থাকলে দেখাবো)
   const demoNews = useMemo(() => {

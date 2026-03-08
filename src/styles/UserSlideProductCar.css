@@ -29,6 +29,7 @@
   box-shadow: 0 10px 20px rgba(0,0,0,0.06);
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   will-change: transform;
+  text-decoration: none;
 }
 
 @media (hover:hover){
@@ -36,11 +37,13 @@
     transform: translateY(-2px);
     box-shadow: 0 16px 28px rgba(0,0,0,0.10);
     border-color: rgba(255,44,85,0.25);
+    text-decoration: none;
   }
 }
 
 .slide-product-card:active{
   transform: scale(0.99);
+  text-decoration: none;
 }
 
 /* Image wrap */
@@ -127,6 +130,7 @@
   .slide-product-card{
     width: 124px;
     border-radius: 14px;
+    text-decoration: none;
   }
   .slide-product-info{
     padding: 8px 9px 9px;

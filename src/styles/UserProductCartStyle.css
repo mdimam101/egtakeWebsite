@@ -50,12 +50,14 @@
     transform: translateY(-2px);
     box-shadow: 0 16px 28px rgba(0,0,0,0.10);
     border-color: rgba(255,44,85,0.25);
+    text-decoration: none;
   }
 }
 
 /* tap feedback (mobile) */
 .user-product-card:active{
   transform: scale(0.99);
+  text-decoration: none;
 }
 
 /* Image */
@@ -181,6 +183,7 @@
 @media (max-width: 480px){
   .user-product-card{
     border-radius: 14px;
+    text-decoration: none;
   }
   .product-info{
     padding: 9px 9px 7px;
@@ -193,5 +196,110 @@
   }
   .news-box{
     margin: 0 9px 9px;
+  }
+}
+/* =========================
+   Product Card Skeleton
+========================= */
+
+.skeleton-card{
+  pointer-events: none;
+  user-select: none;
+}
+
+.skeleton-shimmer{
+  background: linear-gradient(
+    90deg,
+    #f1f2f5 0%,
+    #e5e7eb 20%,
+    #f8fafc 40%,
+    #e5e7eb 60%,
+    #f1f2f5 100%
+  );
+  background-size: 300% 100%;
+  animation: userProductSkeletonShimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes userProductSkeletonShimmer{
+  0%{
+    background-position: 100% 0;
+  }
+  100%{
+    background-position: -100% 0;
+  }
+}
+
+/* image area */
+.skeleton-card .user-product-img{
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 0;
+}
+
+/* title lines */
+.skeleton-line{
+  height: 12px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.skeleton-title{
+  width: 100%;
+}
+
+.skeleton-title.short{
+  width: 72%;
+  margin-bottom: 12px;
+}
+
+/* price row */
+.skeleton-price-row{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.skeleton-tk-icon{
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.skeleton-price{
+  width: 70px;
+  height: 16px;
+  border-radius: 999px;
+}
+
+/* news line */
+.skeleton-news-box{
+  display: flex;
+  align-items: center;
+  padding: 0 10px 0 18px;
+  background: rgba(255,44,85,0.04);
+  border: 1px solid rgba(255,44,85,0.05);
+}
+
+.skeleton-news-line{
+  width: 78%;
+  height: 10px;
+  border-radius: 999px;
+}
+
+/* mobile polish */
+@media (max-width: 480px){
+  .skeleton-line{
+    height: 11px;
+  }
+
+  .skeleton-price{
+    width: 62px;
+    height: 15px;
+  }
+
+  .skeleton-news-line{
+    width: 82%;
+    height: 9px;
   }
 }
