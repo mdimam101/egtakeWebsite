@@ -531,18 +531,28 @@ const UserProfile = () => {
   return (
     <div className="profile-wrapper">
       {/* Header */}
-      <div className="profile-header">
-        <h2>Profile</h2>
+     {/* Header */}
+<div className="profile-header">
+  <div className="profile-header__left">
+    <h2>Profile</h2>
+    <p className="profile-header__sub">Manage your account and orders</p>
+  </div>
 
-        <div className="header-actions">
-          <button className="icon-btn" onClick={() => setSettingsOpen(true)} title="Settings">
-            ⚙️
-          </button>
-          <Link className="icon-btn" to="/cart" title="Cart">
-            🛒
-          </Link>
-        </div>
-      </div>
+  {/* <div className="header-actions"> */}
+    <button
+      type="button"
+      className="icon-btn"
+      onClick={() => setSettingsOpen(true)}
+      title="Settings"
+    >
+      ⚙️
+    </button>
+
+    {/* <Link className="icon-btn" to="/cart" title="Cart">
+      🛒
+    </Link> */}
+  {/* </div> */}
+</div>
 
       {/* Hero */}
       <div className="profile-hero">
@@ -577,7 +587,7 @@ const UserProfile = () => {
       </div>
 
       {/* Quick actions */}
-      <div className="quick-grid">
+      {/* <div className="quick-grid">
         <button className="quick-item" onClick={() => setSelectedTab("All")}>
           📦 <span>My Orders</span>
         </button>
@@ -596,7 +606,7 @@ const UserProfile = () => {
         <button className="quick-item" onClick={() => toast.info("Help center coming soon")}>
           ❓ <span>Help</span>
         </button>
-      </div>
+      </div> */}
 
       {/* Tabs (Review removed) */}
       <div className="tabs-row">
@@ -675,30 +685,125 @@ const UserProfile = () => {
       />
 
       {/* Settings Sheet (ICON-ONLY) */}
-      <div className={["sheet", settingsOpen ? "is-open" : ""].join(" ")}>
-        <div className="sheet__backdrop" onClick={() => setSettingsOpen(false)} />
-        <div className="sheet__body">
-          <div className="sheet__head">
-            <div className="sheet__title">Settings</div>
-            <button className="icon-btn" onClick={() => setSettingsOpen(false)}>
-              ✖
-            </button>
-          </div>
+<div className={["sheet", settingsOpen ? "is-open" : ""].join(" ")}>
+  <div className="sheet__backdrop" onClick={() => setSettingsOpen(false)} />
+  <div className="sheet__body">
+    <div className="sheet__head">
+      <div className="sheet__title">Settings</div>
+      <button className="icon-btn" onClick={() => setSettingsOpen(false)}>
+        ✖
+      </button>
+    </div>
 
-          {/* icon-only grid; NO LABEL TEXT */}
-          <div className="icons-grid">
-            <button className="icon-only" title="Edit Profile" onClick={() => toast.info("Edit profile coming soon")}>👤</button>
-            <button className="icon-only" title="Addresses" onClick={() => toast.info("Addresses coming soon")}>🗺️</button>
-            <button className="icon-only" title="Notifications" onClick={() => toast.info("Notifications coming soon")}>🔔</button>
-            <button className="icon-only" title="Language" onClick={() => toast.info("Language setting coming soon")}>🌐</button>
-            <button className="icon-only" title="Help & Support" onClick={() => { setSettingsOpen(false); setSupportOpen(true); }}>❓</button>
-            {/* Admin panel — moved here */}
-            <Link to="/admin-panel/all-products" className="icon-only" title="Admin Panel" onClick={() => setSettingsOpen(false)}>🛠️</Link>
-            <button className="icon-only danger" title="Logout" onClick={() => { setSettingsOpen(false); setLogoutAsk(true); }}>🚪</button>
-            <button className="icon-only danger" title="Delete Account" onClick={() => { setSettingsOpen(false); setDeleteAsk(true); }}>🗑️</button>
-          </div>
-        </div>
-      </div>
+    <div className="settings-menu">
+      <button
+        className="settings-item"
+        title="Edit Profile"
+        onClick={() => toast.info("Edit profile coming soon")}
+      >
+        <span className="settings-left">
+          <span className="settings-emoji">👤</span>
+          <span>Edit Profile</span>
+        </span>
+        <span className="settings-arrow">›</span>
+      </button>
+
+      <button
+        className="settings-item"
+        title="Addresses"
+        onClick={() => toast.info("Addresses coming soon")}
+      >
+        <span className="settings-left">
+          <span className="settings-emoji">🗺️</span>
+          <span>Addresses</span>
+        </span>
+        <span className="settings-arrow">›</span>
+      </button>
+
+      <button
+        className="settings-item"
+        title="Notifications"
+        onClick={() => toast.info("Notifications coming soon")}
+      >
+        <span className="settings-left">
+          <span className="settings-emoji">🔔</span>
+          <span>Notifications</span>
+        </span>
+        <span className="settings-arrow">›</span>
+      </button>
+
+      <button
+        className="settings-item"
+        title="Language"
+        onClick={() => toast.info("Language setting coming soon")}
+      >
+        <span className="settings-left">
+          <span className="settings-emoji">🌐</span>
+          <span>Language</span>
+        </span>
+        <span className="settings-arrow">›</span>
+      </button>
+
+      <button
+        className="settings-item"
+        title="Help & Support"
+        onClick={() => {
+          setSettingsOpen(false);
+          setSupportOpen(true);
+        }}
+      >
+        <span className="settings-left">
+          <span className="settings-emoji">❓</span>
+          <span>Help & Support</span>
+        </span>
+        <span className="settings-arrow">›</span>
+      </button>
+
+      <Link
+        to="/admin-panel/all-products"
+        className="settings-item"
+        title="Admin Panel"
+        onClick={() => setSettingsOpen(false)}
+      >
+        <span className="settings-left">
+          <span className="settings-emoji">🛠️</span>
+          <span>Admin Panel</span>
+        </span>
+        <span className="settings-arrow">›</span>
+      </Link>
+
+      <button
+        className="settings-item danger"
+        title="Logout"
+        onClick={() => {
+          setSettingsOpen(false);
+          setLogoutAsk(true);
+        }}
+      >
+        <span className="settings-left">
+          <span className="settings-emoji">🚪</span>
+          <span>Logout</span>
+        </span>
+        <span className="settings-arrow">›</span>
+      </button>
+
+      <button
+        className="settings-item danger"
+        title="Delete Account"
+        onClick={() => {
+          setSettingsOpen(false);
+          setDeleteAsk(true);
+        }}
+      >
+        <span className="settings-left">
+          <span className="settings-emoji">🗑️</span>
+          <span>Delete Account</span>
+        </span>
+        <span className="settings-arrow">›</span>
+      </button>
+    </div>
+  </div>
+</div>
 
       {/* Support sheet */}
       <div className={["sheet", supportOpen ? "is-open" : ""].join(" ")}>
