@@ -34,8 +34,8 @@
   min-width: 145px;
   flex-shrink: 0;
   height: 100%;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
+  overflow: hidden;
+  /* -webkit-overflow-scrolling: touch; */
 
   background: var(--card);
   border: 1px solid var(--line);
@@ -72,7 +72,7 @@
 }
 
 .category-sidebar li {
-  margin-bottom: 8px;
+  /* margin-bottom: 8px; */
 }
 
 .category-sidebar button {
@@ -153,7 +153,7 @@
 ========================= */
 .subcategory-grid {
   flex: 1;
-  overflow: auto;
+  overflow: scroll;
   -webkit-overflow-scrolling: touch;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -298,6 +298,7 @@
   .category-page-container {
     gap: 8px;
     padding: 8px;
+    overflow: hidden;
   }
 
   .category-sidebar {

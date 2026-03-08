@@ -150,7 +150,7 @@ const CategoryPage = () => {
 
       {/* Right Side */}
       <section className="subcategory-section">
-        <div className="subcategory-topbar">
+        {/* <div className="subcategory-topbar">
           <div>
             <h2>
               {selectedCategory === "All"
@@ -159,7 +159,7 @@ const CategoryPage = () => {
             </h2>
             <p>{filteredCategories.length} items found</p>
           </div>
-        </div>
+        </div> */}
 
         <div className="subcategory-grid">
           {loading ? (

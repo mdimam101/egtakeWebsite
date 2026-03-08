@@ -10,6 +10,7 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 /* main content should be pushed down */
@@ -17,13 +18,13 @@ html, body {
   flex: 1;
   padding: 50px 2px 2px 2px; 
   background-color: #f9f9f9;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 .main-content-without-product-page {
   flex: 1;
   padding: 0px 2px 2px 2px; 
   background-color: #f9f9f9;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 /* Footer (fixed at bottom) */
 .main-footer {
