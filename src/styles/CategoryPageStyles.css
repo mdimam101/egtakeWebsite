@@ -1,14 +1,6 @@
 :root {
   --headerPlusSearchH: 100px;
   --footerH: 60px;
-
-  --eg-pink: #ff2c55;
-  --text: #111827;
-  --muted: #6b7280;
-  --line: rgba(0, 0, 0, 0.08);
-  --soft: #f7f8fa;
-  --card: #ffffff;
-  --shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
 }
 
 /* page */

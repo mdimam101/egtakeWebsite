@@ -219,7 +219,7 @@
 .home-product-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 4px;
   padding: 6px 2px 0;
 }
 

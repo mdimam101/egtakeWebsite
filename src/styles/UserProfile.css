@@ -313,11 +313,12 @@
 /* Tabs */
 .tabs-row {
   width: 100%;
-  display: flex;
+  /* display:flex; */
+  /* justify-content: center; */
   align-items: center;
-  gap: 10px;
-  /* margin-top: 18px; */
-  margin-bottom: 6px;
+  /* gap: 6px; */
+  margin-top: 18px;
+  margin-bottom: 1px;
   overflow-x: auto;
   overflow-y: hidden;
   flex-wrap: nowrap;
@@ -331,8 +332,8 @@
   display: none;
 }
 
-.chip {
-  width: auto !important;
+.p-chip {
+  width: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -344,8 +345,10 @@
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
   color: #475569;
-  padding: 11px 16px;
+  padding: 11px 1px;
+  margin-top: 10px;
   border-radius: 999px;
+  margin-left: 5px;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -353,24 +356,24 @@
   transition: all 0.2s ease;
 }
 
-.chip:hover {
+.p-chip:hover {
   background: #f8fbff;
   border-color: rgba(25, 118, 210, 0.2);
   color: #1976d2;
 }
 
-.chip.is-active {
+.p-chip.is-active {
   background: linear-gradient(135deg, #1976d2, #2196f3);
   color: #fff;
   border-color: transparent;
   box-shadow: 0 8px 18px rgba(25, 118, 210, 0.25);
 }
 
-.chip:focus {
+.p-chip:focus {
   outline: none;
 }
 
-.chip:focus-visible {
+.p-chip:focus-visible {
   box-shadow:
     0 0 0 3px rgba(25, 118, 210, 0.16),
     0 8px 18px rgba(25, 118, 210, 0.18);
@@ -868,9 +871,10 @@
     font-size: 18px;
   }
 
-  .chip {
+  .p-chip {
     padding: 9px 14px;
     font-size: 12px;
+    /* display: block; */
   }
 
   .order-card {

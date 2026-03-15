@@ -99,7 +99,7 @@ export default function ProductQualityViz({ PQualityType, style, trackHeight = 8
 
   return (
     <div className="pq-card" style={style}>
-      <div className="pq-heading">Quality Visualization</div>
+      <div className="pq-heading">Quality Verified</div>
 
       <div className="pq-trackWrap">
         <div className="pq-track" style={{ height: trackHeight }}>

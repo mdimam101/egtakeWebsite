@@ -6,7 +6,7 @@ import { Link } from "react-router";
 const UserProductCart = ({ productData }) => {
   // news/labels (আগের লজিকই রাখলাম; শুধু qualityType থাকলে দেখাবো)
   const demoNews = useMemo(() => {
-    const labels = ["Free Delivery", "New Arrival", "Most selling product","stock limit"];
+    const labels = ["Free delivery In App", "7 days easy return", "Shop with confidence", "Secure shopping"];
     if (productData?.qualityType) labels.splice(1, 0, productData.qualityType);
     return labels;
   }, [productData?.qualityType]);
@@ -21,12 +21,12 @@ const UserProductCart = ({ productData }) => {
 
   useEffect(() => {
     // random delay create
-    const randomDelay = Math.floor(Math.random() * 2000); // 0-2s random delay
+    const randomDelay = Math.floor(Math.random() * 2500); // 0-2s random delay
 
     const startTimer = () => {
       intervalRef.current = setInterval(() => {
         setVisibleIndex((prev) => (prev + 1) % totalItem);
-      }, 3000);
+      }, 3500);
     };
 
     // first delay before starting interval
@@ -78,7 +78,7 @@ const UserProductCart = ({ productData }) => {
         >
           {demoNews.map((news, idx) => (
             <div className="news-slide" key={idx}>
-              <p>{news}</p>
+             <p className="news-text">{news}</p>
             </div>
           ))}
         </div>

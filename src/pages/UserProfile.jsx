@@ -613,7 +613,7 @@ const UserProfile = () => {
         {["All", "Pending", "Shipping", "Delivered", "Return"].map((t) => (
           <button
             key={t}
-            className={["chip", selectedTab === t ? "is-active" : ""].join(" ")}
+            className={["p-chip", selectedTab === t ? "is-active" : ""].join(" ")}
             onClick={() => setSelectedTab(t)}
           >
             {t}

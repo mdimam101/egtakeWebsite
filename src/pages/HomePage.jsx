@@ -156,7 +156,14 @@ const HomePage = () => {
       >
         <CategoryList />
       </div>
-
+      <>
+      {showAllTranding && trandingProducts ? <div className="home-product-grid">
+              {trandingProducts.length > 0 &&
+                trandingProducts.map((product, idx) => (
+                  <UserProductCart productData={product} key={idx} />
+                ))}
+            </div> : 
+           
       <div className="homepage">
         {/* 🖼️ Banner / Banner Skeleton */}
         {bannerLoading ? (
@@ -239,11 +246,11 @@ const HomePage = () => {
                   </h2>
 
                   <div className="tranding-slider">
-                    {trandingProducts.slice(0, 10).map((product, idx) => (
+                    {trandingProducts.slice(0, 6).map((product, idx) => (
                       <TrendingGlassSlideCard productData={product} key={idx} />
                     ))}
 
-                    {trandingProducts.length > 10 && (
+                    {trandingProducts.length > 6 && (
                       <div
                         className="view-more-card"
                         onClick={() => setShowAllTranding(true)}
@@ -265,11 +272,11 @@ const HomePage = () => {
                     💰 ০~৯৯ টাকা
                   </h2>
                   <div className="tranding-slider">
-                    {productsBelow99.slice(0, 12).map((product, idx) => (
+                    {productsBelow99.slice(0, 6).map((product, idx) => (
                       <UserSlideProductCart productData={product} key={idx} />
                     ))}
 
-                    {productsBelow99.length > 12 && (
+                    {productsBelow99.length > 6 && (
                       <div
                         className="view-more-card"
                         onClick={() => setShowAllLowPrice(true)}
@@ -294,7 +301,11 @@ const HomePage = () => {
             </div>
           </>
         )}
-      </div>
+      </div> 
+      }
+      </>
+
+      
     </>
   );
 };

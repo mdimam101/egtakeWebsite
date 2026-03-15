@@ -6,7 +6,7 @@
   --eg-pink:#ff2c55;
   --text:#111827;
   --muted:#6b7280;
-  --line:rgba(0,0,0,0.08);
+  /* --line:rgba(0,0,0,0.08); */
   --chip:#f4f5f7;
 }
 
@@ -71,12 +71,10 @@
 
   background: var(--chip);
   color: rgba(17,24,39,0.85);
-  border: 1px solid rgba(0,0,0,0.06);
-
-  font-size: 12.5px;
+  /* border: 1px solid rgba(0,0,0,0.06); */
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.2px;
-
   user-select: none;
   transition: transform .16s ease, background-color .16s ease, box-shadow .16s ease, border-color .16s ease, color .16s ease;
 }
@@ -159,7 +157,7 @@
   }
 
   .category-item{
-    padding: 7px 12px;
+    /* padding: 7px 12px; */
     font-size: 12px;
   }
 
