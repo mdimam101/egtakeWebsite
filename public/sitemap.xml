@@ -1,16 +1,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!--  created with Free Online Sitemap Generator www.xml-sitemaps.com  -->
-<!-- ✅ Home Routes -->
-  <url><loc>https://egtake.com/</loc></url>
-  <url><loc>https://egtake.com/home</loc></url>
+  <!-- Home Routes -->
+  <url><loc>https://pyzara.com/</loc></url>
+  <url><loc>https://pyzara.com/home</loc></url>
 
-  <!-- ✅ Search Pages -->
-  <url><loc>https://egtake.com/search</loc></url>
+  <!-- Search Pages -->
+  <url><loc>https://pyzara.com/search</loc></url>
 
-  <!-- ✅ Category Pages -->
-  <url><loc>https://egtake.com/category</loc></url>
+  <!-- Category Pages -->
+  <url><loc>https://pyzara.com/category</loc></url>
 
-  <!-- ✅ Cart -->
-  <url><loc>https://egtake.com/cart</loc></url>
-
+  <!-- Cart -->
+  <url><loc>https://pyzara.com/cart</loc></url>
 </urlset>
