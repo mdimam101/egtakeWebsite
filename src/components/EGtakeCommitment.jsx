@@ -25,7 +25,7 @@ console.log("🌻🌻🌻",commonInfo);
 
         <div className="egc-card">
           <div className="egc-header">
-            <div className="egc-headerText">EGtake Commitment</div>
+            <div className="egc-headerText">Pyzara Commitment</div>
           </div>
 
           <button
@@ -48,7 +48,7 @@ console.log("🌻🌻🌻",commonInfo);
 
             <div className="egc-check">
               <span className="egc-green">✓</span> Available on the{" "}
-        <span style={{ fontWeight: "bold", color: "red" }}>EGtake</span> App
+        <span style={{ fontWeight: "bold", color: "red" }}>Pyzara</span> App
             </div>
           </button>
 

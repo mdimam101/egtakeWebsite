@@ -40,7 +40,7 @@ const normalizeItemStatus = (s = "") => {
 
 // ---------- Tiny helpers ----------
 const telHref = (phone) => `tel:${phone}`;
-const waHref = (phone, msg = "Hi EGtake") =>
+const waHref = (phone, msg = "Hi Pyzara") =>
   `https://wa.me/${String(phone).replace(/^\+/, "")}?text=${encodeURIComponent(
     msg
   )}`;

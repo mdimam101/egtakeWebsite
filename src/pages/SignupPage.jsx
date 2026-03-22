@@ -214,7 +214,7 @@ export default function SignupPage() {
       <div style={styles.cardWrap}>
         {/* Brand Header */}
         <div style={styles.headerWrap}>
-          <div style={styles.brand}>EGtake</div>
+          <div style={styles.brand}>Pyzara</div>
           <div style={styles.tagline}>Shop with confidence</div>
         </div>
 
