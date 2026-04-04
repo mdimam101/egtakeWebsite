@@ -287,6 +287,37 @@
   opacity: 1;
 }
 
+.tranding-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.tranding-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+.slide-back-button{
+  display: inline-flex;
+  align-items: center;
+  border-radius: 10px;
+  border: 2px solid rgb(65, 36, 36);
+  background:#201f1f;
+  cursor: pointer;
+  width: 50px;
+  height: 30px;
+  font-weight: 800;
+  position: fixed;
+  color:black;
+  z-index: 999;
+  text-align: center;
+  margin-left: 10px;
+  background-color: transparent;
+}
+
 /* =========================
    Skeleton
 ========================= */

@@ -3,7 +3,6 @@ import SummaryApi from "../common";
 import { toast } from "react-toastify";
 import UserProductCart from "../components/UserProductCart";
 import "../styles/HomePage.css";
-import { useLocation } from "react-router";
 import CategoryList from "../components/CategoryList";
 import UserSlideProductCart from "../components/UserSlideProductCart";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +10,7 @@ import { setAllProductList } from "../store/allProductSlice";
 import { generateOptimizedVariants } from "../helpers/variantUtils";
 import { setBanarList } from "../store/banarSlice";
 import TrendingGlassSlideCard from "../components/TrendingGlassSlideCard";
+import { MdOutlineArrowBackIos } from "react-icons/md";
 
 const HomePage = () => {
   const [showAllTranding, setShowAllTranding] = useState(false);
@@ -21,8 +21,6 @@ const HomePage = () => {
   // ✅ skeleton loading state
   const [productLoading, setProductLoading] = useState(false);
   const [bannerLoading, setBannerLoading] = useState(false);
-
-  const location = useLocation();
   const bannerRef = useRef(null);
 
   const allProducts = useSelector((s) => s.allProductState.productList);
@@ -93,30 +91,18 @@ const HomePage = () => {
     (product) => Number(product?.selling) <= 99,
   );
 
-  const isTrandingPage = location.pathname === "/tranding";
-
-  const visibleProducts = showAllTranding
-    ? trandingProducts
-    : showAllLowPrice
-      ? productsBelow99
-      : isTrandingPage
-        ? trandingProducts
-        : allProducts;
-
   const fetchBanners = async () => {
     try {
       setBannerLoading(true);
 
       const res = await fetch(SummaryApi.get_banner.url);
       const data = await res.json();
-      console.log("Banner API response:", data);
 
       if (data.success) {
         dispatch(setBanarList(data.data || []));
       }
-    } catch (err) {
-      console.log("Banner fetch error:", err);
-      toast.error("Failed to fetch banners");
+    } catch {
+      // console.log("Banner fetch error:", err);
     } finally {
       setBannerLoading(false);
     }
@@ -138,7 +124,8 @@ const HomePage = () => {
     return () => clearInterval(interval);
   }, [banners]);
 
-  console.log("setbanners", banners[0]?.imageUrl);
+  // set selected slide product
+  const selectedSlideProduct = showAllTranding ? trandingProducts : showAllLowPrice ? productsBelow99 : []
 
   return (
     <>
@@ -157,13 +144,34 @@ const HomePage = () => {
         <CategoryList />
       </div>
       <>
-      {showAllTranding && trandingProducts ? <div className="home-product-grid">
-              {trandingProducts.length > 0 &&
-                trandingProducts.map((product, idx) => (
-                  <UserProductCart productData={product} key={idx} />
-                ))}
-            </div> : 
-           
+      {/* when click on slide view more */}
+      {(showAllLowPrice || showAllTranding) &&
+      <div style={{marginTop:"40px"}}>
+          <button
+              type="button"
+              className="slide-back-button"
+              onClick={() => {
+                setShowAllTranding(false);
+                setShowAllLowPrice(false);
+                 window.scrollTo({
+                  top: 0,
+                  behavior: "smooth",
+                });
+              }}
+            >
+            <MdOutlineArrowBackIos  className="backIcon"/>
+            
+            </button>
+          <div className="home-product-grid">
+            {selectedSlideProduct.length > 0 &&
+              selectedSlideProduct.map((product, idx) => (
+                <UserProductCart productData={product} key={idx} />
+              ))}
+          </div>
+      </div>
+      }
+    
+      { !(showAllLowPrice || showAllTranding) &&
       <div className="homepage">
         {/* 🖼️ Banner / Banner Skeleton */}
         {bannerLoading ? (
@@ -237,8 +245,7 @@ const HomePage = () => {
         ) : (
           <>
             {/* 🔥 Tranding Slide Section */}
-            {!showAllTranding &&
-              !isTrandingPage &&
+            {trandingProducts &&
               trandingProducts.length > 0 && (
                 <div className="tranding-section tranding-bg">
                   <h2 className="home-section-title section-trending">
@@ -250,23 +257,25 @@ const HomePage = () => {
                       <TrendingGlassSlideCard productData={product} key={idx} />
                     ))}
 
-                    {trandingProducts.length > 6 && (
-                      <div
+                    {trandingProducts.length > 5 && (
+                       <div
                         className="view-more-card"
-                        onClick={() => setShowAllTranding(true)}
+                        onClick={() => {
+                          setShowAllTranding(true),
+                          setShowAllLowPrice(false)
+                        }}
                       >
-                        <p className="view-more-text">View More ➜</p>
+                        <p className="view-more-text">View All ➜</p>
                       </div>
+                      
                     )}
                   </div>
                 </div>
               )}
 
             {/* 💰 0~99 টাকা Shop Section */}
-            {!showAllTranding &&
-              !isTrandingPage &&
-              !showAllLowPrice &&
-              productsBelow99.length > 0 && (
+            {productsBelow99 &&
+             productsBelow99.length > 0 && (
                 <div className="low-price-section">
                   <h2 className="home-section-title section-budget">
                     💰 ০~৯৯ টাকা
@@ -279,7 +288,14 @@ const HomePage = () => {
                     {productsBelow99.length > 6 && (
                       <div
                         className="view-more-card"
-                        onClick={() => setShowAllLowPrice(true)}
+                        onClick={() => {
+                          setShowAllTranding(false),
+                          setShowAllLowPrice(true)
+                          window.scrollTo({
+                          top: 0,
+                          behavior: "smooth",
+                          });
+                        }}
                       >
                         <p className="view-more-text">View All ➜</p>
                       </div>
@@ -294,8 +310,8 @@ const HomePage = () => {
 
             {/* ✅ Products Grid */}
             <div className="home-product-grid">
-              {visibleProducts.length > 0 &&
-                visibleProducts.map((product, idx) => (
+              {allProducts.length > 0 &&
+                allProducts.map((product, idx) => (
                   <UserProductCart productData={product} key={idx} />
                 ))}
             </div>
@@ -304,8 +320,6 @@ const HomePage = () => {
       </div> 
       }
       </>
-
-      
     </>
   );
 };

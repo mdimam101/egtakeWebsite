@@ -118,6 +118,7 @@ const CategoryPage = () => {
                 <button
                   onClick={() => setSelectedCategory("All")}
                   className={selectedCategory === "All" ? "active" : ""}
+                  style={{marginTop:"5px"}}
                 >
                   <span>All</span>
                 </button>
@@ -137,6 +138,7 @@ const CategoryPage = () => {
                         <button
                           onClick={() => setSelectedCategory(key)}
                           className={selectedCategory === key ? "active" : ""}
+                          style={{marginTop:"5px"}}
                         >
                           <span>{key}</span>
                         </button>
