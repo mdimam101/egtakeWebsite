@@ -2,11 +2,19 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "../styles/UserProductCartStyle.css";
 import { Link } from "react-router";
+// import { setProductImgUrl } from "../store/productImgSlice";
+// import { useDispatch } from "react-redux";
 
 const UserProductCart = ({ productData }) => {
+  // const dispatch = useDispatch();
   // news/labels (আগের লজিকই রাখলাম; শুধু qualityType থাকলে দেখাবো)
   const demoNews = useMemo(() => {
-    const labels = ["Free delivery In App", "7 days easy return", "Shop with confidence", "Secure shopping"];
+    const labels = [
+      "Free delivery In App",
+      "7 days easy return",
+      "Shop with confidence",
+      "Secure shopping",
+    ];
     if (productData?.qualityType) labels.splice(1, 0, productData.qualityType);
     return labels;
   }, [productData?.qualityType]);
@@ -78,7 +86,7 @@ const UserProductCart = ({ productData }) => {
         >
           {demoNews.map((news, idx) => (
             <div className="news-slide" key={idx}>
-             <p className="news-text">{news}</p>
+              <p className="news-text">{news}</p>
             </div>
           ))}
         </div>

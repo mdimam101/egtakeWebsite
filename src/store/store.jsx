@@ -3,6 +3,7 @@ import  userReducer  from './userSlice'
 import allProductReducer from './allProductSlice'
 import banarReducer from "../store/banarSlice";
 import commonReducer from "./commonInfoSlice";
+import productImgReducer from "./productImgSlice";
 
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     allProductState: allProductReducer,
     banarState: banarReducer,
      commonState: commonReducer,
+     productImgUrlState: productImgReducer,
   },
 })
 
