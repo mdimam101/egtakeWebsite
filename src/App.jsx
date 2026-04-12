@@ -12,12 +12,17 @@ import { setUserDetails } from "./store/userSlice";
 import { setCommonGetInfoList } from "./store/commonInfoSlice";
 
 function App() {
-  const t = localStorage.getItem("authToken");
+  // const t = localStorage.getItem("authToken");
   const dispatch = useDispatch();
   const location = useLocation();
   const [cartCountProduct, setCartCountProduct] = useState(0);
   // its for one product count list
   const [cartListData, setCartListData] = useState([]);
+
+    const getAuthHeaders = () => {
+    const token = localStorage.getItem("authToken");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
 
   const fetchUserDetails = async () => {
     console.log("fetchUserDetails11111111");
@@ -25,7 +30,7 @@ function App() {
     try {
       const response = await fetch(SummaryApi.current_user.url, {
         method: SummaryApi.current_user.method,
-        headers: t ? { Authorization: `Bearer ${t}` } : {},
+        headers: getAuthHeaders(),
         credentials: "include",
       });
 
@@ -55,7 +60,7 @@ function App() {
   const fetchUserAddToCart = async () => {
     const response = await fetch(SummaryApi.count_AddToCart_Product.url, {
       method: SummaryApi.count_AddToCart_Product.method,
-      headers: t ? { Authorization: `Bearer ${t}` } : {},
+      headers: getAuthHeaders(),
       credentials: "include",
     });
 
@@ -75,7 +80,7 @@ function App() {
       try {
         const response = await fetch(SummaryApi.get_common_info.url, {
           method: SummaryApi.get_common_info.method,
-          headers: t ? { Authorization: `Bearer ${t}` } : {},
+          headers: getAuthHeaders(),
           credentials: "include",
         });
         const result = response.data;

@@ -240,26 +240,29 @@ const UserProfile = () => {
 
   // Actions
   const handleLogout = async () => {
-    try {
-      const res = await fetch(SummaryApi.logout_user.url, {
-        method: SummaryApi.logout_user.method,
-        credentials: "include",
-         headers: t ? { Authorization: `Bearer ${t}` } : {},
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success(data.message || "Logged out");
-        dispatch(setUserDetails(null));
-        navigate("/");
-      } else {
-        toast.error(data.message || "Logout failed");
-      }
-    } catch {
-      toast.error("Network error");
-    } finally {
-      setLogoutAsk(false);
+  try {
+    const res = await fetch(SummaryApi.logout_user.url, {
+      method: SummaryApi.logout_user.method,
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      localStorage.removeItem("authToken");
+      dispatch(setUserDetails(null));
+      toast.success(data.message || "Logged out");
+      navigate("/", { replace: true });
+    } else {
+      toast.error(data.message || "Logout failed");
     }
-  };
+  } catch (error) {
+    console.log("logout error", error);
+    toast.error("Network error");
+  } finally {
+    setLogoutAsk(false);
+  }
+};
 
   const handleDeleteAccount = async () => {
     try {
@@ -270,8 +273,10 @@ const UserProfile = () => {
       });
       const data = await res.json();
       if (data?.success) {
+        localStorage.removeItem("authToken");
         dispatch(setUserDetails(null));
         toast.success("Account deleted");
+        window.location.reload();
         navigate("/");
       } else {
         toast.error(data?.message || "Delete failed");
