@@ -402,37 +402,53 @@ useEffect(() => {
     console.log("h🌻Cart🌻",cartCountProduct);
 
 
-  // ✅ SEO: update browser title + meta description for product details page
-  useEffect(() => {
-   if (!data?.productName) return;
+  // ✅ SEO: update product title, meta description, canonical, OG, Twitter, Product Schema
+useEffect(() => {
+  if (!data?.productName) return;
 
   const productTitle = selectedVariant?.SpcProductName
     ? selectedVariant.SpcProductName
     : data.productName;
 
-  const title = `${productTitle} | Pyzara`;
-  const description =
+  const productDescription =
     data?.description ||
     `${productTitle} is available at Pyzara. Shop with Confidence.`;
 
-  // Update page title
-  document.title = title;
+  const shortDescription =
+    productDescription.length > 155
+      ? productDescription.slice(0, 155) + "..."
+      : productDescription;
 
-  // Update meta description
-  let metaDescription = document.querySelector('meta[name="description"]');
+  const productUrl = `https://pyzara.com/product/${param?.id}`;
+  const productImage = selectedImg || allImages?.[0] || "https://pyzara.com/PyzaraWebIcone.png";
 
-  if (!metaDescription) {
-    metaDescription = document.createElement("meta");
-    metaDescription.setAttribute("name", "description");
-    document.head.appendChild(metaDescription);
-  }
+  const productPrice = Number(updateSelling || data?.selling || 0);
 
-  metaDescription.setAttribute(
-    "content",
-    description.length > 155 ? description.slice(0, 155) + "..." : description
+  // ✅ Helper: meta tag set/update
+  const setMetaTag = (selector, attrName, attrValue, content) => {
+    let tag = document.querySelector(selector);
+
+    if (!tag) {
+      tag = document.createElement("meta");
+      tag.setAttribute(attrName, attrValue);
+      document.head.appendChild(tag);
+    }
+
+    tag.setAttribute("content", content);
+  };
+
+  // ✅ Page title
+  document.title = `${productTitle} | Pyzara`;
+
+  // ✅ Basic meta description
+  setMetaTag(
+    'meta[name="description"]',
+    "name",
+    "description",
+    shortDescription
   );
 
-  // Update canonical URL
+  // ✅ Canonical URL
   let canonical = document.querySelector('link[rel="canonical"]');
 
   if (!canonical) {
@@ -441,11 +457,106 @@ useEffect(() => {
     document.head.appendChild(canonical);
   }
 
-  canonical.setAttribute("href", `https://pyzara.com/product/${param?.id}`);
+  canonical.setAttribute("href", productUrl);
+
+  // ✅ Open Graph meta
+  setMetaTag("meta[property='og:type']", "property", "og:type", "product");
+  setMetaTag("meta[property='og:site_name']", "property", "og:site_name", "Pyzara");
+  setMetaTag("meta[property='og:url']", "property", "og:url", productUrl);
+  setMetaTag(
+    "meta[property='og:title']",
+    "property",
+    "og:title",
+    `${productTitle} | Pyzara`
+  );
+  setMetaTag(
+    "meta[property='og:description']",
+    "property",
+    "og:description",
+    shortDescription
+  );
+  setMetaTag("meta[property='og:image']", "property", "og:image", productImage);
+  setMetaTag("meta[property='og:image:alt']", "property", "og:image:alt", productTitle);
+
+  // ✅ Twitter meta
+  setMetaTag("meta[name='twitter:card']", "name", "twitter:card", "summary_large_image");
+  setMetaTag("meta[name='twitter:url']", "name", "twitter:url", productUrl);
+  setMetaTag(
+    "meta[name='twitter:title']",
+    "name",
+    "twitter:title",
+    `${productTitle} | Pyzara`
+  );
+  setMetaTag(
+    "meta[name='twitter:description']",
+    "name",
+    "twitter:description",
+    shortDescription
+  );
+  setMetaTag("meta[name='twitter:image']", "name", "twitter:image", productImage);
+  setMetaTag("meta[name='twitter:image:alt']", "name", "twitter:image:alt", productTitle);
+
+  // ✅ Product JSON-LD Schema
+  const oldProductSchema = document.getElementById("product-json-ld");
+  if (oldProductSchema) {
+    oldProductSchema.remove();
+  }
+
+  const productSchema = document.createElement("script");
+  productSchema.type = "application/ld+json";
+  productSchema.id = "product-json-ld";
+
+  productSchema.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: productTitle,
+    description:
+      productDescription.length > 250
+        ? productDescription.slice(0, 250)
+        : productDescription,
+    image: productImage ? [productImage] : [],
+    brand: {
+      "@type": "Brand",
+      name: data?.brandName || "Pyzara",
+    },
+    sku: data?.productCodeNumber || data?._id || param?.id,
+    category: data?.category || data?.subCategory || "Online Shopping",
+    offers: {
+      "@type": "Offer",
+      url: productUrl,
+      priceCurrency: "BDT",
+      price: productPrice,
+      itemCondition: "https://schema.org/NewCondition",
+      seller: {
+        "@type": "Organization",
+        name: "Pyzara",
+      },
+    },
+  });
+
+  document.head.appendChild(productSchema);
+
+  // ✅ Cleanup when product page unmount/change
+  return () => {
+    const oldSchema = document.getElementById("product-json-ld");
+    if (oldSchema) {
+      oldSchema.remove();
+    }
+  };
 }, [
   data?.productName,
   data?.description,
+  data?.brandName,
+  data?.productCodeNumber,
+  data?._id,
+  data?.category,
+  data?.subCategory,
+  data?.totalStock,
+  data?.selling,
   selectedVariant?.SpcProductName,
+  selectedImg,
+  allImages,
+  updateSelling,
   param?.id,
 ]);
 
@@ -488,13 +599,13 @@ useEffect(() => {
                   setSelectedSize(null);
                 }
               }}
-              alt=""
+                alt={updateProductName || data.productName || "Pyzara product"}
             />
           ))}
         </div>
 
         <div className="big-image">
-          {selectedImg ? <img src={selectedImg} alt="" /> : null}
+          {selectedImg ? <img src={selectedImg}  alt={updateProductName || data.productName || "Pyzara product"} /> : null}
         </div>
       </div>
 
@@ -520,7 +631,7 @@ useEffect(() => {
         >
           {allImages.map((img, index) => (
             <div key={index} className="product-image-slide">
-              <img src={img} alt={`variant-${index}`} />
+              <img src={img} alt={`${updateProductName || data.productName || "Pyzara product"} thumbnail ${index + 1}`} />
             </div>
           ))}
         </div>
