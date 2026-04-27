@@ -1,14 +1,39 @@
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-  <!-- Home Routes -->
-  <url><loc>https://pyzara.com</loc></url>
-  <url><loc>https://pyzara.com/home</loc></url>
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <!-- Search Pages -->
-  <url><loc>https://pyzara.com/search</loc></url>
+  <url>
+    <loc>https://pyzara.com/</loc>
+    <lastmod>2026-04-27T10:26:55.022Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
 
-  <!-- Category Pages -->
-  <url><loc>https://pyzara.com/category</loc></url>
+  <url>
+    <loc>https://pyzara.com/home</loc>
+    <lastmod>2026-04-27T10:26:55.022Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
 
-  <!-- Cart -->
-  <url><loc>https://pyzara.com/cart</loc></url>
+  <url>
+    <loc>https://pyzara.com/category</loc>
+    <lastmod>2026-04-27T10:26:55.022Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://pyzara.com/search</loc>
+    <lastmod>2026-04-27T10:26:55.022Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://pyzara.com/product/PRODUCT_ID</loc>
+    <lastmod>2026-04-27T10:26:55.022Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>

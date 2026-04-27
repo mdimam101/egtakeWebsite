@@ -401,6 +401,54 @@ useEffect(() => {
     const { cartCountProduct } = useContext(Context);
     console.log("h🌻Cart🌻",cartCountProduct);
 
+
+  // ✅ SEO: update browser title + meta description for product details page
+  useEffect(() => {
+   if (!data?.productName) return;
+
+  const productTitle = selectedVariant?.SpcProductName
+    ? selectedVariant.SpcProductName
+    : data.productName;
+
+  const title = `${productTitle} | Pyzara`;
+  const description =
+    data?.description ||
+    `${productTitle} is available at Pyzara. Shop with Confidence.`;
+
+  // Update page title
+  document.title = title;
+
+  // Update meta description
+  let metaDescription = document.querySelector('meta[name="description"]');
+
+  if (!metaDescription) {
+    metaDescription = document.createElement("meta");
+    metaDescription.setAttribute("name", "description");
+    document.head.appendChild(metaDescription);
+  }
+
+  metaDescription.setAttribute(
+    "content",
+    description.length > 155 ? description.slice(0, 155) + "..." : description
+  );
+
+  // Update canonical URL
+  let canonical = document.querySelector('link[rel="canonical"]');
+
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.setAttribute("rel", "canonical");
+    document.head.appendChild(canonical);
+  }
+
+  canonical.setAttribute("href", `https://pyzara.com/product/${param?.id}`);
+}, [
+  data?.productName,
+  data?.description,
+  selectedVariant?.SpcProductName,
+  param?.id,
+]);
+
     if (!data || loading )  {
   return <ProductDetailsSkeleton />;
 }
