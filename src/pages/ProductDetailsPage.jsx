@@ -422,7 +422,7 @@ useEffect(() => {
   const productUrl = `https://pyzara.com/product/${param?.id}`;
   const productImage = selectedImg || allImages?.[0] || "https://pyzara.com/PyzaraWebIcone.png";
 
-  const productPrice = Number(updateSelling || data?.selling || 0);
+  const productPrice = Number(updateSelling || data?.selling || 0);//test
 
   // ✅ Helper: meta tag set/update
   const setMetaTag = (selector, attrName, attrValue, content) => {
