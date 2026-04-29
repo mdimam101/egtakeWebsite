@@ -103,3 +103,13 @@
   .trend-glass-info{ padding: 8px 9px 9px; }
   .trend-glass-title{ font-size: 12px; }
 }
+
+.trend-glass-card:link,
+.trend-glass-card:visited,
+.trend-glass-card:hover-,
+.trend-glass-card:active,
+.trend-glass-card:focus,
+.trend-glass-card:focus-visible{
+  text-decoration: none !important;
+  color: inherit;
+}

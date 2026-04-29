@@ -102,6 +102,10 @@ updateProductStock: {
     url: `${backendDomain}/api/all-orders`,
     method: "get",
   },
+  admin_update_order_status: {
+    url: (orderId) => `${backendDomain}/api/admin/orders/${orderId}/status`,
+    method: "PATCH",
+  },
   get_user_orders: {
     url: `${backendDomain}/api/user-all-ordrs`,
     method: "get",

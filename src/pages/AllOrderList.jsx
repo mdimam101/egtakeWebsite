@@ -2,12 +2,28 @@ import React, { useEffect, useMemo, useState } from "react";
 import SummaryApi from "../common";
 import "../styles/OrderList.css";
 import OrderDetailsModal from "../components/OrderDetailsModal";
+import updateProductStock from "../helpers/updateProductStock";
+
+const ORDER_STATUS_OPTIONS = [
+  "Pending",
+  "Confirmed",
+  "Shipped",
+  "Delivered",
+  "Cancelled",
+  "Return",
+];
+
+const isCancelledStatus = (status = "") => {
+  const normalizedStatus = String(status).trim().toLowerCase();
+  return normalizedStatus === "cancelled" || normalizedStatus === "canceled";
+};
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [updatingOrderId, setUpdatingOrderId] = useState("");
 
   // optional: search + filter
   const [query, setQuery] = useState("");
@@ -16,7 +32,9 @@ const OrderList = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch(SummaryApi.get_all_orders.url);
+        const res = await fetch(SummaryApi.get_all_orders.url, {
+          credentials: "include",
+        });
         const data = await res.json();
 
         if (data?.success) {
@@ -35,6 +53,87 @@ const OrderList = () => {
 
     fetchOrders();
   }, []);
+
+  // update order status 
+   const handleStatusUpdate = async (orderId, newStatus) => {
+    if (!orderId || !newStatus) return;
+
+    const previousOrder = orders.find((order) => order._id === orderId);
+    const previousStatus = previousOrder?.status;
+
+    if (previousStatus === newStatus) return;
+
+    setUpdatingOrderId(orderId);
+
+    const t = localStorage.getItem("authToken");
+
+    try {
+      const response = await fetch(SummaryApi.admin_update_order_status.url(orderId), {
+        method: SummaryApi.admin_update_order_status.method,
+        headers: {
+          "Content-Type": "application/json",
+          ...(t ? { Authorization: `Bearer ${t}` } : {}),
+        },
+        body: JSON.stringify({ status: newStatus }),
+        credentials: "include",
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message || "Order status update failed");
+      }
+
+      if (isCancelledStatus(newStatus) && !isCancelledStatus(previousStatus)) {
+        const cancelledOrderItems = previousOrder?.items || [];
+        const stockUpdateResults = await Promise.all(
+          cancelledOrderItems.map((item) =>
+            updateProductStock(
+              item.productId,
+              item.image,
+              item.size,
+              Number(item.quantity) || 0,
+              true
+            )
+          )
+        );
+
+        const hasStockUpdateError = stockUpdateResults.some((stockRes) => !stockRes?.success);
+        if (hasStockUpdateError) {
+          setError("Order cancelled, but some product stock updates failed.");
+        }
+      }
+
+      setOrders((prev) =>
+        prev.map((order) =>
+          order._id === orderId
+            ? {
+                ...order,
+                status: result?.data?.status || newStatus,
+              }
+            : order
+        )
+      );
+
+      setSelectedOrder((prev) =>
+        prev && prev._id === orderId
+          ? {
+              ...prev,
+              status: result?.data?.status || newStatus,
+            }
+          : prev
+      );
+
+      if (!isCancelledStatus(newStatus) || isCancelledStatus(previousStatus)) {
+        setError("");
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Could not update order status");
+    } finally {
+      setUpdatingOrderId("");
+    }
+  };
 
   const filteredOrders = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -79,7 +178,7 @@ const OrderList = () => {
   const getStatusBadgeClass = (status = "") => {
     const s = String(status).toLowerCase();
     if (s.includes("pending")) return "badge badge-pending";
-    if (s.includes("shipping") || s.includes("shipped"))
+    if (s.includes("processing") || s.includes("shipping") || s.includes("shipped"))
       return "badge badge-shipping";
     if (s.includes("delivered")) return "badge badge-delivered";
     if (s.includes("cancel")) return "badge badge-cancelled";
@@ -109,9 +208,11 @@ const OrderList = () => {
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
-            <option value="shipping">Shipping</option>
+            <option value="processing">Confirmed</option>
+            <option value="shipped">Shipped</option>
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
+            <option value="return">Return</option>
           </select>
         </div>
       </div>
@@ -158,9 +259,21 @@ const OrderList = () => {
                     </td>
                     <td>{order.shippingDetails?.district || "-"}</td>
                     <td>
-                      <span className={getStatusBadgeClass(order.status)}>
+                      {/* <span className={getStatusBadgeClass(order.status)}>
                         {order.status || "-"}
-                      </span>
+                      </span> */}
+                      <select
+                        className="order-filter"
+                        value={order.status || "Pending"}
+                        onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                        disabled={updatingOrderId === order._id}
+                      >
+                        {ORDER_STATUS_OPTIONS.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     <td>৳{order.totalAmount}</td>
                     <td>{order.items?.length || 0}</td>
@@ -193,9 +306,21 @@ const OrderList = () => {
                     </p>
                   </div>
 
-                  <span className={getStatusBadgeClass(order.status)}>
+                  {/* <span className={getStatusBadgeClass(order.status)}>
                     {order.status || "-"}
-                  </span>
+                  </span> */}
+                  <select
+                        className="order-filter"
+                        value={order.status || "Pending"}
+                        onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                        disabled={updatingOrderId === order._id}
+                      >
+                        {ORDER_STATUS_OPTIONS.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
                 </div>
 
                 <div className="order-card-mid">
@@ -234,7 +359,7 @@ const OrderList = () => {
         renderItems={renderItems}
         getStatusBadgeClass={getStatusBadgeClass}
       >
-        {selectedOrder && (
+        {/* {selectedOrder && (
           <div className="od-details">
             <div className="order-details-head">
               <h3>Order Details</h3>
@@ -280,7 +405,7 @@ const OrderList = () => {
             <h4 className="od-section-title">Products</h4>
             <ul className="od-list">{renderItems(selectedOrder.items)}</ul>
           </div>
-        )}
+        )} */}
       </OrderDetailsModal>
     </div>
   );
