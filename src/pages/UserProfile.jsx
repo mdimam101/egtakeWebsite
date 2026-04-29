@@ -16,7 +16,7 @@ const ORDER_STATUS = {
   SHIPPED: "Shipped",
   DELIVERED: "Delivered",
   RETURN: "Return",
-  CANCELLED: "Cancelled",
+  CANCELLED: "Canceled",
 };
 
 const ITEM_STATUS = {
@@ -344,14 +344,23 @@ const UserProfile = () => {
     }
   };
 
-  const handleReturnItem = async (orderId, itemId) => {
+  const handleReturnItem = async (orderId, itemId, newStatus = ORDER_STATUS.RETURN) => {
     try {
+      const t = localStorage.getItem("authToken");
       const response = await fetch(
-        `${SummaryApi.return_user_order_item.url}/${orderId}/${itemId}`,
+        SummaryApi.admin_update_order_status.url(orderId),
         {
-          method: "PUT",
+          method: SummaryApi.admin_update_order_status.method,
+          headers: {
+            "Content-Type": "application/json",
+            ...(t ? { Authorization: `Bearer ${t}` } : {}),
+          },
+          body: JSON.stringify({
+            status: newStatus,
+            itemId,
+            isItemStatus: true,
+          }),
           credentials: "include",
-           headers: t ? { Authorization: `Bearer ${t}` } : {},
         }
       );
       const data = await response.json();
@@ -362,15 +371,19 @@ const UserProfile = () => {
               ? {
                   ...o,
                   items: (o.items || []).map((it) =>
-                    it._id === itemId ? { ...it, itemStatus: ITEM_STATUS.RETURN_PENDING } : it
+                     it._id === itemId ? { ...it, itemStatus: newStatus } : it
                   ),
                 }
               : o
           )
         );
-        toast.success("Item marked for return");
+        toast.success(
+          newStatus === ORDER_STATUS.RETURN
+            ? "Item marked for return"
+            : "Item status restored"
+        );
       } else {
-        toast.error(data?.message || "Return failed");
+         toast.error(data?.message || "Status update failed");
       }
     } catch {
       toast.error("Network error");
@@ -395,7 +408,10 @@ const UserProfile = () => {
     let showReturnPendingBadge = false;
 
     if (deliveredTab) {
-      if (item.itemStatus === ITEM_STATUS.RETURN_PENDING) {
+      if (
+        item.itemStatus === ITEM_STATUS.RETURN_PENDING ||
+        item.itemStatus === ORDER_STATUS.RETURN
+      ) {
         showReturnPendingBadge = true;
         showReturnBtn = false;
       } else {
@@ -431,7 +447,17 @@ const UserProfile = () => {
 
         <div className="order-item__actions">
           {showReturnPendingBadge ? (
-            <span className="tag tag--gray">Return Pending</span>
+            <>
+              <span className="tag tag--gray">Return Pending</span>
+              <button
+                className="btn btn--danger"
+                onClick={() =>
+                  handleReturnItem(order._id, item._id, ORDER_STATUS.DELIVERED)
+                }
+              >
+                Cancel
+              </button>
+            </>
           ) : null}
 
           {showReturnBtn ? (

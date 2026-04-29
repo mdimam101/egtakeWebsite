@@ -24,6 +24,7 @@ const OrderList = () => {
   const [error, setError] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [updatingOrderId, setUpdatingOrderId] = useState("");
+  const [updatingItemKey, setUpdatingItemKey] = useState("");
 
   // optional: search + filter
   const [query, setQuery] = useState("");
@@ -140,6 +141,90 @@ const OrderList = () => {
     }
   };
 
+  const handleItemStatusUpdate = async (orderId, itemId, newStatus) => {
+    if (!orderId || !itemId || !newStatus) return;
+
+    const targetOrder = orders.find((order) => order._id === orderId);
+    const targetItem = targetOrder?.items?.find((item) => item?._id === itemId);
+    const previousItemStatus = targetItem?.itemStatus || "Pending";
+
+    if (previousItemStatus === newStatus) return;
+
+    const itemKey = `${orderId}:${itemId}`;
+    setUpdatingItemKey(itemKey);
+    const t = localStorage.getItem("authToken");
+
+    try {
+      const response = await fetch(
+        SummaryApi.admin_update_order_status.url(orderId),
+        {
+          method: SummaryApi.admin_update_order_status.method,
+          headers: {
+            "Content-Type": "application/json",
+            ...(t ? { Authorization: `Bearer ${t}` } : {}),
+          },
+          body: JSON.stringify({
+            status: newStatus,
+            itemId,
+            isItemStatus: true,
+          }),
+          credentials: "include",
+        },
+      );
+
+      const result = await response.json();
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message || "Item status update failed");
+      }
+
+      if (isCancelledStatus(newStatus) && !isCancelledStatus(previousItemStatus)) {
+        const stockRes = await updateProductStock(
+          targetItem?.productId,
+          targetItem?.image,
+          targetItem?.size,
+          Number(targetItem?.quantity) || 0,
+          true,
+        );
+        if (!stockRes?.success) {
+          setError("Item cancelled, but stock update failed.");
+        }
+      }
+
+      setOrders((prev) =>
+        prev.map((order) => {
+          if (order._id !== orderId) return order;
+          return {
+            ...order,
+            items: (order.items || []).map((item) =>
+              item?._id === itemId
+                ? { ...item, itemStatus: result?.data?.items?.find((it) => it?._id === itemId)?.itemStatus || newStatus }
+                : item,
+            ),
+          };
+        }),
+      );
+
+      setSelectedOrder((prev) => {
+        if (!prev || prev._id !== orderId) return prev;
+        return {
+          ...prev,
+          items: (prev.items || []).map((item) =>
+            item?._id === itemId ? { ...item, itemStatus: newStatus } : item,
+          ),
+        };
+      });
+      if (!isCancelledStatus(newStatus) || isCancelledStatus(previousItemStatus)) {
+        setError("");
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Could not update item status");
+    } finally {
+      setUpdatingItemKey("");
+    }
+  };
+
+
   const filteredOrders = useMemo(() => {
     const q = query.trim().toLowerCase();
 
@@ -163,9 +248,10 @@ const OrderList = () => {
     });
   }, [orders, query, statusFilter]);
 
-  const renderItems = (items = []) => {
+   const renderItems = (orderId, items = []) => {
+    const shouldShowItemStatusControl = items.length > 1;
     return items.map((item, idx) => (
-      <li key={idx} className="od-item">
+      <li key={item?._id || idx} className="od-item">
         <img className="od-img" src={item.image} alt="product" />
         <div className="od-info">
           <p className="od-title">{item.productName}</p>
@@ -175,6 +261,25 @@ const OrderList = () => {
             <span>Color: {item.color || "-"}</span>
           </p>
           <p className="od-id">Product ID: {item.productId}</p>
+           {shouldShowItemStatusControl && (
+            <div style={{ marginTop: 8 }}>
+              <small style={{ display: "block", marginBottom: 4 }}>Item Status</small>
+              <select
+                className="order-filter"
+                value={item?.itemStatus || "Pending"}
+                onChange={(e) =>
+                  handleItemStatusUpdate(orderId, item?._id, e.target.value)
+                }
+                disabled={updatingItemKey === `${orderId}:${item?._id}`}
+              >
+                {ORDER_STATUS_OPTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
       </li>
     ));

@@ -71,7 +71,9 @@ const OrderDetailsModal = ({
 
               <h4 className="od-section-title">Products</h4>
               <ul className="od-list" style={{marginBottom:"150px"}}>
-                {renderItems ? renderItems(selectedOrder.items || []) : null}
+                {renderItems
+                  ? renderItems(selectedOrder._id, selectedOrder.items || [])
+                  : null}
               </ul>
             </div>
           )}
