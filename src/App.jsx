@@ -39,13 +39,9 @@ function App() {
       //   method: SummaryApi.current_user.method,
       //   withCredentials:true
       // });
-      console.log("fetchUserDetails1122222221", response.data);
-
       const result = await response.json();
-      console.log("fetchUserDetails1122222221", result);
 
       if (result.success) {
-        console.log("◆success", result.data);
         // যখন অ্যাপ লোড হয় (useEffect এ), তখন ইউজার যদি লগইন থাকে,
         // fetchUserDetails() ইউজারের তথ্য আনছে এবং সেটাকে Redux Store-এ রাখছে।
         dispatch(setUserDetails(result.data));
@@ -58,14 +54,18 @@ function App() {
   };
 
   const fetchUserAddToCart = async () => {
-    const response = await fetch(SummaryApi.count_AddToCart_Product.url, {
-      method: SummaryApi.count_AddToCart_Product.method,
-      headers: getAuthHeaders(),
-      credentials: "include",
-    });
+   try {
+      const response = await fetch(SummaryApi.count_AddToCart_Product.url, {
+        method: SummaryApi.count_AddToCart_Product.method,
+        headers: getAuthHeaders(),
+        credentials: "include",
+      });
 
-    const result = await response.json();
-    setCartCountProduct(result?.data?.count);
+      const result = await response.json();
+      setCartCountProduct(result?.data?.count ?? 0);
+    } catch (error) {
+      console.error("Error fetching cart count:", error);
+    }
   };
 
   useEffect(() => {
