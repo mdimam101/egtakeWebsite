@@ -51,10 +51,11 @@ const UserProductCart = ({ productData }) => {
   return (
     <Link
       to={`/product/${productData?._id}`}
-      onClick={(e) => {
-        e.preventDefault();
-        window.location.href = `/product/${productData?._id}`;
-      }}
+      state={{ selectedImage: productData?.img }}
+      // onClick={(e) => {
+      //   e.preventDefault();
+      //   window.location.href = `/product/${productData?._id}`;
+      // }}
       className="user-product-card" 
       //style={{width:"100%",height:"auto"}}
     >

@@ -2,6 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import SummaryApi from "../common";
 import "../styles/CategoryPageStyles.css";
 import { Link } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setCategoryList,
+  setCategoryPageProductList,
+} from "../store/categorySlice";
 
 // Helper: get a safe thumbnail from new product structure
 const getProductThumb = (product) => {
@@ -26,21 +31,38 @@ const safeText = (v, fallback = "—") =>
   typeof v === "string" && v.trim().length > 0 ? v : fallback;
 
 const CategoryPage = () => {
-  const [categoryList, setCategoryList] = useState([]);
+  const dispatch = useDispatch();
+
+  const reduxCategoryList = useSelector(
+    (state) => state.categoryState.categoryList
+  );
+
+  const reduxProductList = useSelector(
+    (state) => state.categoryState.categoryPageProductList
+  );
+
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [allProducts, setAllProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+
+  const [loading, setLoading] = useState(
+    reduxCategoryList.length === 0 || reduxProductList.length === 0
+  );
+
+  const categoryList = reduxCategoryList || [];
+  const allProducts = reduxProductList || [];
 
   const fetchCategoryProduct = async () => {
     try {
       const response = await fetch(SummaryApi.category_product.url);
       const dataResponse = await response.json();
-      setCategoryList(
-        Array.isArray(dataResponse?.data) ? dataResponse.data : [],
-      );
+
+      const finalCategoryList = Array.isArray(dataResponse?.data)
+        ? dataResponse.data
+        : [];
+
+      dispatch(setCategoryList(finalCategoryList));
     } catch (err) {
       console.log("CategoryPage Error:", err?.message);
-      setCategoryList([]);
+      dispatch(setCategoryList([]));
     }
   };
 
@@ -48,20 +70,42 @@ const CategoryPage = () => {
     try {
       const response = await fetch(SummaryApi.get_product.url);
       const data = await response.json();
-      setAllProducts(
-        data?.success && Array.isArray(data?.data) ? data.data : [],
-      );
+
+      const finalProductList =
+        data?.success && Array.isArray(data?.data) ? data.data : [];
+
+      dispatch(setCategoryPageProductList(finalProductList));
     } catch (err) {
       console.log("Products fetch error:", err);
-      setAllProducts([]);
+      dispatch(setCategoryPageProductList([]));
     }
   };
 
   useEffect(() => {
     const loadData = async () => {
       try {
+        const needCategoryApi = reduxCategoryList.length === 0;
+        const needProductApi = reduxProductList.length === 0;
+
+        // Redux e data thakle API call korbe na
+        if (!needCategoryApi && !needProductApi) {
+          setLoading(false);
+          return;
+        }
+
         setLoading(true);
-        await Promise.all([fetchCategoryProduct(), fetchAllProducts()]);
+
+        const apiCalls = [];
+
+        if (needCategoryApi) {
+          apiCalls.push(fetchCategoryProduct());
+        }
+
+        if (needProductApi) {
+          apiCalls.push(fetchAllProducts());
+        }
+
+        await Promise.all(apiCalls);
       } finally {
         setLoading(false);
       }
@@ -69,6 +113,7 @@ const CategoryPage = () => {
 
     loadData();
   }, []);
+
   const filteredCategories = useMemo(() => {
     if (!Array.isArray(allProducts) || allProducts.length === 0) return [];
 
@@ -78,12 +123,12 @@ const CategoryPage = () => {
         : allProducts.filter(
             (p) =>
               typeof p?.category === "string" &&
-              p.category.trim() === selectedCategory,
+              p.category.trim() === selectedCategory
           );
 
     const subCats = productsSource
       .map((p) =>
-        typeof p?.subCategory === "string" ? p.subCategory.trim() : "",
+        typeof p?.subCategory === "string" ? p.subCategory.trim() : ""
       )
       .filter((s) => s !== "");
 
@@ -118,7 +163,7 @@ const CategoryPage = () => {
                 <button
                   onClick={() => setSelectedCategory("All")}
                   className={selectedCategory === "All" ? "active" : ""}
-                  style={{marginTop:"5px"}}
+                  style={{ marginTop: "5px" }}
                 >
                   <span>All</span>
                 </button>
@@ -129,16 +174,17 @@ const CategoryPage = () => {
                   .filter(
                     (c) =>
                       typeof c?.category === "string" &&
-                      c.category.trim() !== "",
+                      c.category.trim() !== ""
                   )
                   .map((cat) => {
                     const key = cat.category;
+
                     return (
                       <li key={key}>
                         <button
                           onClick={() => setSelectedCategory(key)}
                           className={selectedCategory === key ? "active" : ""}
-                          style={{marginTop:"5px"}}
+                          style={{ marginTop: "5px" }}
                         >
                           <span>{key}</span>
                         </button>
@@ -152,17 +198,6 @@ const CategoryPage = () => {
 
       {/* Right Side */}
       <section className="subcategory-section">
-        {/* <div className="subcategory-topbar">
-          <div>
-            <h2>
-              {selectedCategory === "All"
-                ? "All Sub Categories"
-                : selectedCategory}
-            </h2>
-            <p>{filteredCategories.length} items found</p>
-          </div>
-        </div> */}
-
         <div className="subcategory-grid">
           {loading ? (
             Array.from({ length: 8 }).map((_, idx) => (
@@ -178,6 +213,7 @@ const CategoryPage = () => {
             filteredCategories.map((item, idx) => {
               const subCatName = safeText(item?.subCategory, "Unknown");
               const thumb = getProductThumb(item);
+
               return (
                 <Link
                   to={`/sub-category-wish/${encodeURIComponent(subCatName)}`}
@@ -195,6 +231,7 @@ const CategoryPage = () => {
                       {subCatName.charAt(0)}
                     </div>
                   )}
+
                   <p>{subCatName}</p>
                 </Link>
               );

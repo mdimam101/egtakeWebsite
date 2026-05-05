@@ -127,6 +127,8 @@ const TrackOrderModal = ({ open, status, onClose }) => {
 const UserProfile = () => {
   const t = localStorage.getItem('authToken');
   const user = useSelector((s) => s?.userState?.user);
+  const normalizedRole = String(user?.role || user?.userRole || "").toUpperCase();
+  const isAdminUser = normalizedRole === "ADMIN" || user?.isAdmin === true;
   const commonInfo = useSelector((s) => s?.commonState?.commonInfoList) || [];
   const SUPPORT_PHONE = commonInfo[0]?.supportCallNumber || "";
   const WHATSAPP_PHONE = commonInfo[0]?.whatsAppNumber || "";
@@ -175,7 +177,7 @@ const UserProfile = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+ }, [t]);
 
   useEffect(() => {
     fetchUserOrders();
@@ -790,18 +792,21 @@ const UserProfile = () => {
         <span className="settings-arrow">›</span>
       </button>
 
-      <Link
-        to="/admin-panel/all-products"
-        className="settings-item"
-        title="Admin Panel"
-        onClick={() => setSettingsOpen(false)}
-      >
-        <span className="settings-left">
-          <span className="settings-emoji">🛠️</span>
-          <span>Admin Panel</span>
-        </span>
-        <span className="settings-arrow">›</span>
-      </Link>
+      {isAdminUser && (
+        <Link
+          to="/admin-panel/all-products"
+          className="settings-item"
+          title="Admin Panel"
+          onClick={() => setSettingsOpen(false)}
+        >
+          <span className="settings-left">
+            <span className="settings-emoji">🛠️</span>
+            <span>Admin Panel</span>
+          </span>
+          <span className="settings-arrow">›</span>
+        </Link>
+      )}
+
 
       <button
         className="settings-item danger"

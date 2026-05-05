@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState, useMemo } from "react";
 import axios from "axios";
 import SummaryApi from "../common";
-import { Link, Navigate, useNavigate, useParams } from "react-router";
+import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router";
 import { CiDeliveryTruck, CiBoxes } from "react-icons/ci";
 import { TbTruckReturn } from "react-icons/tb";
 import "../styles/ProductDetailsStyle.css";
@@ -184,6 +184,9 @@ const Stars = ({ value = 0 }) => {
 
 const ProductDetailsPage = () => {
   const param = useParams();
+  const location = useLocation();
+  console.log("🦌◆🦌◆location",location?.state?.selectedImage);
+  
   const [data, setData] = useState({
     _id: "",
     productName: "",
@@ -203,6 +206,7 @@ const ProductDetailsPage = () => {
 
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [allImages, setAllImages] = useState([]);
   // const [showDetails, setShowDetails] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
@@ -257,6 +261,7 @@ useEffect(() => {
 }, [data?.description]);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
     setloading(true);
     (async () => {
       const response = await fetch(SummaryApi.product_details.url, {
@@ -272,9 +277,18 @@ useEffect(() => {
       setloading(false)
 
       const images = (d.variants || []).flatMap((v) => v.images || []);
+      const clickedImage = location?.state?.selectedImage;
+      const preferredImage = images.includes(clickedImage) ? clickedImage : images[0] || null;
       setAllImages(images);
-      setSelectedImg(images[0] || null);
-      setSelectedVariantIndex(0);
+      // setSelectedImg(images[0] || null);
+      // setSelectedVariantIndex(0);
+      setSelectedImg(preferredImage);
+      setSelectedImageIndex(Math.max(0, images.findIndex((im) => im === preferredImage)));
+
+      const preferredVariantIndex = (d.variants || []).findIndex((v) =>
+        (v.images || []).includes(preferredImage)
+      );
+      setSelectedVariantIndex(preferredVariantIndex >= 0 ? preferredVariantIndex : 0);
       setSelectedSize(null);
 
       const res = await fetch(SummaryApi.category_wish_product.url, {
@@ -286,7 +300,7 @@ useEffect(() => {
       const optimized = generateOptimizedVariants(reco.data);
       setShowRelatedProduct(optimized || []);
     })();
-  }, [param?.id]);
+   }, [location?.state?.selectedImage, param?.id]);
 
   // ✅ Fetch product reviews (after product loaded)
   useEffect(() => {
@@ -399,7 +413,6 @@ useEffect(() => {
   const navigate = useNavigate();
 
     const { cartCountProduct } = useContext(Context);
-    console.log("h🌻Cart🌻",cartCountProduct);
 
 
   // ✅ SEO: update product title, meta description, canonical, OG, Twitter, Product Schema
@@ -563,15 +576,15 @@ useEffect(() => {
     if (!data || loading )  {
   return <ProductDetailsSkeleton />;
 }
-    
+  window.scrollTo({ top: 0, behavior: "auto" });
   return (
-    <div className="product-details-container">
+    <div className="product-details-container" >
 
       {/* back button */}
       <button
       type="button"
       className="p-back-button"
-      onClick={() => navigate(-1)}
+      onClick={() => navigate(-1) }
     >
 
     <MdOutlineArrowBackIos  className="backIcon"/>
@@ -584,10 +597,11 @@ useEffect(() => {
               key={index}
               src={img}
               className={`thumbnail-image-vertical ${
-                selectedImg === img ? "active-thumbnail" : ""
+                selectedImageIndex === index ? "active-thumbnail" : ""
               }`}
               onClick={() => {
                 setSelectedImg(img);
+                setSelectedImageIndex(index);
                 const variantIndex = (data.variants || []).findIndex((v) =>
                   (v.images || []).includes(img)
                 );
@@ -604,6 +618,7 @@ useEffect(() => {
           ))}
         </div>
 
+        {/* for desktop size */}
         <div className="big-image">
           {selectedImg ? <img src={selectedImg}  alt={updateProductName || data.productName || "Pyzara product"} /> : null}
         </div>
@@ -618,7 +633,10 @@ useEffect(() => {
             const el = e.target;
             const currentIndex = Math.round(el.scrollLeft / el.clientWidth);
             const currentImage = allImages[currentIndex];
-            if (currentImage) setSelectedImg(currentImage);
+           if (currentImage) {
+              setSelectedImg(currentImage);
+              setSelectedImageIndex(currentIndex);
+            }
 
             const variantIndex = (data.variants || []).findIndex((v) =>
               (v.images || []).includes(currentImage)
@@ -631,7 +649,7 @@ useEffect(() => {
         >
           {allImages.map((img, index) => (
             <div key={index} className="product-image-slide">
-              <img src={img} alt={`${updateProductName || data.productName || "Pyzara product"} thumbnail ${index + 1}`} />
+              <img src={selectedImg} alt={`${updateProductName || data.productName || "Pyzara product"} thumbnail ${index + 1}`} />
             </div>
           ))}
         </div>
@@ -683,6 +701,7 @@ useEffect(() => {
                 if (newImages.length > 0) {
                   const firstImg = newImages[0];
                   setSelectedImg(firstImg);
+                  setSelectedImageIndex(Math.max(0, allImages.findIndex((im) => im === firstImg)));
 
                   const imgIndex = allImages.findIndex((im) => im === firstImg);
                   if (imageSliderRef.current && imgIndex !== -1) {

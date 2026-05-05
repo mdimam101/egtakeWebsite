@@ -11,7 +11,7 @@
 ・Order success হলে stock update + cart clear + modal
 */
 
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import "../styles/CheckoutPageStyle.css";
 import { useLocation, useNavigate } from "react-router";
 import CheckoutItemCard from "../components/CheckoutItemCard";
@@ -38,7 +38,7 @@ const NARAYANGANJ_UPAZILAS = [
 
 const CheckoutPage = () => {
   const { state } = useLocation();
-  const selectedItems = state?.selectedItemsDetails || [];
+  const selectedItems = useMemo(() => state?.selectedItemsDetails || [], [state?.selectedItemsDetails]);
 
   const navigate = useNavigate();
   const { fetchUserAddToCart } = useContext(Context);
@@ -109,16 +109,16 @@ const CheckoutPage = () => {
     return MIN_FREE_NAR; // fallback
   };
 
-  const getFreeThreshold = (district, upazila) => {
+  const getFreeThreshold = useCallback((district, upazila) => {
     if (district === "Narayanganj") return getNarUpazilaThreshold(upazila);
     if (district === "Dhaka") return MIN_FREE_DHK;
     if (district === "Others") return MIN_FREE_OTH;
     return Infinity;
-  };
+ }, []);
 
   const currentThreshold = useMemo(
     () => getFreeThreshold(formData.district, formData.upazila),
-    [formData.district, formData.upazila]
+    [formData.district, formData.upazila, getFreeThreshold]
   );
 
   const freeEligible = formData.district ? baseTotal >= currentThreshold : true;
@@ -176,8 +176,7 @@ const CheckoutPage = () => {
       setDeliveryOption(freeEligible ? "FREE" : "STD");
       setUserTouchedDelivery(false);
     }
-  }, [formData.district, baseTotal, freeEligible, currentThreshold, deliveryOption]); // keep same behavior
-
+  }, [formData.district, formData.upazila, baseTotal, freeEligible, currentThreshold, deliveryOption]); // keep same behavior
   // ✅ Dhaka/Others: auto toggle STD <-> FREE unless user touched
   useEffect(() => {
     if (
@@ -190,7 +189,7 @@ const CheckoutPage = () => {
   }, [formData.district, freeEligible, deliveryOption, userTouchedDelivery]);
 
   // ✅ delivery charge compute (same as RN)
-  const computeDeliveryCharge = (district, option) => {
+  const computeDeliveryCharge = useCallback((district, option) => {
     if (district === "Narayanganj") {
       if (option === "EXPRESS") return 150;
       if (option === "NAR120") return 120;
@@ -199,11 +198,11 @@ const CheckoutPage = () => {
     if (district === "Dhaka") return baseTotal >= MIN_FREE_DHK ? 0 : districtCharge(district);
     if (district === "Others") return baseTotal >= MIN_FREE_OTH ? 0 : districtCharge(district);
     return districtCharge(district);
-  };
+   }, [baseTotal]);
 
   const deliveryCharge = useMemo(
     () => computeDeliveryCharge(formData.district, deliveryOption),
-    [formData.district, deliveryOption, baseTotal]
+    [computeDeliveryCharge, formData.district, deliveryOption]
   );
 
   const handlingCharge = handlingChargeDefault;

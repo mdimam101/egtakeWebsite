@@ -4,7 +4,7 @@ import Footer from "./components/Footer";
 import CategoryList from "./components/CategoryList";
 import { ToastContainer } from "react-toastify";
 import "../src/styles/App.css";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SummaryApi from "./common";
 import Context from "../src/context/index";
 import { useDispatch } from "react-redux";
@@ -19,12 +19,12 @@ function App() {
   // its for one product count list
   const [cartListData, setCartListData] = useState([]);
 
-    const getAuthHeaders = () => {
+  const getAuthHeaders = useCallback(() => {
     const token = localStorage.getItem("authToken");
     return token ? { Authorization: `Bearer ${token}` } : {};
-  };
+  }, []);
 
-  const fetchUserDetails = async () => {
+  const fetchUserDetails = useCallback(async () => {
     console.log("fetchUserDetails11111111");
 
     try {
@@ -51,9 +51,9 @@ function App() {
       console.error("Error fetching user details:", error);
       console.log("◆error", error.message);
     }
-  };
+  }, [dispatch, getAuthHeaders]);
 
-  const fetchUserAddToCart = async () => {
+  const fetchUserAddToCart = useCallback(async () => {
    try {
       const response = await fetch(SummaryApi.count_AddToCart_Product.url, {
         method: SummaryApi.count_AddToCart_Product.method,
@@ -66,14 +66,14 @@ function App() {
     } catch (error) {
       console.error("Error fetching cart count:", error);
     }
-  };
+  }, [getAuthHeaders]);
 
   useEffect(() => {
     // user details
     fetchUserDetails();
     //current user add to cart product count
     fetchUserAddToCart();
-  }, []);
+  }, [fetchUserAddToCart, fetchUserDetails]);
 
   useEffect(() => {
     const getCommonInfo = async () => {
@@ -83,7 +83,7 @@ function App() {
           headers: getAuthHeaders(),
           credentials: "include",
         });
-        const result = response.data;
+        const result = await response.json();
         if (result.success) {
           dispatch(setCommonGetInfoList(result.data));
         }
@@ -93,7 +93,7 @@ function App() {
     };
 
     getCommonInfo();
-  }, []);
+  }, [dispatch, getAuthHeaders]);
 
   const path = location.pathname;
   const hideHeader = path.startsWith("/product") || path.startsWith("/profile");

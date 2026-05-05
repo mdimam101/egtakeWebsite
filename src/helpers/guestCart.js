@@ -11,12 +11,12 @@ const parse = (raw) => {
 const norm = (v) => (v ?? '').toString().trim();
 const normImg = (img) => (img ? img.replace('https://', 'http://') : '');
 
-// cart item identity: productId + image + size + color
-const sameItem = (a, b) =>
-  (norm(a.productId) === norm(b.productId)) &&
-  (norm(a.size) === norm(b.size)) &&
-  (norm(a.color) === norm(b.color)) &&
-  (normImg(a.image) === normImg(b.image));
+// cart item identity: productId + image + size + color                        
+// const sameItem = (a, b) =>
+//   (norm(a.productId) === norm(b.productId)) &&
+//   (norm(a.size) === norm(b.size)) &&
+//   (norm(a.color) === norm(b.color)) &&
+//   (normImg(a.image) === normImg(b.image));
 
 /** synthetic _id, কারণ CartPage item._id ও item.productId._id ইউজ করে */
 const makeGuestId = (it) => {

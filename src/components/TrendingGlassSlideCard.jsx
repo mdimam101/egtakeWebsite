@@ -6,10 +6,11 @@ const TrendingGlassSlideCard = ({ productData }) => {
   return (
     <Link
       to={`/product/${productData?._id}`}
-      onClick={(e) => {
-        e.preventDefault();
-        window.location.href = `/product/${productData?._id}`;
-      }}
+      state={{ selectedImage: productData?.img }}
+      // onClick={(e) => {
+      //   e.preventDefault();
+      //   window.location.href = `/product/${productData?._id}`;
+      // }}
       className="trend-glass-card"
       title={productData?.productName}
     >

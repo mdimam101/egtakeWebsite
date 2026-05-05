@@ -30,10 +30,6 @@ const SearchPage = () => {
 
   return (
     <div>
-      <h2>
-        Search Results for: <strong>{decodeURIComponent(query)}</strong>
-      </h2>
-
       {loading ? (
         <p>Loading...</p>
       ) : products.length === 0 ? (

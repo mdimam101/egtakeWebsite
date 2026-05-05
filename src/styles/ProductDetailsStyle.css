@@ -185,10 +185,11 @@
   display: flex;
   gap: 12px;
   margin-top: 10px;
-  overflow-x: auto;
-  /* padding: 8px 0; */
   scrollbar-width: none;
   margin-left: 5px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  overflow: visible;
 }
 
 .color-selector-thumbnail::-webkit-scrollbar {
@@ -510,26 +511,33 @@
 
   .thumbnail-list-vertical {
     display: flex;
-    flex-direction: column;
+    /* flex-direction: column; */
     gap: 10px;
-    width: 100px;
+    /* width: 100px;
     max-height: 400px;
     overflow-y: auto;
-    scrollbar-width: thin;
+    scrollbar-width: thin; */
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 220px;
+    max-height: none;
+    overflow: visible;
+    align-content: flex-start;
   }
 
-  .thumbnail-list-vertical::-webkit-scrollbar {
+  /* .thumbnail-list-vertical::-webkit-scrollbar {
     width: 6px;
   }
 
   .thumbnail-list-vertical::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.3);
     border-radius: 3px;
-  }
+  } */
 
   .thumbnail-image-vertical {
-    width: 100px;
-    height: 100px;
+    width: 68px;
+    height: 68px;
     object-fit: cover;
     border-radius: 8px;
     cursor: pointer;

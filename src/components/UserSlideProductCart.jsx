@@ -6,10 +6,11 @@ const UserSlideProductCart = ({ productData }) => {
   return (
     <Link
       to={`/product/${productData?._id}`}
-      onClick={(e) => {
-        e.preventDefault();
-        window.location.href = `/product/${productData?._id}`;
-      }}
+      state={{ selectedImage: productData?.img }}
+      // onClick={(e) => {
+      //   e.preventDefault();
+      //   window.location.href = `/product/${productData?._id}`;
+      // }}
       className="slide-product-card"
       title={productData?.productName}
     >

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import SummaryApi from "../common";
 import UserProductCart from "../components/UserProductCart";
@@ -13,7 +13,7 @@ const SubCategoryWiseProduct = () => {
   console.log("params.categoryName", params.categoryName);
   
 
-  const fetchWishCategoryProduct = async () => {
+   const fetchWishCategoryProduct = useCallback(async () => {
     try {
       const response = await fetch(SummaryApi.category_wish_product.url, {
         method: SummaryApi.category_wish_product.method,
@@ -34,11 +34,11 @@ const SubCategoryWiseProduct = () => {
     } catch (error) {
       console.log("Error fetching category product:", error);
     }
-  };
+   }, [params.categoryName]);
 
   useEffect(() => {
     fetchWishCategoryProduct();
-  }, [params.categoryName]); // ✅ dependency দিলে on category change reload হবে
+ }, [fetchWishCategoryProduct]); // ✅ dependency দিলে on category change reload হবে
 
   return (
     <>

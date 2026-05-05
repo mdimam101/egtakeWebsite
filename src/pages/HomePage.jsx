@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import SummaryApi from "../common";
 import { toast } from "react-toastify";
 import UserProductCart from "../components/UserProductCart";
@@ -46,15 +46,15 @@ const HomePage = () => {
     }
   };
 
-  const fetchAllProducts = async () => {
+ const fetchAllProducts = useCallback(async () => {
     try {
       setProductLoading(true);
 
-      const response1 = await fetch(SummaryApi.current_user.url, {
-        method: SummaryApi.current_user.method,
-      });
-      const result1 = await response1.json();
-      console.log("fetchUserDetails999999", result1);
+      // const response1 = await fetch(SummaryApi.current_user.url, {
+      //   method: SummaryApi.current_user.method,
+      // });
+      // const result1 = await response1.json();
+      // console.log("fetchUserDetails999999", result1);
 
       const response = await fetch(SummaryApi.get_product.url);
       const data = await response.json();
@@ -73,13 +73,13 @@ const HomePage = () => {
     } finally {
       setProductLoading(false);
     }
-  };
+ }, [dispatch]);
 
   useEffect(() => {
     if (allProducts.length === 0) {
       fetchAllProducts();
     }
-  }, []);
+}, [allProducts.length, fetchAllProducts]);
 
   // 🔥 ট্রেন্ডিং প্রডাক্ট
   const trandingProducts = allProducts.filter(
@@ -91,7 +91,7 @@ const HomePage = () => {
     (product) => Number(product?.selling) <= 99,
   );
 
-  const fetchBanners = async () => {
+   const fetchBanners = useCallback(async () => {
     try {
       setBannerLoading(true);
 
@@ -106,13 +106,13 @@ const HomePage = () => {
     } finally {
       setBannerLoading(false);
     }
-  };
+   }, [dispatch]);
 
   useEffect(() => {
     if (banners.length === 0) {
       fetchBanners();
     }
-  }, []);
+    }, [banners.length, fetchBanners]);
 
   useEffect(() => {
     if (banners.length === 0) return;
