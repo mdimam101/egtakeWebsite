@@ -1035,7 +1035,7 @@
 ================================ */
 
 .ai-size-helper-wrap {
-  margin-top: 12px;
+  /* margin-top: 12px; */
   margin-left: 5px;
 }
 
@@ -1235,25 +1235,26 @@
 
 /* Mobile */
 @media (max-width: 480px) {
-  .ai-size-helper-wrap {
-    margin-left: 0;
-  }
-
   .ai-size-helper-card {
     padding: 12px;
+    height: auto;
+    min-height: unset;
+    max-height: none;
   }
 
-  .ai-size-row {
-    flex-direction: column;
-    gap: 12px;
+  .ai-size-field input,
+  .ai-size-field select {
+    font-size: 16px;
+    height: 40px;
   }
 
   .ai-height-group {
+    display: flex;
     gap: 8px;
   }
 
-  .ai-size-result-top strong,
-  .ai-size-result-main {
-    font-size: 24px;
+  .ai-height-group input {
+    width: 50%;
+    min-width: 0;
   }
 }
