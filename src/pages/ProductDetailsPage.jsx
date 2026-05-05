@@ -212,6 +212,16 @@ const ProductDetailsPage = () => {
   const [selectedImg, setSelectedImg] = useState(null);
   const [showRelatedProduct, setShowRelatedProduct] = useState([]);
 
+  const [heightFeet, setHeightFeet] = useState("");
+const [heightInch, setHeightInch] = useState("");
+const [weight, setWeight] = useState("");
+const [waist, setWaist] = useState(""); // optional
+const [fitPreference, setFitPreference] = useState("regular");
+
+const [showAiSizeBox, setShowAiSizeBox] = useState(false);
+const [aiSizeLoading, setAiSizeLoading] = useState(false);
+const [aiSizeError, setAiSizeError] = useState("");
+const [aiSizeResult, setAiSizeResult] = useState(null);
   // ✅ Reviews state
   const [reviews, setReviews] = useState([]);
 
@@ -410,6 +420,81 @@ useEffect(() => {
       return { label: "Out of Stock", disabled: true };
     return { label: "Add to cart", disabled: false };
   })();
+
+  const handleAiSizeSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!heightFeet || !weight) {
+    setAiSizeError("উচ্চতা এবং ওজন অবশ্যই দিতে হবে।");
+    return;
+  }
+
+  if (!Array.isArray(data?.sizeDetails) || data.sizeDetails.length === 0) {
+    setAiSizeError("এই product এর size chart পাওয়া যায়নি।");
+    return;
+  }
+
+  setAiSizeLoading(true);
+  setAiSizeError("");
+  setAiSizeResult(null);
+
+  const cleanSizeChart = data.sizeDetails.map((item) => ({
+    size: item.size,
+    chest: Number(item.chest || 0),
+    length: Number(item.length || 0),
+    shoulder: Number(item.shoulder || 0),
+    sleeve: Number(item.sleeve || 0),
+    unit: item.unit === "inche" ? "inch" : item.unit || "inch",
+  }));
+
+  const totalHeightInch =
+    Number(heightFeet || 0) * 12 + Number(heightInch || 0);
+
+  const payload = {
+    productName: data?.productName || "",
+    category: data?.category || "",
+    productType: data?.subCategory || data?.category || "",
+
+    sizeChart: cleanSizeChart,
+
+    customerInfo: {
+      heightFeet: Number(heightFeet),
+      heightInch: Number(heightInch || 0),
+      totalHeightInch,
+      weight: Number(weight),
+      waist: waist ? Number(waist) : null, // optional
+    },
+
+    fitPreference: fitPreference || "regular",
+  };
+
+  console.log("FINAL AI PAYLOAD:", payload);
+
+  try {
+    const response = await fetch(SummaryApi.ai_size_recommend.url, {
+      method: SummaryApi.ai_size_recommend.method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    console.log("AI size response:", result);
+
+    if (!response.ok || !result?.success) {
+      throw new Error(result?.message || "AI size suggestion failed");
+    }
+
+    setAiSizeResult(result?.data || null);
+  } catch (error) {
+    setAiSizeError(error?.message || "AI size suggestion failed");
+  } finally {
+    setAiSizeLoading(false);
+  }
+};
+
   const navigate = useNavigate();
 
     const { cartCountProduct } = useContext(Context);
@@ -576,7 +661,7 @@ useEffect(() => {
     if (!data || loading )  {
   return <ProductDetailsSkeleton />;
 }
-  window.scrollTo({ top: 0, behavior: "auto" });
+// onClick={window.scrollTo({ top: 0, behavior: "auto" })}
   return (
     <div className="product-details-container" >
 
@@ -753,7 +838,7 @@ useEffect(() => {
         </div>
       )}
 
-      {/* Size details box (only if hasSizes) */}
+            {/* Size details box (only if hasSizes) */}
       {hasSizes && selectedSize && (
         <div className="size-detail-box">
           <div className="size-detail-title">Size: {selectedSize} Details</div>
@@ -788,6 +873,7 @@ useEffect(() => {
         </div>
       )}
 
+
       {/* Stock info (size-mode only) */}
       {hasSizes && (
         <div className="stock-info">
@@ -798,6 +884,129 @@ useEffect(() => {
             : "Please select a size"}
         </div>
       )}
+
+      
+      {hasSizes && (
+        <div className="ai-size-helper-wrap">
+          <button
+            type="button"
+            className="ai-size-helper-toggle-btn"
+            onClick={() => {
+              setShowAiSizeBox((prev) => !prev);
+              setAiSizeError("");
+            }}
+          >
+            {showAiSizeBox ? "Hide AI Size Helper" : "AI Suggest Size"}
+          </button>
+
+          {showAiSizeBox && (
+            <div className="ai-size-helper-card">
+              <h4 className="ai-size-helper-title">AI Size Helper</h4>
+
+              {!Array.isArray(data?.sizeDetails) || data.sizeDetails.length === 0 ? (
+                <p className="ai-size-helper-error">
+                  এই product এর size chart পাওয়া যায়নি।
+                </p>
+              ) : (
+                <form className="ai-size-form" onSubmit={handleAiSizeSubmit}>
+  <div className="ai-size-row">
+    <div className="ai-size-field">
+      <label>আপনার উচ্চতা</label>
+      <div className="ai-height-group">
+        <input
+          type="number"
+          value={heightFeet}
+          onChange={(e) => setHeightFeet(e.target.value)}
+          placeholder="Feet"
+          min="1"
+        />
+        <input
+          type="number"
+          value={heightInch}
+          onChange={(e) => setHeightInch(e.target.value)}
+          placeholder="Inch"
+          min="0"
+          max="11"
+        />
+      </div>
+    </div>
+
+    <div className="ai-size-field">
+      <label>আপনার ওজন (kg)</label>
+      <input
+        type="number"
+        value={weight}
+        onChange={(e) => setWeight(e.target.value)}
+        placeholder="যেমন: 65"
+        min="1"
+      />
+    </div>
+  </div>
+
+  <div className="ai-size-field">
+    <label>কোমরের মাপ (inch) <span>Optional</span></label>
+    <input
+      type="number"
+      value={waist}
+      onChange={(e) => setWaist(e.target.value)}
+      placeholder="যেমন: 32"
+      min="1"
+    />
+  </div>
+
+  <div className="ai-size-field">
+    <label>আপনি কেমন fit চান?</label>
+    <select
+      value={fitPreference}
+      onChange={(e) => setFitPreference(e.target.value)}
+    >
+      <option value="slim">Slim Fit</option>
+      <option value="regular">Regular Fit</option>
+      <option value="loose">Loose Fit</option>
+    </select>
+  </div>
+
+  {aiSizeError && <p className="ai-size-error">{aiSizeError}</p>}
+
+  <button
+    type="submit"
+    className="ai-size-submit-btn"
+    disabled={aiSizeLoading}
+  >
+    {aiSizeLoading ? "AI আপনার size suggest করছে..." : "Find My Size"}
+  </button>
+</form>
+              )}
+
+              {aiSizeResult && (
+  <div className="ai-size-result-card">
+    <div className="ai-size-result-top">
+      <span>Recommended Size</span>
+      <strong>{aiSizeResult.recommendedSize}</strong>
+    </div>
+
+    {aiSizeResult.alternativeSize && (
+      <p className="ai-size-alt">
+        Alternative: <b>{aiSizeResult.alternativeSize}</b>
+      </p>
+    )}
+
+    {aiSizeResult.fitNote && (
+      <p className="ai-size-note">{aiSizeResult.fitNote}</p>
+    )}
+
+    {aiSizeResult.customerMessage && (
+      <div className="ai-size-message">
+        {aiSizeResult.customerMessage}
+      </div>
+    )}
+  </div>
+)}
+            </div>
+          )}
+        </div>
+      )}
+
 
       {/* // Suppose API returns PQualityType in data.qualityType  (normal|good|premium|luxury) */}
         {data?.qualityType && (

@@ -152,6 +152,10 @@ googleLogin: {
   url: `${backendDomain}/api/google-login`,
   method: "POST",
 },
+ai_size_recommend: {
+  url: `${backendDomain}/api/ai-size-recommend`,
+  method: "POST",
+},
 };
 
 export default SummaryApi;
