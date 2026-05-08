@@ -166,6 +166,7 @@ const HomePage = () => {
         style={{
           position: "fixed",
           zIndex: 1000,
+          top: "50px", //scroll slove er jonno 
           backgroundColor: "#fff",
           padding: "0px 0",
           borderBottom: "1px solid #eee",
@@ -212,7 +213,7 @@ const HomePage = () => {
       <>
         {/* when click on slide view more */}
         {(showAllLowPrice || showAllTranding) && (
-          <div style={{ marginTop: "40px" }}>
+          <div style={{ marginTop: "90px" }}> {/**scroll slove er jonno  */}
             <button
               type="button"
               className="slide-back-button"
