@@ -97,6 +97,7 @@ function App() {
 
   const path = location.pathname;
   const hideHeader = path.startsWith("/product") || path.startsWith("/profile");
+   const lockMainScroll = path.startsWith("/category");
 
   return (
     <div className="app-wrapper">
@@ -111,9 +112,10 @@ function App() {
         <ToastContainer />
         {!hideHeader && <Header />}
         <main
-          className={
-            hideHeader ? "main-content-without-product-page" : "main-content"
-          }
+          // className={
+          //   hideHeader ? "main-content-without-product-page" : "main-content"
+          // }
+           className={`${hideHeader ? "main-content-without-product-page" : "main-content"} ${lockMainScroll ? "lock-scroll" : ""}`}
         >
           <Outlet />
         </main>
