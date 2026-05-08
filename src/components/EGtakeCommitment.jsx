@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import "../styles/EGtakeCommitment.css"
+import "../styles/EGtakeCommitment.css";
+
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.emamexp2.testeasupload";
 
 export const EGtakeCommitment = () => {
   const commonInfo = useSelector((s) => s.commonState.commonInfoList) ?? [];
@@ -14,7 +17,7 @@ export const EGtakeCommitment = () => {
     setSelectedCommitment({ title, detail });
     setModalVisible(true);
   };
-console.log("🌻🌻🌻",commonInfo);
+  console.log("🌻🌻🌻", commonInfo);
 
   // const c0 = commonInfo?.[0] || {};
 
@@ -31,15 +34,15 @@ console.log("🌻🌻🌻",commonInfo);
           <button
             type="button"
             className="egc-item"
-//             onClick={() =>
-//               openCommitmentModal(
-//                 "Free Delivery",
-//                 `✓নারায়ণগঞ্জে ${commonInfo[0]?.nrGanjMiniOrdr}+ টাকা বা তার বেশি অর্ডার করলে ফ্রি ডেলিভারি।
-// ✓ঢাকা ${commonInfo[0]?.DhakaMiniOrdr}+ টাকা বা তার বেশি অর্ডার করলে ফ্রি ডেলিভারি।
-// ✓নারায়ণগঞ্জ ও ঢাকার বাইরে ${commonInfo[0]?.OthersAreaMiniOrdr}+ টাকা বা তার বেশি অর্ডার করলে ফ্রি ডেলিভারি।
-// ✓--Narayanganj Express delivery within 3 hours--`,
-//               )
-//             }
+            //             onClick={() =>
+            //               openCommitmentModal(
+            //                 "Free Delivery",
+            //                 `✓নারায়ণগঞ্জে ${commonInfo[0]?.nrGanjMiniOrdr}+ টাকা বা তার বেশি অর্ডার করলে ফ্রি ডেলিভারি।
+            // ✓ঢাকা ${commonInfo[0]?.DhakaMiniOrdr}+ টাকা বা তার বেশি অর্ডার করলে ফ্রি ডেলিভারি।
+            // ✓নারায়ণগঞ্জ ও ঢাকার বাইরে ${commonInfo[0]?.OthersAreaMiniOrdr}+ টাকা বা তার বেশি অর্ডার করলে ফ্রি ডেলিভারি।
+            // ✓--Narayanganj Express delivery within 3 hours--`,
+            //               )
+            //             }
           >
             <div className="egc-rowJustify">
               <div className="egc-title">🚚 Free delivery</div>
@@ -47,8 +50,16 @@ console.log("🌻🌻🌻",commonInfo);
             </div>
 
             <div className="egc-check">
-              <span className="egc-green">✓</span> Available on the{" "}
-        <span style={{ fontWeight: "bold", color: "red" }}>Pyzara</span> App
+              <span className="egc-green">✓</span> Available on{" "}
+              <span style={{ fontWeight: "bold", color: "red" }}>Pyzara</span>{" "}
+              <a
+                href={PLAY_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="play-store-btn"
+              >
+                Download Pyzara App
+              </a>
             </div>
           </button>
 

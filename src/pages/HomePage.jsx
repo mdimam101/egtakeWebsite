@@ -12,6 +12,9 @@ import { setBanarList } from "../store/banarSlice";
 import TrendingGlassSlideCard from "../components/TrendingGlassSlideCard";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.emamexp2.testeasupload";
+
 const HomePage = () => {
   const [showAllTranding, setShowAllTranding] = useState(false);
   const [showAllLowPrice, setShowAllLowPrice] = useState(false);
@@ -26,6 +29,10 @@ const HomePage = () => {
   const allProducts = useSelector((s) => s.allProductState.productList);
   const banners = useSelector((s) => s.banarState.banarList);
   const dispatch = useDispatch();
+
+  // apps
+  const [showPyzaraAppCard, setShowPyzaraAppCard] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   console.log("◆productList◆from store", allProducts);
 
@@ -46,7 +53,7 @@ const HomePage = () => {
     }
   };
 
- const fetchAllProducts = useCallback(async () => {
+  const fetchAllProducts = useCallback(async () => {
     try {
       setProductLoading(true);
 
@@ -73,13 +80,13 @@ const HomePage = () => {
     } finally {
       setProductLoading(false);
     }
- }, [dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (allProducts.length === 0) {
       fetchAllProducts();
     }
-}, [allProducts.length, fetchAllProducts]);
+  }, [allProducts.length, fetchAllProducts]);
 
   // 🔥 ট্রেন্ডিং প্রডাক্ট
   const trandingProducts = allProducts.filter(
@@ -91,7 +98,7 @@ const HomePage = () => {
     (product) => Number(product?.selling) <= 99,
   );
 
-   const fetchBanners = useCallback(async () => {
+  const fetchBanners = useCallback(async () => {
     try {
       setBannerLoading(true);
 
@@ -106,13 +113,13 @@ const HomePage = () => {
     } finally {
       setBannerLoading(false);
     }
-   }, [dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (banners.length === 0) {
       fetchBanners();
     }
-    }, [banners.length, fetchBanners]);
+  }, [banners.length, fetchBanners]);
 
   useEffect(() => {
     if (banners.length === 0) return;
@@ -124,8 +131,33 @@ const HomePage = () => {
     return () => clearInterval(interval);
   }, [banners]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollingDown = currentScrollY > lastScrollY;
+
+      if (scrollingDown && currentScrollY > 10) {
+        setShowPyzaraAppCard(true);
+      } else {
+        setShowPyzaraAppCard(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [lastScrollY]);
+
   // set selected slide product
-  const selectedSlideProduct = showAllTranding ? trandingProducts : showAllLowPrice ? productsBelow99 : []
+  const selectedSlideProduct = showAllTranding
+    ? trandingProducts
+    : showAllLowPrice
+      ? productsBelow99
+      : [];
 
   return (
     <>
@@ -143,182 +175,217 @@ const HomePage = () => {
       >
         <CategoryList />
       </div>
+      {showPyzaraAppCard && (
+        <div className="pyzara-app-fixed-card">
+          <a
+            href={PLAY_STORE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="pyzara-app-fixed-link"
+            aria-label="Download Pyzara app from Google Play"
+          >
+            <div className="pyzara-app-left">
+              <div className="pyzara-logo-box">
+                <img
+                  src="/PyzaraWebIcone.png"
+                  alt="Pyzara"
+                  className="pyzara-app-logo"
+                />
+              </div>
+
+              <div className="pyzara-app-info">
+                <p className="pyzara-app-title">
+                  Save more with <span>Pyzara App</span>
+                </p>
+                <p className="pyzara-app-subtitle">
+                  More features & premium experience
+                </p>
+              </div>
+            </div>
+
+            <div className="pyzara-play-badge">
+              <span className="pyzara-play-text">Open</span>
+            </div>
+          </a>
+        </div>
+      )}
       <>
-      {/* when click on slide view more */}
-      {(showAllLowPrice || showAllTranding) &&
-      <div style={{marginTop:"40px"}}>
-          <button
+        {/* when click on slide view more */}
+        {(showAllLowPrice || showAllTranding) && (
+          <div style={{ marginTop: "40px" }}>
+            <button
               type="button"
               className="slide-back-button"
               onClick={() => {
                 setShowAllTranding(false);
                 setShowAllLowPrice(false);
-                 window.scrollTo({
+                window.scrollTo({
                   top: 0,
                   behavior: "smooth",
                 });
               }}
             >
-            <MdOutlineArrowBackIos  className="backIcon"/>
-            
+              <MdOutlineArrowBackIos className="backIcon" />
             </button>
-          <div className="home-product-grid">
-            {selectedSlideProduct.length > 0 &&
-              selectedSlideProduct.map((product, idx) => (
-                <UserProductCart productData={product} key={idx} />
-              ))}
-          </div>
-      </div>
-      }
-    
-      { !(showAllLowPrice || showAllTranding) &&
-      <div className="homepage">
-        {/* 🖼️ Banner / Banner Skeleton */}
-        {bannerLoading ? (
-          <div className="banner-skeleton-wrap">
-            <div className="banner-skeleton shimmer"></div>
-          </div>
-        ) : (
-          banners.length > 0 && (
-            <div
-              className="banner-container"
-              ref={bannerRef}
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-            >
-              <img
-                src={banners[bannerIndex]?.imageUrl}
-                alt={banners[bannerIndex]?.altText || "Banner"}
-                className="banner-image"
-              />
-
-              <div className="banner-dots">
-                {banners.map((_, index) => (
-                  <span
-                    key={index}
-                    className={`dot ${index === bannerIndex ? "active" : ""}`}
-                    onClick={() => setBannerIndex(index)}
-                  ></span>
-                ))}
-              </div>
-            </div>
-          )
-        )}
-
-        {/* 🔥 Trending Skeleton */}
-        {productLoading ? (
-          <>
-            <div className="home-title-skeleton shimmer"></div>
-            <div className="home-horizontal-skeleton">
-              {Array.from({ length: 4 }).map((_, idx) => (
-                <div className="slide-card-skeleton" key={idx}>
-                  <div className="slide-card-img shimmer"></div>
-                  <div className="slide-card-line shimmer"></div>
-                  <div className="slide-card-line short shimmer"></div>
-                </div>
-              ))}
-            </div>
-
-            <div className="home-title-skeleton green shimmer"></div>
-            <div className="home-horizontal-skeleton">
-              {Array.from({ length: 4 }).map((_, idx) => (
-                <div className="slide-card-skeleton" key={idx}>
-                  <div className="slide-card-img shimmer"></div>
-                  <div className="slide-card-line shimmer"></div>
-                  <div className="slide-card-line short shimmer"></div>
-                </div>
-              ))}
-            </div>
-
-            <div className="home-title-skeleton foryou shimmer"></div>
             <div className="home-product-grid">
-              {Array.from({ length: 8 }).map((_, idx) => (
-                <div className="product-card-skeleton" key={idx}>
-                  <div className="product-skeleton-img shimmer"></div>
-                  <div className="product-skeleton-line shimmer"></div>
-                  <div className="product-skeleton-line medium shimmer"></div>
-                  <div className="product-skeleton-line short shimmer"></div>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <>
-            {/* 🔥 Tranding Slide Section */}
-            {trandingProducts &&
-              trandingProducts.length > 0 && (
-                <div className="tranding-section tranding-bg">
-                  <h2 className="home-section-title section-trending">
-                    🔥 Tranding
-                  </h2>
-
-                  <div className="tranding-slider">
-                    {trandingProducts.slice(0, 6).map((product, idx) => (
-                      <TrendingGlassSlideCard productData={product} key={idx} />
-                    ))}
-
-                    {trandingProducts.length > 5 && (
-                       <div
-                        className="view-more-card"
-                        onClick={() => {
-                          setShowAllTranding(true),
-                          setShowAllLowPrice(false)
-                        }}
-                      >
-                        <p className="view-more-text">View All ➜</p>
-                      </div>
-                      
-                    )}
-                  </div>
-                </div>
-              )}
-
-            {/* 💰 0~99 টাকা Shop Section */}
-            {productsBelow99 &&
-             productsBelow99.length > 0 && (
-                <div className="low-price-section">
-                  <h2 className="home-section-title section-budget">
-                    💰 ০~৯৯ টাকা
-                  </h2>
-                  <div className="tranding-slider">
-                    {productsBelow99.slice(0, 6).map((product, idx) => (
-                      <UserSlideProductCart productData={product} key={idx} />
-                    ))}
-
-                    {productsBelow99.length > 6 && (
-                      <div
-                        className="view-more-card"
-                        onClick={() => {
-                          setShowAllTranding(false),
-                          setShowAllLowPrice(true)
-                          window.scrollTo({
-                          top: 0,
-                          behavior: "smooth",
-                          });
-                        }}
-                      >
-                        <p className="view-more-text">View All ➜</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-            {allProducts.length > 0 && (
-              <h2 className="home-section-title section-budget">For Yours</h2>
-            )}
-
-            {/* ✅ Products Grid */}
-            <div className="home-product-grid">
-              {allProducts.length > 0 &&
-                allProducts.map((product, idx) => (
+              {selectedSlideProduct.length > 0 &&
+                selectedSlideProduct.map((product, idx) => (
                   <UserProductCart productData={product} key={idx} />
                 ))}
             </div>
-          </>
+          </div>
         )}
-      </div> 
-      }
+
+        {!(showAllLowPrice || showAllTranding) && (
+          <div className="homepage">
+            {/* 🖼️ Banner / Banner Skeleton */}
+            {bannerLoading ? (
+              <div className="banner-skeleton-wrap">
+                <div className="banner-skeleton shimmer"></div>
+              </div>
+            ) : (
+              banners.length > 0 && (
+                <div
+                  className="banner-container"
+                  ref={bannerRef}
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  <img
+                    src={banners[bannerIndex]?.imageUrl}
+                    alt={banners[bannerIndex]?.altText || "Banner"}
+                    className="banner-image"
+                  />
+
+                  <div className="banner-dots">
+                    {banners.map((_, index) => (
+                      <span
+                        key={index}
+                        className={`dot ${index === bannerIndex ? "active" : ""}`}
+                        onClick={() => setBannerIndex(index)}
+                      ></span>
+                    ))}
+                  </div>
+                </div>
+              )
+            )}
+
+            {/* 🔥 Trending Skeleton */}
+            {productLoading ? (
+              <>
+                <div className="home-title-skeleton shimmer"></div>
+                <div className="home-horizontal-skeleton">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div className="slide-card-skeleton" key={idx}>
+                      <div className="slide-card-img shimmer"></div>
+                      <div className="slide-card-line shimmer"></div>
+                      <div className="slide-card-line short shimmer"></div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="home-title-skeleton green shimmer"></div>
+                <div className="home-horizontal-skeleton">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <div className="slide-card-skeleton" key={idx}>
+                      <div className="slide-card-img shimmer"></div>
+                      <div className="slide-card-line shimmer"></div>
+                      <div className="slide-card-line short shimmer"></div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="home-title-skeleton foryou shimmer"></div>
+                <div className="home-product-grid">
+                  {Array.from({ length: 8 }).map((_, idx) => (
+                    <div className="product-card-skeleton" key={idx}>
+                      <div className="product-skeleton-img shimmer"></div>
+                      <div className="product-skeleton-line shimmer"></div>
+                      <div className="product-skeleton-line medium shimmer"></div>
+                      <div className="product-skeleton-line short shimmer"></div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                {/* 🔥 Tranding Slide Section */}
+                {trandingProducts && trandingProducts.length > 0 && (
+                  <div className="tranding-section tranding-bg">
+                    <h2 className="home-section-title section-trending">
+                      🔥 Tranding
+                    </h2>
+
+                    <div className="tranding-slider">
+                      {trandingProducts.slice(0, 6).map((product, idx) => (
+                        <TrendingGlassSlideCard
+                          productData={product}
+                          key={idx}
+                        />
+                      ))}
+
+                      {trandingProducts.length > 5 && (
+                        <div
+                          className="view-more-card"
+                          onClick={() => {
+                            (setShowAllTranding(true),
+                              setShowAllLowPrice(false));
+                          }}
+                        >
+                          <p className="view-more-text">View All ➜</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* 💰 0~99 টাকা Shop Section */}
+                {productsBelow99 && productsBelow99.length > 0 && (
+                  <div className="low-price-section">
+                    <h2 className="home-section-title section-budget">
+                      💰 ০~৯৯ টাকা
+                    </h2>
+                    <div className="tranding-slider">
+                      {productsBelow99.slice(0, 6).map((product, idx) => (
+                        <UserSlideProductCart productData={product} key={idx} />
+                      ))}
+
+                      {productsBelow99.length > 6 && (
+                        <div
+                          className="view-more-card"
+                          onClick={() => {
+                            (setShowAllTranding(false),
+                              setShowAllLowPrice(true));
+                            window.scrollTo({
+                              top: 0,
+                              behavior: "smooth",
+                            });
+                          }}
+                        >
+                          <p className="view-more-text">View All ➜</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {allProducts.length > 0 && (
+                  <h2 className="home-section-title section-budget">
+                    For Yours
+                  </h2>
+                )}
+
+                {/* ✅ Products Grid */}
+                <div className="home-product-grid">
+                  {allProducts.length > 0 &&
+                    allProducts.map((product, idx) => (
+                      <UserProductCart productData={product} key={idx} />
+                    ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </>
     </>
   );

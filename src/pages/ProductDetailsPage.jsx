@@ -1,7 +1,13 @@
 import React, { useContext, useEffect, useRef, useState, useMemo } from "react";
 import axios from "axios";
 import SummaryApi from "../common";
-import { Link, Navigate, useLocation, useNavigate, useParams } from "react-router";
+import {
+  Link,
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router";
 import { CiDeliveryTruck, CiBoxes } from "react-icons/ci";
 import { TbTruckReturn } from "react-icons/tb";
 import "../styles/ProductDetailsStyle.css";
@@ -24,8 +30,13 @@ import ProductDetailsSkeleton from "../components/skeletonAnime/ProductDetailsSk
    - double click zoom toggle
    ========================= */
 
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.emamexp2.testeasupload";
+
 const ensureHttps = (u = "") =>
-  String(u || "").replace(/^http:\/\//i, "https://").replace(/ /g, "%20");
+  String(u || "")
+    .replace(/^http:\/\//i, "https://")
+    .replace(/ /g, "%20");
 
 const FullscreenImageModal = ({
   visible,
@@ -54,7 +65,8 @@ const FullscreenImageModal = ({
     const onKey = (e) => {
       if (e.key === "Escape") onClose?.();
       if (e.key === "ArrowLeft") setIndex((p) => Math.max(0, p - 1));
-      if (e.key === "ArrowRight") setIndex((p) => Math.min(images.length - 1, p + 1));
+      if (e.key === "ArrowRight")
+        setIndex((p) => Math.min(images.length - 1, p + 1));
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -126,12 +138,20 @@ const FullscreenImageModal = ({
         <div className="pd-viewer__count">
           {index + 1} / {safeImages.length}
         </div>
-        <button className="pd-viewer__close" onClick={onClose} aria-label="Close">
+        <button
+          className="pd-viewer__close"
+          onClick={onClose}
+          aria-label="Close"
+        >
           ✕
         </button>
       </div>
 
-      <button className="pd-viewer__nav left" onClick={goPrev} disabled={index === 0}>
+      <button
+        className="pd-viewer__nav left"
+        onClick={goPrev}
+        disabled={index === 0}
+      >
         ‹
       </button>
       <button
@@ -160,7 +180,12 @@ const FullscreenImageModal = ({
           className="pd-viewer__img"
           style={{
             transform: `translate(${drag.x}px, ${drag.y}px) scale(${scale})`,
-            cursor: scale > 1.01 ? (draggingRef.current ? "grabbing" : "grab") : "zoom-in",
+            cursor:
+              scale > 1.01
+                ? draggingRef.current
+                  ? "grabbing"
+                  : "grab"
+                : "zoom-in",
           }}
         />
       </div>
@@ -185,8 +210,8 @@ const Stars = ({ value = 0 }) => {
 const ProductDetailsPage = () => {
   const param = useParams();
   const location = useLocation();
-  console.log("🦌◆🦌◆location",location?.state?.selectedImage);
-  
+  console.log("🦌◆🦌◆location", location?.state?.selectedImage);
+
   const [data, setData] = useState({
     _id: "",
     productName: "",
@@ -213,24 +238,24 @@ const ProductDetailsPage = () => {
   const [showRelatedProduct, setShowRelatedProduct] = useState([]);
 
   const [heightFeet, setHeightFeet] = useState("");
-const [heightInch, setHeightInch] = useState("");
-const [weight, setWeight] = useState("");
-const [waist, setWaist] = useState(""); // optional
-const [fitPreference, setFitPreference] = useState("regular");
+  const [heightInch, setHeightInch] = useState("");
+  const [weight, setWeight] = useState("");
+  const [waist, setWaist] = useState(""); // optional
+  const [fitPreference, setFitPreference] = useState("regular");
 
-const [showAiSizeBox, setShowAiSizeBox] = useState(false);
-const [aiSizeLoading, setAiSizeLoading] = useState(false);
-const [aiSizeError, setAiSizeError] = useState("");
-const [aiSizeResult, setAiSizeResult] = useState(null);
+  const [showAiSizeBox, setShowAiSizeBox] = useState(false);
+  const [aiSizeLoading, setAiSizeLoading] = useState(false);
+  const [aiSizeError, setAiSizeError] = useState("");
+  const [aiSizeResult, setAiSizeResult] = useState(null);
   // ✅ Reviews state
   const [reviews, setReviews] = useState([]);
 
-  const [loading, setloading] = useState()
+  const [loading, setloading] = useState();
 
   // ✅ show top 3
   const previewReviews = useMemo(
     () => (Array.isArray(reviews) ? reviews.slice(0, 3) : []),
-    [reviews]
+    [reviews],
   );
 
   // ✅ viewer state (RN same)
@@ -249,26 +274,29 @@ const [aiSizeResult, setAiSizeResult] = useState(null);
   const { fetchUserAddToCart } = useContext(Context);
 
   // description block
-// ✅ Product Details preview state (RN style)
-const [isTruncated, setIsTruncated] = useState(false);
-const descBoxRef = useRef(null);
+  // ✅ Product Details preview state (RN style)
+  const [isTruncated, setIsTruncated] = useState(false);
+  const descBoxRef = useRef(null);
 
-// ✅ modal (same function name like RN)
-const [modalVisible, setModalVisible] = useState(false);
-const [selectedCommitment, setSelectedCommitment] = useState({ title: "", detail: "" });
+  // ✅ modal (same function name like RN)
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedCommitment, setSelectedCommitment] = useState({
+    title: "",
+    detail: "",
+  });
 
-const openCommitmentModal = (title, detail) => {
-  setSelectedCommitment({ title, detail });
-  setModalVisible(true);
-};
+  const openCommitmentModal = (title, detail) => {
+    setSelectedCommitment({ title, detail });
+    setModalVisible(true);
+  };
 
-// ✅ detect truncation (after description changes)
-useEffect(() => {
-  const el = descBoxRef.current;
-  if (!el) return;
-  // if content taller than visible height => truncated
-  setIsTruncated(el.scrollHeight > el.clientHeight + 2);
-}, [data?.description]);
+  // ✅ detect truncation (after description changes)
+  useEffect(() => {
+    const el = descBoxRef.current;
+    if (!el) return;
+    // if content taller than visible height => truncated
+    setIsTruncated(el.scrollHeight > el.clientHeight + 2);
+  }, [data?.description]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -284,21 +312,30 @@ useEffect(() => {
 
       const d = result.data || {};
       setData(d);
-      setloading(false)
+      setloading(false);
 
       const images = (d.variants || []).flatMap((v) => v.images || []);
       const clickedImage = location?.state?.selectedImage;
-      const preferredImage = images.includes(clickedImage) ? clickedImage : images[0] || null;
+      const preferredImage = images.includes(clickedImage)
+        ? clickedImage
+        : images[0] || null;
       setAllImages(images);
       // setSelectedImg(images[0] || null);
       // setSelectedVariantIndex(0);
       setSelectedImg(preferredImage);
-      setSelectedImageIndex(Math.max(0, images.findIndex((im) => im === preferredImage)));
+      setSelectedImageIndex(
+        Math.max(
+          0,
+          images.findIndex((im) => im === preferredImage),
+        ),
+      );
 
       const preferredVariantIndex = (d.variants || []).findIndex((v) =>
-        (v.images || []).includes(preferredImage)
+        (v.images || []).includes(preferredImage),
       );
-      setSelectedVariantIndex(preferredVariantIndex >= 0 ? preferredVariantIndex : 0);
+      setSelectedVariantIndex(
+        preferredVariantIndex >= 0 ? preferredVariantIndex : 0,
+      );
       setSelectedSize(null);
 
       const res = await fetch(SummaryApi.category_wish_product.url, {
@@ -310,7 +347,7 @@ useEffect(() => {
       const optimized = generateOptimizedVariants(reco.data);
       setShowRelatedProduct(optimized || []);
     })();
-   }, [location?.state?.selectedImage, param?.id]);
+  }, [location?.state?.selectedImage, param?.id]);
 
   // ✅ Fetch product reviews (after product loaded)
   useEffect(() => {
@@ -331,7 +368,7 @@ useEffect(() => {
         }
       } catch (e) {
         console.log(e);
-        
+
         setReviews([]);
       }
     })();
@@ -355,12 +392,13 @@ useEffect(() => {
   const variantSizes = selectedVariant.sizes || [];
 
   // ---------- SIZE AVAILABILITY (ONLY FROM sizeDetails) ----------
-  const hasSizes = Array.isArray(data.sizeDetails) && data.sizeDetails.length > 0;
+  const hasSizes =
+    Array.isArray(data.sizeDetails) && data.sizeDetails.length > 0;
 
   // show these sizes in UI (ONLY from sizeDetails)
   const AVAILABLE_SIZES = useMemo(
     () => (hasSizes ? data.sizeDetails.map((s) => s.size) : []),
-    [hasSizes, data.sizeDetails]
+    [hasSizes, data.sizeDetails],
   );
 
   // stock for a selected size (look up in current variant's sizes)
@@ -375,7 +413,7 @@ useEffect(() => {
     const sumVariant = (data.variants || []).reduce((acc, v) => {
       const sum = (v.sizes || []).reduce(
         (a, s) => a + (Number(s.stock) || 0),
-        0
+        0,
       );
       return acc + sum;
     }, 0);
@@ -422,258 +460,286 @@ useEffect(() => {
   })();
 
   const handleAiSizeSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!heightFeet || !weight) {
-    setAiSizeError("উচ্চতা এবং ওজন অবশ্যই দিতে হবে।");
-    return;
-  }
-
-  if (!Array.isArray(data?.sizeDetails) || data.sizeDetails.length === 0) {
-    setAiSizeError("এই product এর size chart পাওয়া যায়নি।");
-    return;
-  }
-
-  setAiSizeLoading(true);
-  setAiSizeError("");
-  setAiSizeResult(null);
-
-  const cleanSizeChart = data.sizeDetails.map((item) => ({
-    size: item.size,
-    chest: Number(item.chest || 0),
-    length: Number(item.length || 0),
-    shoulder: Number(item.shoulder || 0),
-    sleeve: Number(item.sleeve || 0),
-    unit: item.unit === "inche" ? "inch" : item.unit || "inch",
-  }));
-
-  const totalHeightInch =
-    Number(heightFeet || 0) * 12 + Number(heightInch || 0);
-
-  const payload = {
-    productName: data?.productName || "",
-    category: data?.category || "",
-    productType: data?.subCategory || data?.category || "",
-
-    sizeChart: cleanSizeChart,
-
-    customerInfo: {
-      heightFeet: Number(heightFeet),
-      heightInch: Number(heightInch || 0),
-      totalHeightInch,
-      weight: Number(weight),
-      waist: waist ? Number(waist) : null, // optional
-    },
-
-    fitPreference: fitPreference || "regular",
-  };
-
-  console.log("FINAL AI PAYLOAD:", payload);
-
-  try {
-    const response = await fetch(SummaryApi.ai_size_recommend.url, {
-      method: SummaryApi.ai_size_recommend.method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(payload),
-    });
-
-    const result = await response.json();
-    console.log("AI size response:", result);
-
-    if (!response.ok || !result?.success) {
-      throw new Error(result?.message || "AI size suggestion failed");
+    if (!heightFeet || !weight) {
+      setAiSizeError("উচ্চতা এবং ওজন অবশ্যই দিতে হবে।");
+      return;
     }
 
-    setAiSizeResult(result?.data || null);
-  } catch (error) {
-    setAiSizeError(error?.message || "AI size suggestion failed");
-  } finally {
-    setAiSizeLoading(false);
-  }
-};
+    if (!Array.isArray(data?.sizeDetails) || data.sizeDetails.length === 0) {
+      setAiSizeError("এই product এর size chart পাওয়া যায়নি।");
+      return;
+    }
+
+    setAiSizeLoading(true);
+    setAiSizeError("");
+    setAiSizeResult(null);
+
+    const cleanSizeChart = data.sizeDetails.map((item) => ({
+      size: item.size,
+      chest: Number(item.chest || 0),
+      length: Number(item.length || 0),
+      shoulder: Number(item.shoulder || 0),
+      sleeve: Number(item.sleeve || 0),
+      unit: item.unit === "inche" ? "inch" : item.unit || "inch",
+    }));
+
+    const totalHeightInch =
+      Number(heightFeet || 0) * 12 + Number(heightInch || 0);
+
+    const payload = {
+      productName: data?.productName || "",
+      category: data?.category || "",
+      productType: data?.subCategory || data?.category || "",
+
+      sizeChart: cleanSizeChart,
+
+      customerInfo: {
+        heightFeet: Number(heightFeet),
+        heightInch: Number(heightInch || 0),
+        totalHeightInch,
+        weight: Number(weight),
+        waist: waist ? Number(waist) : null, // optional
+      },
+
+      fitPreference: fitPreference || "regular",
+    };
+
+    console.log("FINAL AI PAYLOAD:", payload);
+
+    try {
+      const response = await fetch(SummaryApi.ai_size_recommend.url, {
+        method: SummaryApi.ai_size_recommend.method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+      console.log("AI size response:", result);
+
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message || "AI size suggestion failed");
+      }
+
+      setAiSizeResult(result?.data || null);
+    } catch (error) {
+      setAiSizeError(error?.message || "AI size suggestion failed");
+    } finally {
+      setAiSizeLoading(false);
+    }
+  };
 
   const navigate = useNavigate();
 
-    const { cartCountProduct } = useContext(Context);
-
+  const { cartCountProduct } = useContext(Context);
 
   // ✅ SEO: update product title, meta description, canonical, OG, Twitter, Product Schema
-useEffect(() => {
-  if (!data?.productName) return;
+  useEffect(() => {
+    if (!data?.productName) return;
 
-  const productTitle = selectedVariant?.SpcProductName
-    ? selectedVariant.SpcProductName
-    : data.productName;
+    const productTitle = selectedVariant?.SpcProductName
+      ? selectedVariant.SpcProductName
+      : data.productName;
 
-  const productDescription =
-    data?.description ||
-    `${productTitle} is available at Pyzara. Shop with Confidence.`;
+    const productDescription =
+      data?.description ||
+      `${productTitle} is available at Pyzara. Shop with Confidence.`;
 
-  const shortDescription =
-    productDescription.length > 155
-      ? productDescription.slice(0, 155) + "..."
-      : productDescription;
+    const shortDescription =
+      productDescription.length > 155
+        ? productDescription.slice(0, 155) + "..."
+        : productDescription;
 
-  const productUrl = `https://pyzara.com/product/${param?.id}`;
-  const productImage = selectedImg || allImages?.[0] || "https://pyzara.com/PyzaraWebIcone.png";
+    const productUrl = `https://pyzara.com/product/${param?.id}`;
+    const productImage =
+      selectedImg || allImages?.[0] || "https://pyzara.com/PyzaraWebIcone.png";
 
-  const productPrice = Number(updateSelling || data?.selling || 0);//test
+    const productPrice = Number(updateSelling || data?.selling || 0); //test
 
-  // ✅ Helper: meta tag set/update
-  const setMetaTag = (selector, attrName, attrValue, content) => {
-    let tag = document.querySelector(selector);
+    // ✅ Helper: meta tag set/update
+    const setMetaTag = (selector, attrName, attrValue, content) => {
+      let tag = document.querySelector(selector);
 
-    if (!tag) {
-      tag = document.createElement("meta");
-      tag.setAttribute(attrName, attrValue);
-      document.head.appendChild(tag);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute(attrName, attrValue);
+        document.head.appendChild(tag);
+      }
+
+      tag.setAttribute("content", content);
+    };
+
+    // ✅ Page title
+    document.title = `${productTitle} | Pyzara`;
+
+    // ✅ Basic meta description
+    setMetaTag(
+      'meta[name="description"]',
+      "name",
+      "description",
+      shortDescription,
+    );
+
+    // ✅ Canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]');
+
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
     }
 
-    tag.setAttribute("content", content);
-  };
+    canonical.setAttribute("href", productUrl);
 
-  // ✅ Page title
-  document.title = `${productTitle} | Pyzara`;
+    // ✅ Open Graph meta
+    setMetaTag("meta[property='og:type']", "property", "og:type", "product");
+    setMetaTag(
+      "meta[property='og:site_name']",
+      "property",
+      "og:site_name",
+      "Pyzara",
+    );
+    setMetaTag("meta[property='og:url']", "property", "og:url", productUrl);
+    setMetaTag(
+      "meta[property='og:title']",
+      "property",
+      "og:title",
+      `${productTitle} | Pyzara`,
+    );
+    setMetaTag(
+      "meta[property='og:description']",
+      "property",
+      "og:description",
+      shortDescription,
+    );
+    setMetaTag(
+      "meta[property='og:image']",
+      "property",
+      "og:image",
+      productImage,
+    );
+    setMetaTag(
+      "meta[property='og:image:alt']",
+      "property",
+      "og:image:alt",
+      productTitle,
+    );
 
-  // ✅ Basic meta description
-  setMetaTag(
-    'meta[name="description"]',
-    "name",
-    "description",
-    shortDescription
-  );
+    // ✅ Twitter meta
+    setMetaTag(
+      "meta[name='twitter:card']",
+      "name",
+      "twitter:card",
+      "summary_large_image",
+    );
+    setMetaTag("meta[name='twitter:url']", "name", "twitter:url", productUrl);
+    setMetaTag(
+      "meta[name='twitter:title']",
+      "name",
+      "twitter:title",
+      `${productTitle} | Pyzara`,
+    );
+    setMetaTag(
+      "meta[name='twitter:description']",
+      "name",
+      "twitter:description",
+      shortDescription,
+    );
+    setMetaTag(
+      "meta[name='twitter:image']",
+      "name",
+      "twitter:image",
+      productImage,
+    );
+    setMetaTag(
+      "meta[name='twitter:image:alt']",
+      "name",
+      "twitter:image:alt",
+      productTitle,
+    );
 
-  // ✅ Canonical URL
-  let canonical = document.querySelector('link[rel="canonical"]');
+    // ✅ Product JSON-LD Schema
+    const oldProductSchema = document.getElementById("product-json-ld");
+    if (oldProductSchema) {
+      oldProductSchema.remove();
+    }
 
-  if (!canonical) {
-    canonical = document.createElement("link");
-    canonical.setAttribute("rel", "canonical");
-    document.head.appendChild(canonical);
-  }
+    const productSchema = document.createElement("script");
+    productSchema.type = "application/ld+json";
+    productSchema.id = "product-json-ld";
 
-  canonical.setAttribute("href", productUrl);
-
-  // ✅ Open Graph meta
-  setMetaTag("meta[property='og:type']", "property", "og:type", "product");
-  setMetaTag("meta[property='og:site_name']", "property", "og:site_name", "Pyzara");
-  setMetaTag("meta[property='og:url']", "property", "og:url", productUrl);
-  setMetaTag(
-    "meta[property='og:title']",
-    "property",
-    "og:title",
-    `${productTitle} | Pyzara`
-  );
-  setMetaTag(
-    "meta[property='og:description']",
-    "property",
-    "og:description",
-    shortDescription
-  );
-  setMetaTag("meta[property='og:image']", "property", "og:image", productImage);
-  setMetaTag("meta[property='og:image:alt']", "property", "og:image:alt", productTitle);
-
-  // ✅ Twitter meta
-  setMetaTag("meta[name='twitter:card']", "name", "twitter:card", "summary_large_image");
-  setMetaTag("meta[name='twitter:url']", "name", "twitter:url", productUrl);
-  setMetaTag(
-    "meta[name='twitter:title']",
-    "name",
-    "twitter:title",
-    `${productTitle} | Pyzara`
-  );
-  setMetaTag(
-    "meta[name='twitter:description']",
-    "name",
-    "twitter:description",
-    shortDescription
-  );
-  setMetaTag("meta[name='twitter:image']", "name", "twitter:image", productImage);
-  setMetaTag("meta[name='twitter:image:alt']", "name", "twitter:image:alt", productTitle);
-
-  // ✅ Product JSON-LD Schema
-  const oldProductSchema = document.getElementById("product-json-ld");
-  if (oldProductSchema) {
-    oldProductSchema.remove();
-  }
-
-  const productSchema = document.createElement("script");
-  productSchema.type = "application/ld+json";
-  productSchema.id = "product-json-ld";
-
-  productSchema.textContent = JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: productTitle,
-    description:
-      productDescription.length > 250
-        ? productDescription.slice(0, 250)
-        : productDescription,
-    image: productImage ? [productImage] : [],
-    brand: {
-      "@type": "Brand",
-      name: data?.brandName || "Pyzara",
-    },
-    sku: data?.productCodeNumber || data?._id || param?.id,
-    category: data?.category || data?.subCategory || "Online Shopping",
-    offers: {
-      "@type": "Offer",
-      url: productUrl,
-      priceCurrency: "BDT",
-      price: productPrice,
-      itemCondition: "https://schema.org/NewCondition",
-      seller: {
-        "@type": "Organization",
-        name: "Pyzara",
+    productSchema.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: productTitle,
+      description:
+        productDescription.length > 250
+          ? productDescription.slice(0, 250)
+          : productDescription,
+      image: productImage ? [productImage] : [],
+      brand: {
+        "@type": "Brand",
+        name: data?.brandName || "Pyzara",
       },
-    },
-  });
+      sku: data?.productCodeNumber || data?._id || param?.id,
+      category: data?.category || data?.subCategory || "Online Shopping",
+      offers: {
+        "@type": "Offer",
+        url: productUrl,
+        priceCurrency: "BDT",
+        price: productPrice,
+        itemCondition: "https://schema.org/NewCondition",
+        seller: {
+          "@type": "Organization",
+          name: "Pyzara",
+        },
+      },
+    });
 
-  document.head.appendChild(productSchema);
+    document.head.appendChild(productSchema);
 
-  // ✅ Cleanup when product page unmount/change
-  return () => {
-    const oldSchema = document.getElementById("product-json-ld");
-    if (oldSchema) {
-      oldSchema.remove();
-    }
-  };
-}, [
-  data?.productName,
-  data?.description,
-  data?.brandName,
-  data?.productCodeNumber,
-  data?._id,
-  data?.category,
-  data?.subCategory,
-  data?.totalStock,
-  data?.selling,
-  selectedVariant?.SpcProductName,
-  selectedImg,
-  allImages,
-  updateSelling,
-  param?.id,
-]);
+    // ✅ Cleanup when product page unmount/change
+    return () => {
+      const oldSchema = document.getElementById("product-json-ld");
+      if (oldSchema) {
+        oldSchema.remove();
+      }
+    };
+  }, [
+    data?.productName,
+    data?.description,
+    data?.brandName,
+    data?.productCodeNumber,
+    data?._id,
+    data?.category,
+    data?.subCategory,
+    data?.totalStock,
+    data?.selling,
+    selectedVariant?.SpcProductName,
+    selectedImg,
+    allImages,
+    updateSelling,
+    param?.id,
+  ]);
 
-    if (!data || loading )  {
-  return <ProductDetailsSkeleton />;
-}
-// onClick={window.scrollTo({ top: 0, behavior: "auto" })}
+  if (!data || loading) {
+    return <ProductDetailsSkeleton />;
+  }
+  // onClick={window.scrollTo({ top: 0, behavior: "auto" })}
   return (
-    <div className="product-details-container" >
-
+    <div className="product-details-container">
       {/* back button */}
       <button
-      type="button"
-      className="p-back-button"
-      onClick={() => navigate(-1) }
-    >
-
-    <MdOutlineArrowBackIos  className="backIcon"/>
-    </button>
+        type="button"
+        className="p-back-button"
+        onClick={() => navigate(-1)}
+      >
+        <MdOutlineArrowBackIos className="backIcon" />
+      </button>
       {/* Image gallery */}
       <div className="product-image-wrapper">
         <div className="thumbnail-list-vertical">
@@ -688,7 +754,7 @@ useEffect(() => {
                 setSelectedImg(img);
                 setSelectedImageIndex(index);
                 const variantIndex = (data.variants || []).findIndex((v) =>
-                  (v.images || []).includes(img)
+                  (v.images || []).includes(img),
                 );
                 if (
                   variantIndex !== -1 &&
@@ -698,14 +764,19 @@ useEffect(() => {
                   setSelectedSize(null);
                 }
               }}
-                alt={updateProductName || data.productName || "Pyzara product"}
+              alt={updateProductName || data.productName || "Pyzara product"}
             />
           ))}
         </div>
 
         {/* for desktop size */}
         <div className="big-image">
-          {selectedImg ? <img src={selectedImg}  alt={updateProductName || data.productName || "Pyzara product"} /> : null}
+          {selectedImg ? (
+            <img
+              src={selectedImg}
+              alt={updateProductName || data.productName || "Pyzara product"}
+            />
+          ) : null}
         </div>
       </div>
 
@@ -718,13 +789,13 @@ useEffect(() => {
             const el = e.target;
             const currentIndex = Math.round(el.scrollLeft / el.clientWidth);
             const currentImage = allImages[currentIndex];
-           if (currentImage) {
+            if (currentImage) {
               setSelectedImg(currentImage);
               setSelectedImageIndex(currentIndex);
             }
 
             const variantIndex = (data.variants || []).findIndex((v) =>
-              (v.images || []).includes(currentImage)
+              (v.images || []).includes(currentImage),
             );
             if (variantIndex !== -1 && variantIndex !== selectedVariantIndex) {
               setSelectedVariantIndex(variantIndex);
@@ -734,7 +805,10 @@ useEffect(() => {
         >
           {allImages.map((img, index) => (
             <div key={index} className="product-image-slide">
-              <img src={selectedImg} alt={`${updateProductName || data.productName || "Pyzara product"} thumbnail ${index + 1}`} />
+              <img
+                src={selectedImg}
+                alt={`${updateProductName || data.productName || "Pyzara product"} thumbnail ${index + 1}`}
+              />
             </div>
           ))}
         </div>
@@ -786,7 +860,12 @@ useEffect(() => {
                 if (newImages.length > 0) {
                   const firstImg = newImages[0];
                   setSelectedImg(firstImg);
-                  setSelectedImageIndex(Math.max(0, allImages.findIndex((im) => im === firstImg)));
+                  setSelectedImageIndex(
+                    Math.max(
+                      0,
+                      allImages.findIndex((im) => im === firstImg),
+                    ),
+                  );
 
                   const imgIndex = allImages.findIndex((im) => im === firstImg);
                   if (imageSliderRef.current && imgIndex !== -1) {
@@ -812,7 +891,7 @@ useEffect(() => {
       {hasSizes && AVAILABLE_SIZES.length > 0 && (
         <div className="size-section">
           <div className="size-header">
-            <p style={{marginLeft:"5px"}}>Size</p>
+            <p style={{ marginLeft: "5px" }}>Size</p>
           </div>
           <div className="size-options">
             {AVAILABLE_SIZES.map((size) => {
@@ -838,17 +917,19 @@ useEffect(() => {
         </div>
       )}
 
-            {/* Size details box (only if hasSizes) */}
+      {/* Size details box (only if hasSizes) */}
       {hasSizes && selectedSize && (
         <div className="size-detail-box">
           <div className="size-detail-title">Size: {selectedSize} Details</div>
           {(() => {
             const row = (data.sizeDetails || []).find(
-              (s) => s.size === selectedSize
+              (s) => s.size === selectedSize,
             );
             if (!row)
               return (
-                <div className="size-detail-text">No details for this size.</div>
+                <div className="size-detail-text">
+                  No details for this size.
+                </div>
               );
             const unit = row.unit ? ` ${row.unit}` : "";
             return (
@@ -873,7 +954,6 @@ useEffect(() => {
         </div>
       )}
 
-
       {/* Stock info (size-mode only) */}
       {hasSizes && (
         <div className="stock-info">
@@ -885,7 +965,6 @@ useEffect(() => {
         </div>
       )}
 
-      
       {hasSizes && (
         <div className="ai-size-helper-wrap">
           <button
@@ -903,209 +982,219 @@ useEffect(() => {
             <div className="ai-size-helper-card">
               <h4 className="ai-size-helper-title">AI Size Helper</h4>
 
-              {!Array.isArray(data?.sizeDetails) || data.sizeDetails.length === 0 ? (
+              {!Array.isArray(data?.sizeDetails) ||
+              data.sizeDetails.length === 0 ? (
                 <p className="ai-size-helper-error">
                   এই product এর size chart পাওয়া যায়নি।
                 </p>
               ) : (
                 <form className="ai-size-form" onSubmit={handleAiSizeSubmit}>
-  <div className="ai-size-row">
-    <div className="ai-size-field">
-      <label>আপনার উচ্চতা</label>
-      <div className="ai-height-group">
-        <input
-          type="number"
-          value={heightFeet}
-          onChange={(e) => setHeightFeet(e.target.value)}
-          placeholder="Feet"
-          min="1"
-        />
-        <input
-          type="number"
-          value={heightInch}
-          onChange={(e) => setHeightInch(e.target.value)}
-          placeholder="Inch"
-          min="0"
-          max="11"
-        />
-      </div>
-    </div>
+                  <div className="ai-size-row">
+                    <div className="ai-size-field">
+                      <label>আপনার উচ্চতা</label>
+                      <div className="ai-height-group">
+                        <input
+                          type="number"
+                          value={heightFeet}
+                          onChange={(e) => setHeightFeet(e.target.value)}
+                          placeholder="Feet"
+                          min="1"
+                        />
+                        <input
+                          type="number"
+                          value={heightInch}
+                          onChange={(e) => setHeightInch(e.target.value)}
+                          placeholder="Inch"
+                          min="0"
+                          max="11"
+                        />
+                      </div>
+                    </div>
 
-    <div className="ai-size-field">
-      <label>আপনার ওজন (kg)</label>
-      <input
-        type="number"
-        value={weight}
-        onChange={(e) => setWeight(e.target.value)}
-        placeholder="যেমন: 65"
-        min="1"
-      />
-    </div>
-  </div>
+                    <div className="ai-size-field">
+                      <label>আপনার ওজন (kg)</label>
+                      <input
+                        type="number"
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                        placeholder="যেমন: 65"
+                        min="1"
+                      />
+                    </div>
+                  </div>
 
-  <div className="ai-size-field">
-    <label>কোমরের মাপ (inch) <span>Optional</span></label>
-    <input
-      type="number"
-      value={waist}
-      onChange={(e) => setWaist(e.target.value)}
-      placeholder="যেমন: 32"
-      min="1"
-    />
-  </div>
+                  <div className="ai-size-field">
+                    <label>
+                      কোমরের মাপ (inch) <span>Optional</span>
+                    </label>
+                    <input
+                      type="number"
+                      value={waist}
+                      onChange={(e) => setWaist(e.target.value)}
+                      placeholder="যেমন: 32"
+                      min="1"
+                    />
+                  </div>
 
-  <div className="ai-size-field">
-    <label>আপনি কেমন fit চান?</label>
-    <select
-      value={fitPreference}
-      onChange={(e) => setFitPreference(e.target.value)}
-    >
-      <option value="slim">Slim Fit</option>
-      <option value="regular">Regular Fit</option>
-      <option value="loose">Loose Fit</option>
-    </select>
-  </div>
+                  <div className="ai-size-field">
+                    <label>আপনি কেমন fit চান?</label>
+                    <select
+                      value={fitPreference}
+                      onChange={(e) => setFitPreference(e.target.value)}
+                    >
+                      <option value="slim">Slim Fit</option>
+                      <option value="regular">Regular Fit</option>
+                      <option value="loose">Loose Fit</option>
+                    </select>
+                  </div>
 
-  {aiSizeError && <p className="ai-size-error">{aiSizeError}</p>}
+                  {aiSizeError && (
+                    <p className="ai-size-error">{aiSizeError}</p>
+                  )}
 
-  <button
-    type="submit"
-    className="ai-size-submit-btn"
-    disabled={aiSizeLoading}
-  >
-    {aiSizeLoading ? "AI আপনার size suggest করছে..." : "Find My Size"}
-  </button>
-</form>
+                  <button
+                    type="submit"
+                    className="ai-size-submit-btn"
+                    disabled={aiSizeLoading}
+                  >
+                    {aiSizeLoading
+                      ? "AI আপনার size suggest করছে..."
+                      : "Find My Size"}
+                  </button>
+                </form>
               )}
 
               {aiSizeResult && (
-  <div className="ai-size-result-card">
-    <div className="ai-size-result-top">
-      <span>Recommended Size</span>
-      <strong>{aiSizeResult.recommendedSize}</strong>
-    </div>
+                <div className="ai-size-result-card">
+                  <div className="ai-size-result-top">
+                    <span>Recommended Size</span>
+                    <strong>{aiSizeResult.recommendedSize}</strong>
+                  </div>
 
-    {aiSizeResult.alternativeSize && (
-      <p className="ai-size-alt">
-        Alternative: <b>{aiSizeResult.alternativeSize}</b>
-      </p>
-    )}
+                  {aiSizeResult.alternativeSize && (
+                    <p className="ai-size-alt">
+                      Alternative: <b>{aiSizeResult.alternativeSize}</b>
+                    </p>
+                  )}
 
-    {aiSizeResult.fitNote && (
-      <p className="ai-size-note">{aiSizeResult.fitNote}</p>
-    )}
+                  {aiSizeResult.fitNote && (
+                    <p className="ai-size-note">{aiSizeResult.fitNote}</p>
+                  )}
 
-    {aiSizeResult.customerMessage && (
-      <div className="ai-size-message">
-        {aiSizeResult.customerMessage}
-      </div>
-    )}
-  </div>
-)}
+                  {aiSizeResult.customerMessage && (
+                    <div className="ai-size-message">
+                      {aiSizeResult.customerMessage}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
       )}
 
-
       {/* // Suppose API returns PQualityType in data.qualityType  (normal|good|premium|luxury) */}
-        {data?.qualityType && (
-          <ProductQualityViz
-            PQualityType={data?.qualityType}
-            style={{ marginTop: 12 }}
-          />
-        )}
-
-        {/* commitment - servoces*/}
-        <EGtakeCommitment />
-
-      {/* product code number */}
-      <div style={{color:"gray", paddingTop:"10px"}}>Product code: {data?.productCodeNumber}
-        <span style={{paddingLeft:"10px"}}>|</span>
-        <span className="cod-badge"> Cash on Delivery</span>
-        </div>
-
-      {/* ✅ Product Description (RN-like preview) */}
-<div className="review-preview">
-  <div className="review-preview-header">
-    <h3 className="review-title" style={{ margin: 0 }}>Product Details</h3>
-  </div>
-
-  {!!data?.description && (
-    <div style={{ position: "relative" }}>
-      {/* 10-line preview style (web) */}
-      <div
-        ref={descBoxRef}
-        style={{
-          whiteSpace: "pre-line",
-          lineHeight: "20px",
-          color: "#222",
-          maxHeight: 20 * 10, // 10 lines
-          overflow: "hidden",
-          fontSize: 14,
-          position: "relative",
-        }}
-      >
-        {data.description}
-      </div>
-
-      {/* Soft fade at bottom only if truncated */}
-      {isTruncated && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 40,
-            pointerEvents: "none",
-            background:
-              "linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1))",
-          }}
+      {data?.qualityType && (
+        <ProductQualityViz
+          PQualityType={data?.qualityType}
+          style={{ marginTop: 12 }}
         />
       )}
-    </div>
-  )}
 
-  {/* More specification => opens modal */}
-  <button
-    type="button"
-    onClick={() => openCommitmentModal("Product Details", data?.description || "")}
-    style={{
-      marginTop: 10,
-      background: "transparent",
-      border: "none",
-      padding: 0,
-      cursor: "pointer",
-      color: "green",
-      fontWeight: 600,
-    }}
-  >
-    More specification ›
-  </button>
-</div>
+      {/* commitment - servoces*/}
+      <EGtakeCommitment />
+
+      {/* product code number */}
+      <div style={{ color: "gray", paddingTop: "10px" }}>
+        Product code: {data?.productCodeNumber}
+        <span style={{ paddingLeft: "10px" }}>|</span>
+        <span className="cod-badge"> Cash on Delivery</span>
+      </div>
+
+      {/* ✅ Product Description (RN-like preview) */}
+      <div className="review-preview">
+        <div className="review-preview-header">
+          <h3 className="review-title" style={{ margin: 0 }}>
+            Product Details
+          </h3>
+        </div>
+
+        {!!data?.description && (
+          <div style={{ position: "relative" }}>
+            {/* 10-line preview style (web) */}
+            <div
+              ref={descBoxRef}
+              style={{
+                whiteSpace: "pre-line",
+                lineHeight: "20px",
+                color: "#222",
+                maxHeight: 20 * 10, // 10 lines
+                overflow: "hidden",
+                fontSize: 14,
+                position: "relative",
+              }}
+            >
+              {data.description}
+            </div>
+
+            {/* Soft fade at bottom only if truncated */}
+            {isTruncated && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 40,
+                  pointerEvents: "none",
+                  background:
+                    "linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1))",
+                }}
+              />
+            )}
+          </div>
+        )}
+
+        {/* More specification => opens modal */}
+        <button
+          type="button"
+          onClick={() =>
+            openCommitmentModal("Product Details", data?.description || "")
+          }
+          style={{
+            marginTop: 10,
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            color: "green",
+            fontWeight: 600,
+          }}
+        >
+          More specification ›
+        </button>
+      </div>
 
       {/* Add to cart & cart button */}
-      <div  className="addbar">
-         <div className="p-cart-icon-container">
-          <Link to={"/cart"} className="p-footer-icon" >
-            <FaCartArrowDown />           
+      <div className="addbar">
+        <div className="p-cart-icon-container">
+          <Link to={"/cart"} className="p-footer-icon">
+            <FaCartArrowDown />
             <span className="p-cart-count-badge">{cartCountProduct}</span>
           </Link>
         </div>
         <div className="p-add-name-btn">
-           <button
-          className="add-to-cart-fixed"
-          disabled={buttonState.disabled}
-          onClick={addToCartHandle}
-        >
-          {buttonState.label}
-        </button>
+          <button
+            className="add-to-cart-fixed"
+            disabled={buttonState.disabled}
+            onClick={addToCartHandle}
+          >
+            {buttonState.label}
+          </button>
         </div>
-        
       </div>
 
-       {/* ✅ Reviews area */}
+      {/* ✅ Reviews area */}
       <div className="review-preview">
         <div className="review-preview-header">
           <h3 className="review-title">Customer Reviews</h3>
@@ -1123,7 +1212,9 @@ useEffect(() => {
               <div className="review-user">{rv.userName || "User"}</div>
               <Stars value={rv.rating} />
 
-              {rv.comment ? <div className="review-text">{rv.comment}</div> : null}
+              {rv.comment ? (
+                <div className="review-text">{rv.comment}</div>
+              ) : null}
 
               {/* thumbs (click => open modal) */}
               {Array.isArray(rv.images) && rv.images.length > 0 && (
@@ -1133,8 +1224,14 @@ useEffect(() => {
                       key={idx}
                       type="button"
                       className="thumb-box"
-                      onClick={() => openViewer(rv.images, idx, "Review photos")}
-                      style={{ padding: 0, border: "none", background: "transparent" }}
+                      onClick={() =>
+                        openViewer(rv.images, idx, "Review photos")
+                      }
+                      style={{
+                        padding: 0,
+                        border: "none",
+                        background: "transparent",
+                      }}
                     >
                       <img
                         src={ensureHttps(u)}
@@ -1163,7 +1260,6 @@ useEffect(() => {
         ) : null} */}
       </div>
 
-      
       {/* ✅ Image viewer modal (web) */}
       <FullscreenImageModal
         visible={showImageViewer}
@@ -1182,65 +1278,82 @@ useEffect(() => {
           ))}
       </div>
       {/* ✅ Modal (web) */}
-{modalVisible && (
-  <div
-    onClick={() => setModalVisible(false)}
-    style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,0.3)",
-      display: "flex",
-      justifyContent: "flex-end",
-      zIndex: 999999,
-    }}
-    role="presentation"
-  >
-    <div
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        width: "100%",
-        background: "#fff",
-        padding: 24,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-      }}
-      role="presentation"
-    >
-      <div style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-        {selectedCommitment.title}
-      </div>
+      {modalVisible && (
+        <div
+          onClick={() => setModalVisible(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.3)",
+            display: "flex",
+            justifyContent: "flex-end",
+            zIndex: 999999,
+          }}
+          role="presentation"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              background: "#fff",
+              padding: 24,
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            }}
+            role="presentation"
+          >
+            <div style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
+              {selectedCommitment.title}
+            </div>
 
-      <pre
-        style={{
-          fontSize: 16,
-          margin: "0 0 20px 0",
-          whiteSpace: "pre-wrap",
-          lineHeight: "22px",
-        }}
-      >
-        {selectedCommitment.detail}
-      </pre>
+            <pre
+              style={{
+                fontSize: 16,
+                margin: "0 0 20px 0",
+                whiteSpace: "pre-wrap",
+                lineHeight: "22px",
+              }}
+            >
+              {selectedCommitment.detail}
+            </pre>
 
-      <button
-        type="button"
-        onClick={() => setModalVisible(false)}
-        style={{
-          width: "100%",
-          background: "#ff5722",
-          padding: 12,
-          border: "none",
-          borderRadius: 8,
-          fontWeight: "bold",
-          color: "#fff",
-          fontSize: 16,
-          cursor: "pointer",
-        }}
+            <button
+              type="button"
+              onClick={() => setModalVisible(false)}
+              style={{
+                width: "100%",
+                background: "#ff5722",
+                padding: 12,
+                border: "none",
+                borderRadius: 8,
+                fontWeight: "bold",
+                color: "#fff",
+                fontSize: 16,
+                cursor: "pointer",
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+       {/* apps logo */}
+      <a
+        href={PLAY_STORE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="pyzara-floating-logo"
+        aria-label="Open Pyzara app on Google Play"
       >
-        Close
-      </button>
-    </div>
-  </div>
-)}
+        <img
+          src="/PyzaraWebIcone.png"
+          alt="Pyzara App"
+          className="pyzara-floating-logo-img"
+        />
+
+        <span className="pyzara-floating-dot"></span>
+      </a>
     </div>
   );
 };

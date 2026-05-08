@@ -13,15 +13,256 @@
 }
 
 /* fixed category bar spacing helper (your inline marginTop already exists) */
-.top-slide-category {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-  position: "fixed";
+/* ================================
+   Pyzara App Top Fixed Banner
+================================ */
+
+.pyzara-app-fixed-card {
+  position: fixed;
+  top: 0;
+  left: 10px;
+  right: 10px;
+  z-index: 99999;
+}
+
+/* Main clickable app card */
+.pyzara-app-fixed-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-decoration: none;
+  background: linear-gradient(135deg, #f7fff8 0%, #ffffff 55%, #f5f9ff 100%);
+  border: 1px solid rgba(59, 175, 78, 0.28);
+  border-radius: 16px;
+  padding: 10px 11px;
+  box-shadow: 0 8px 28px rgba(17, 24, 39, 0.18);
+  transition: all 0.22s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.pyzara-app-fixed-link::before {
+  content: "";
+  position: absolute;
+  top: -38px;
+  right: -38px;
+  width: 95px;
+  height: 95px;
+  background: rgba(59, 175, 78, 0.11);
+  border-radius: 50%;
+}
+
+.pyzara-app-fixed-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 32px rgba(17, 24, 39, 0.22);
+  border-color: rgba(59, 175, 78, 0.45);
+}
+
+/* Left side: logo + text */
+.pyzara-app-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.pyzara-logo-box {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 11px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 9px rgba(59, 175, 78, 0.16);
+  border: 1px solid rgba(59, 175, 78, 0.15);
+  overflow: hidden;
+}
+
+.pyzara-app-logo {
+  width: 29px;
+  height: 29px;
+  object-fit: contain;
+}
+
+.pyzara-app-info {
+  min-width: 0;
+}
+
+.pyzara-app-title {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.25;
+}
+
+.pyzara-app-title span {
+  color: #e11d48;
+}
+
+.pyzara-app-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 10.5px;
+  color: #6b7280;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pyzara-play-badge {
+  min-width: 52px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 48%, #020617 100%);
+  color: #ffffff;
+
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, 0.28);
+
+  box-shadow:
+    0 4px 12px rgba(30, 58, 138, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.24);
+
+  position: relative;
+  z-index: 999;
+  overflow: hidden;
+}
+
+.pyzara-play-badge::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 8px;
+  right: 8px;
+  height: 40%;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.28),
+    rgba(255, 255, 255, 0.02)
+  );
+  pointer-events: none;
+}
+
+.pyzara-play-text {
+  position: relative;
   z-index: 1000;
-  background-color: "#fff";
-  padding: "0px 0";
-  border-bottom: "1px solid #eee";
-  width: "100%";
-  margin-top: "0px";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  line-height: 1;
+  font-size: 11px;
+  font-weight: 900;
+  color: #ffffff;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.pyzara-app-fixed-link:hover .pyzara-play-badge {
+  background: linear-gradient(135deg, #020617 0%, #1d4ed8 50%, #020617 100%);
+  box-shadow:
+    0 5px 14px rgba(29, 78, 216, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.26);
+}
+.pyzara-play-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: linear-gradient(
+    135deg,
+    #00f5a0 0%,
+    #00d9f5 42%,
+    #ffe600 68%,
+    #ff3d71 100%
+  );
+  color: #ffffff;
+  font-size: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 1px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.pyzara-play-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.pyzara-play-text small {
+  font-size: 6px;
+  font-weight: 600;
+  letter-spacing: 0.45px;
+  color: #e5e7eb;
+}
+
+.pyzara-play-text strong {
+  margin-top: 2px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* Mobile small screen adjustment */
+@media (max-width: 420px) {
+  .pyzara-app-fixed-card {
+    /* left: 8px; */
+    right: 20px;
+  }
+
+  .pyzara-app-fixed-link {
+    padding: 2px;
+    gap: 5px;
+  }
+
+  .pyzara-logo-box {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 10px;
+  }
+
+  .pyzara-app-logo {
+    width: 26px;
+    height: 26px;
+  }
+
+  .pyzara-app-title {
+    font-size: 12.5px;
+  }
+
+  .pyzara-app-subtitle {
+    font-size: 9.5px;
+  }
+
+  .pyzara-play-badge {
+    min-width: 60px;
+    padding: 1px 7px;
+    border-radius: 25px;
+    height: 20;
+  }
+
+  .pyzara-play-text strong {
+    font-size: 9.5px;
+  }
 }
 
 /* =========================
@@ -300,18 +541,18 @@
   z-index: 1;
 }
 
-.slide-back-button{
+.slide-back-button {
   display: inline-flex;
   align-items: center;
   border-radius: 10px;
   border: 2px solid rgb(65, 36, 36);
-  background:#201f1f;
+  background: #201f1f;
   cursor: pointer;
   width: 50px;
   height: 30px;
   font-weight: 800;
   position: fixed;
-  color:black;
+  color: black;
   z-index: 999;
   text-align: center;
   margin-left: 10px;
