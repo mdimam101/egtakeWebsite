@@ -97,7 +97,25 @@ function App() {
 
   const path = location.pathname;
   const hideHeader = path.startsWith("/product") || path.startsWith("/profile");
-   const lockMainScroll = path.startsWith("/category");
+  const isCategoryPage = path === "/category";
+  console.log(path);
+  
+  //  const lockMainScroll = path.includes("/category");
+   useEffect(() => {
+    if (!isCategoryPage) return undefined;
+
+    const prevBodyOverflow = document.body.style.overflow;
+    const prevHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = prevBodyOverflow;
+      document.documentElement.style.overflow = prevHtmlOverflow;
+    };
+  }, [isCategoryPage]);
+
 
   return (
     <div className="app-wrapper">
@@ -115,7 +133,7 @@ function App() {
           // className={
           //   hideHeader ? "main-content-without-product-page" : "main-content"
           // }
-           className={`${hideHeader ? "main-content-without-product-page" : "main-content"} ${lockMainScroll ? "lock-scroll" : ""}`}
+           className={`${hideHeader ? "main-content-without-product-page" : "main-content"}`}
         >
           <Outlet />
         </main>
