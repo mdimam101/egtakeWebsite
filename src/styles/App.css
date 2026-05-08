@@ -10,21 +10,26 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  overflow: hidden;
+  /* overflow: hidden; */
+  overflow-x: hidden;
 }
 
 /* main content should be pushed down */
 .main-content {
   flex: 1;
-  padding: 50px 2px 2px 2px; 
+  /* padding: 50px 2px 2px 2px;  */
+  padding: 50px 2px 72px 2px;
   background-color: #f9f9f9;
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
+  overflow-y: auto;
 }
 .main-content-without-product-page {
   flex: 1;
-  padding: 0px 2px 2px 2px; 
+  /* padding: 0px 2px 2px 2px;  */
+  padding: 0px 2px 72px 2px;
   background-color: #f9f9f9;
-  overflow-y: hidden;
+  /* overflow-y: hidden; */
+  overflow-y: auto;
 }
 /* Footer (fixed at bottom) */
 .main-footer {
