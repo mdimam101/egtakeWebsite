@@ -999,6 +999,7 @@ const ProductDetailsPage = () => {
                           onChange={(e) => setHeightFeet(e.target.value)}
                           placeholder="Feet"
                           min="1"
+                          max="6"
                         />
                         <input
                           type="number"

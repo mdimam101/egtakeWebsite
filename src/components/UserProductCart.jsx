@@ -12,7 +12,7 @@ const UserProductCart = ({ productData }) => {
     const labels = [
       "Free delivery In App",
       "7 days easy return",
-      "Shop with confidence",
+      "More feature in Apps",
       "Secure shopping",
     ];
     if (productData?.qualityType) labels.splice(1, 0, productData.qualityType);
@@ -29,12 +29,12 @@ const UserProductCart = ({ productData }) => {
 
   useEffect(() => {
     // random delay create
-    const randomDelay = Math.floor(Math.random() * 2500); // 0-2s random delay
+    const randomDelay = Math.floor(Math.random() * 3000); // 0-2s random delay
 
     const startTimer = () => {
       intervalRef.current = setInterval(() => {
         setVisibleIndex((prev) => (prev + 1) % totalItem);
-      }, 3500);
+      }, 4000);
     };
 
     // first delay before starting interval

@@ -174,7 +174,8 @@ const CategoryPage = () => {
                   .filter(
                     (c) =>
                       typeof c?.category === "string" &&
-                      c.category.trim() !== ""
+                      c.category.trim() !== "" &&
+                      c.category.trim().toLowerCase() !== "all"
                   )
                   .map((cat) => {
                     const key = cat.category;

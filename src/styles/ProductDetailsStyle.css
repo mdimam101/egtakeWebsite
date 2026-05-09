@@ -29,10 +29,14 @@
 .product-image-slider-container {
   position: relative;
   width: 100%;
+  height: 450px;
   overflow: hidden;
+  background: #fff;
 }
 
 .product-image-slider {
+  width: 100%;
+  height: 100%;
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -47,13 +51,19 @@
 
 .product-image-slide {
   flex: 0 0 100%;
+  width: 100%;
+  height: 450px;
   scroll-snap-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
 }
 
 .product-image-slide img {
   width: 100%;
-  height: auto;
-  object-fit: cover;
+  height: 100%;
+  object-fit: contain; /* full image show, crop hobe na */
   display: block;
 }
 
