@@ -20,6 +20,8 @@ import { EGtakeCommitment } from "../components/EGtakeCommitment";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import { FaCartArrowDown } from "react-icons/fa";
 import ProductDetailsSkeleton from "../components/skeletonAnime/ProductDetailsSkeleton";
+import { Helmet } from "react-helmet-async";
+import { cleanShortDescription, getPrimaryProductImage, productSeoKey, SITE_URL, toAbsoluteImageUrl } from "../helpers/productSeo";
 
 /* =========================
    ✅ Web FullscreenImageModal (React)
@@ -211,6 +213,7 @@ const ProductDetailsPage = () => {
   const param = useParams();
   const location = useLocation();
   console.log("🦌◆🦌◆location", location?.state?.selectedImage);
+   const routeKey = param?.id;
 
   const [data, setData] = useState({
     _id: "",
@@ -302,15 +305,29 @@ const ProductDetailsPage = () => {
     window.scrollTo({ top: 0, behavior: "auto" });
     setloading(true);
     (async () => {
+      let d = {};
       const response = await fetch(SummaryApi.product_details.url, {
         method: SummaryApi.product_details.method,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ productId: param?.id }),
+        // body: JSON.stringify({ productId: param?.id }),
+         body: JSON.stringify({ productId: routeKey }),
       });
       const result = await response.json();
-      if (!result?.success) return;
+            if (result?.success) {
+        d = result.data || {};
+      } else {
+        const allRes = await fetch(SummaryApi.get_product.url);
+        const allJson = await allRes.json();
+        const allProducts = Array.isArray(allJson?.data) ? allJson.data : [];
+        d =
+          allProducts.find((p) =>
+            [p?._id, p?.slug, productSeoKey(p)].includes(routeKey),
+          ) || {};
+      }
+      if (!d?._id) return;
+      // if (!result?.success) return;
 
-      const d = result.data || {};
+      // const d = result.data || {};
       setData(d);
       setloading(false);
 
@@ -347,7 +364,7 @@ const ProductDetailsPage = () => {
       const optimized = generateOptimizedVariants(reco.data);
       setShowRelatedProduct(optimized || []);
     })();
-  }, [location?.state?.selectedImage, param?.id]);
+  }, [location?.state?.selectedImage, routeKey]);
 
   // ✅ Fetch product reviews (after product loaded)
   useEffect(() => {
@@ -545,18 +562,11 @@ const ProductDetailsPage = () => {
       ? selectedVariant.SpcProductName
       : data.productName;
 
-    const productDescription =
-      data?.description ||
-      `${productTitle} is available at Pyzara. Shop with Confidence.`;
+    const shortDescription = cleanShortDescription({ ...data, productName: productTitle });
 
-    const shortDescription =
-      productDescription.length > 155
-        ? productDescription.slice(0, 155) + "..."
-        : productDescription;
-
-    const productUrl = `https://pyzara.com/product/${param?.id}`;
-    const productImage =
-      selectedImg || allImages?.[0] || "https://pyzara.com/PyzaraWebIcone.png";
+    const seoKey = productSeoKey(data);
+    const productUrl = `${SITE_URL}/product/${seoKey}`;
+    const productImage = toAbsoluteImageUrl(selectedImg || getPrimaryProductImage(data));
 
     const productPrice = Number(updateSelling || data?.selling || 0); //test
 
@@ -574,7 +584,7 @@ const ProductDetailsPage = () => {
     };
 
     // ✅ Page title
-    document.title = `${productTitle} | Pyzara`;
+    document.title = `${productTitle} | Pyzara Bangladesh`;
 
     // ✅ Basic meta description
     setMetaTag(
@@ -676,10 +686,7 @@ const ProductDetailsPage = () => {
       "@context": "https://schema.org",
       "@type": "Product",
       name: productTitle,
-      description:
-        productDescription.length > 250
-          ? productDescription.slice(0, 250)
-          : productDescription,
+      description: shortDescription,
       image: productImage ? [productImage] : [],
       brand: {
         "@type": "Brand",
@@ -692,6 +699,7 @@ const ProductDetailsPage = () => {
         url: productUrl,
         priceCurrency: "BDT",
         price: productPrice,
+        availability: Number(data?.totalStock || 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
         itemCondition: "https://schema.org/NewCondition",
         seller: {
           "@type": "Organization",
@@ -723,15 +731,34 @@ const ProductDetailsPage = () => {
     selectedImg,
     allImages,
     updateSelling,
-    param?.id,
+    routeKey,
   ]);
 
   if (!data || loading) {
     return <ProductDetailsSkeleton />;
   }
+   const productTitle = updateProductName;
+  const shortDescription = cleanShortDescription({ ...data, productName: productTitle });
+  const canonicalUrl = `${SITE_URL}/product/${productSeoKey(data)}`;
+  const productImage = toAbsoluteImageUrl(selectedImg || getPrimaryProductImage(data));
   // onClick={window.scrollTo({ top: 0, behavior: "auto" })}
   return (
     <div className="product-details-container">
+      <Helmet>
+        <title>{`${productTitle} | Pyzara Bangladesh`}</title>
+        <link rel="canonical" href={canonicalUrl} />
+        <meta name="robots" content="index,follow" />
+        <meta name="description" content={shortDescription} />
+        <meta property="og:type" content="product" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={`${productTitle} | Pyzara Bangladesh`} />
+        <meta property="og:description" content={shortDescription} />
+        <meta property="og:image" content={productImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${productTitle} | Pyzara Bangladesh`} />
+        <meta name="twitter:description" content={shortDescription} />
+        <meta name="twitter:image" content={productImage} />
+      </Helmet>
       {/* back button */}
       <button
         type="button"
@@ -836,7 +863,7 @@ const ProductDetailsPage = () => {
           <span className="original-price">৳{UpdatePrice}</span>
         ) : null}
       </div>
-      <div className="product-name">{updateProductName}</div>
+      <h1 className="product-name">{updateProductName}</h1>
 
       {selectedVariant.color && (
         <div className="color-info">Color: {selectedVariant.color}</div>

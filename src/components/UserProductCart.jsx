@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "../styles/UserProductCartStyle.css";
 import { Link } from "react-router";
+import { getPrimaryProductImage, getProductUrlPath } from "../helpers/productSeo";
 // import { setProductImgUrl } from "../store/productImgSlice";
 // import { useDispatch } from "react-redux";
 
@@ -50,8 +51,11 @@ const UserProductCart = ({ productData }) => {
 
   return (
     <Link
-      to={`/product/${productData?._id}`}
-      state={{ selectedImage: productData?.img }}
+          to={getProductUrlPath(productData)}
+      state={{ selectedImage: getPrimaryProductImage(productData) }}
+      // to={`/product/${productData?._id}`}
+      // state={{ selectedImage: productData?.img }}
+      // -----------------------
       // onClick={(e) => {
       //   e.preventDefault();
       //   window.location.href = `/product/${productData?._id}`;

@@ -10,6 +10,7 @@ import Context from "../src/context/index";
 import { useDispatch } from "react-redux";
 import { setUserDetails } from "./store/userSlice";
 import { setCommonGetInfoList } from "./store/commonInfoSlice";
+import { Helmet } from "react-helmet-async";
 
 function App() {
   // const t = localStorage.getItem("authToken");
@@ -119,6 +120,21 @@ function App() {
 
   return (
     <div className="app-wrapper">
+       <Helmet>
+        <link rel="canonical" href={path === "/" || path === "/home" ? "https://pyzara.com/" : `https://pyzara.com${path}`} />
+        <meta
+          name="robots"
+          content={
+            path.startsWith("/search") ||
+            path.startsWith("/cart") ||
+            path.startsWith("/checkout") ||
+            path.startsWith("/login") ||
+            path.startsWith("/profile")
+              ? "noindex,follow"
+              : "index,follow"
+          }
+        />
+      </Helmet>
       <Context.Provider
         value={{
           fetchUserDetails,

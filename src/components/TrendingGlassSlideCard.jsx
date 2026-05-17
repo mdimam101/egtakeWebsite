@@ -1,12 +1,17 @@
 import React from "react";
 import { Link } from "react-router";
 import "../styles/TrendingGlassSlideCard.css";
+import { getPrimaryProductImage, getProductUrlPath } from "../helpers/productSeo";
 
 const TrendingGlassSlideCard = ({ productData }) => {
   return (
     <Link
-      to={`/product/${productData?._id}`}
-      state={{ selectedImage: productData?.img }}
+          to={getProductUrlPath(productData)}
+      state={{ selectedImage: getPrimaryProductImage(productData) }}
+      // to={`/product/${productData?._id}`}
+      // state={{ selectedImage: productData?.img }}
+
+      // ----------------------
       // onClick={(e) => {
       //   e.preventDefault();
       //   window.location.href = `/product/${productData?._id}`;
