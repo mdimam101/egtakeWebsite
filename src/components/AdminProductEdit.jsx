@@ -26,6 +26,16 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     qualityType: "",
     sizeDetails: [],
     variants: [],
+    skinCareInfo: {
+      productType: "",
+      ingredients: [],
+      suitableSkinTypes: [],
+      targetConcerns: [],
+      avoidFor: [],
+      usageTime: "",
+      texture: "",
+      isNonComedogenic: false,
+    },
     productVideo: { url: "", thumbnail: "", autoplay: false, muted: true },
   };
 
@@ -77,6 +87,23 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
           ? paramData.productVideo.muted
           : true,
     },
+    // skin care info
+    skinCareInfo: {
+      ...uploadDefaults.skinCareInfo,
+      ...(paramData?.skinCareInfo || {}),
+      ingredients: Array.isArray(paramData?.skinCareInfo?.ingredients)
+        ? paramData.skinCareInfo.ingredients
+        : [],
+      suitableSkinTypes: Array.isArray(paramData?.skinCareInfo?.suitableSkinTypes)
+        ? paramData.skinCareInfo.suitableSkinTypes
+        : [],
+      targetConcerns: Array.isArray(paramData?.skinCareInfo?.targetConcerns)
+        ? paramData.skinCareInfo.targetConcerns
+        : [],
+      avoidFor: Array.isArray(paramData?.skinCareInfo?.avoidFor)
+        ? paramData.skinCareInfo.avoidFor
+        : [],
+    },
 
     // numbers keep as editable string
     price:
@@ -103,6 +130,12 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     setData((prev) => ({
       ...prev,
       productVideo: { ...prev.productVideo, [key]: value },
+    }));
+
+     const setSkinCareField = (key, value) =>
+    setData((prev) => ({
+      ...prev,
+      skinCareInfo: { ...(prev.skinCareInfo || {}), [key]: value },
     }));
 
   const handleOnChange = (e) => {
@@ -294,6 +327,31 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     if (typeof data.productCodeNumber === "string") {
       data.productCodeNumber = data.productCodeNumber.trim();
     }
+    // skin care info
+    const splitToArray = (value = "") =>
+      String(value)
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    const skin = data.skinCareInfo || {};
+    data.skinCareInfo = {
+      productType: (skin.productType || "").trim(),
+      ingredients: Array.isArray(skin.ingredients)
+        ? skin.ingredients
+        : splitToArray(skin.ingredients),
+      suitableSkinTypes: Array.isArray(skin.suitableSkinTypes)
+        ? skin.suitableSkinTypes
+        : splitToArray(skin.suitableSkinTypes),
+      targetConcerns: Array.isArray(skin.targetConcerns)
+        ? skin.targetConcerns
+        : splitToArray(skin.targetConcerns),
+      avoidFor: Array.isArray(skin.avoidFor)
+        ? skin.avoidFor
+        : splitToArray(skin.avoidFor),
+      usageTime: (skin.usageTime || "").trim(),
+      texture: (skin.texture || "").trim(),
+      isNonComedogenic: Boolean(skin.isNonComedogenic),
+    };
 
     try {
       const response = await fetch(SummaryApi.update_product.url, {
@@ -838,6 +896,109 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
           >
             + Add Variant
           </button>
+
+           <h3>Skin Care / Beauty Info (Optional)</h3>
+
+          <label htmlFor="editSkinProductType">Product Type:</label>
+          <input
+            id="editSkinProductType"
+            type="text"
+            placeholder="e.g., Cleanser, Serum"
+            value={data.skinCareInfo?.productType || ""}
+            onChange={(e) => setSkinCareField("productType", e.target.value)}
+          />
+
+          <label htmlFor="editSkinIngredients">
+            Ingredients (comma separated):
+          </label>
+          <input
+            id="editSkinIngredients"
+            type="text"
+            placeholder="e.g., Niacinamide, Hyaluronic Acid"
+            value={
+              Array.isArray(data.skinCareInfo?.ingredients)
+                ? data.skinCareInfo.ingredients.join(", ")
+                : data.skinCareInfo?.ingredients || ""
+            }
+            onChange={(e) => setSkinCareField("ingredients", e.target.value)}
+          />
+
+          <label htmlFor="editSuitableSkinTypes">
+            Suitable Skin Types (comma separated):
+          </label>
+          <input
+            id="editSuitableSkinTypes"
+            type="text"
+            placeholder="e.g., Oily, Dry, Combination"
+            value={
+              Array.isArray(data.skinCareInfo?.suitableSkinTypes)
+                ? data.skinCareInfo.suitableSkinTypes.join(", ")
+                : data.skinCareInfo?.suitableSkinTypes || ""
+            }
+            onChange={(e) =>
+              setSkinCareField("suitableSkinTypes", e.target.value)
+            }
+          />
+
+          <label htmlFor="editTargetConcerns">
+            Target Concerns (comma separated):
+          </label>
+          <input
+            id="editTargetConcerns"
+            type="text"
+            placeholder="e.g., Acne, Dark spots"
+            value={
+              Array.isArray(data.skinCareInfo?.targetConcerns)
+                ? data.skinCareInfo.targetConcerns.join(", ")
+                : data.skinCareInfo?.targetConcerns || ""
+            }
+            onChange={(e) => setSkinCareField("targetConcerns", e.target.value)}
+          />
+
+          <label htmlFor="editAvoidFor">Avoid For (comma separated):</label>
+          <input
+            id="editAvoidFor"
+            type="text"
+            placeholder="e.g., Very sensitive skin"
+            value={
+              Array.isArray(data.skinCareInfo?.avoidFor)
+                ? data.skinCareInfo.avoidFor.join(", ")
+                : data.skinCareInfo?.avoidFor || ""
+            }
+            onChange={(e) => setSkinCareField("avoidFor", e.target.value)}
+          />
+
+          <label htmlFor="editUsageTime">Usage Time:</label>
+          <input
+            id="editUsageTime"
+            type="text"
+            placeholder="e.g., AM/PM"
+            value={data.skinCareInfo?.usageTime || ""}
+            onChange={(e) => setSkinCareField("usageTime", e.target.value)}
+          />
+
+          <label htmlFor="editTexture">Texture:</label>
+          <input
+            id="editTexture"
+            type="text"
+            placeholder="e.g., Gel, Cream"
+            value={data.skinCareInfo?.texture || ""}
+            onChange={(e) => setSkinCareField("texture", e.target.value)}
+          />
+
+          <div className="switch-wrapper" style={{ marginTop: 10 }}>
+            <label className="switch-label">Non-Comedogenic?</label>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={Boolean(data.skinCareInfo?.isNonComedogenic)}
+                onChange={(e) =>
+                  setSkinCareField("isNonComedogenic", e.target.checked)
+                }
+              />
+              <span className="slider round"></span>
+            </label>
+          </div>
 
           <button type="submit" className="btn btn-primary">
             Update Product

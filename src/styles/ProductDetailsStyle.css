@@ -973,6 +973,27 @@
   /* padding-bottom: 2px; */
 }
 
+.skin-care-info-card {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #fffdf8;
+}
+
+.skin-care-info-title {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #222;
+}
+
+.skin-care-info-row {
+  margin: 6px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+}
+
 /* mobile tweak */
 @media (max-width: 480px) {
   .cod-badge {

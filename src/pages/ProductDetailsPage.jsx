@@ -230,6 +230,16 @@ const ProductDetailsPage = () => {
     sizeDetails: [], // ← ONLY this determines size availability
     totalStock: 0,
     qualityType: "",
+    skinCareInfo: {
+      productType: "",
+      ingredients: [],
+      suitableSkinTypes: [],
+      targetConcerns: [],
+      avoidFor: [],
+      usageTime: "",
+      texture: "",
+      isNonComedogenic: false,
+    },
   });
 
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
@@ -553,6 +563,32 @@ const ProductDetailsPage = () => {
   const navigate = useNavigate();
 
   const { cartCountProduct } = useContext(Context);
+
+  // skin care info
+  const skinCareInfo = data?.skinCareInfo
+  const skinIngredients = Array.isArray(skinCareInfo?.ingredients)
+    ? skinCareInfo.ingredients
+    : [];
+  const skinTypes = Array.isArray(skinCareInfo?.suitableSkinTypes)
+    ? skinCareInfo.suitableSkinTypes
+    : [];
+  const targetConcerns = Array.isArray(skinCareInfo?.targetConcerns)
+    ? skinCareInfo.targetConcerns
+    : [];
+  const avoidFor = Array.isArray(skinCareInfo?.avoidFor)
+    ? skinCareInfo.avoidFor
+    : [];
+
+  const hasSkinCareInfo = Boolean(
+    (skinCareInfo?.productType || "").trim() ||
+      skinIngredients.length ||
+      skinTypes.length ||
+      targetConcerns.length ||
+      avoidFor.length ||
+      (skinCareInfo?.usageTime || "").trim() ||
+      (skinCareInfo?.texture || "").trim() ||
+      skinCareInfo?.isNonComedogenic === true,
+  );
 
   // ✅ SEO: update product title, meta description, canonical, OG, Twitter, Product Schema
   useEffect(() => {
@@ -1138,6 +1174,61 @@ const ProductDetailsPage = () => {
         <span style={{ paddingLeft: "10px" }}>|</span>
         <span className="cod-badge"> Cash on Delivery</span>
       </div>
+
+
+       {/* Skin care info: only render for products that actually have this data */}
+      {hasSkinCareInfo && (
+        <div className="skin-care-info-card">
+          <h3 className="skin-care-info-title">Skin Care Information</h3>
+
+          {!!skinCareInfo?.productType && (
+            <p className="skin-care-info-row">
+              <strong>Product Type:</strong> {skinCareInfo.productType}
+            </p>
+          )}
+
+          {skinIngredients.length > 0 && (
+            <p className="skin-care-info-row">
+              <strong>Ingredients:</strong> {skinIngredients.join(", ")}
+            </p>
+          )}
+
+          {skinTypes.length > 0 && (
+            <p className="skin-care-info-row">
+              <strong>Suitable Skin Types:</strong> {skinTypes.join(", ")}
+            </p>
+          )}
+
+          {targetConcerns.length > 0 && (
+            <p className="skin-care-info-row">
+              <strong>Target Concerns:</strong> {targetConcerns.join(", ")}
+            </p>
+          )}
+
+          {avoidFor.length > 0 && (
+            <p className="skin-care-info-row">
+              <strong>Avoid For:</strong> {avoidFor.join(", ")}
+            </p>
+          )}
+
+          {!!skinCareInfo?.usageTime && (
+            <p className="skin-care-info-row">
+              <strong>Usage Time:</strong> {skinCareInfo.usageTime}
+            </p>
+          )}
+
+          {!!skinCareInfo?.texture && (
+            <p className="skin-care-info-row">
+              <strong>Texture:</strong> {skinCareInfo.texture}
+            </p>
+          )}
+
+          <p className="skin-care-info-row">
+            <strong>Non-Comedogenic:</strong>{" "}
+            {skinCareInfo?.isNonComedogenic ? "Yes" : "No"}
+          </p>
+        </div>
+      )}
 
       {/* ✅ Product Description (RN-like preview) */}
       <div className="review-preview">
