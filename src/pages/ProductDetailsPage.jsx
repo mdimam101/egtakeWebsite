@@ -225,6 +225,7 @@ const ProductDetailsPage = () => {
     description: "",
     price: 0,
     selling: 0,
+    sold: 0,
     // api fields
     variants: [],
     sizeDetails: [], // ← ONLY this determines size availability
@@ -1173,6 +1174,7 @@ const ProductDetailsPage = () => {
         Product code: {data?.productCodeNumber}
         <span style={{ paddingLeft: "10px" }}>|</span>
         <span className="cod-badge"> Cash on Delivery</span>
+        {data?.sold > 0 &&  <span className="sold-badge">Sold: {Number(data?.sold || 0)}</span>}
       </div>
 
 

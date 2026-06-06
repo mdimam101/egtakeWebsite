@@ -22,6 +22,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     trandingProduct: false,
     handCraft: false,
     salesOn: false,
+    isPublished: true,
     productCodeNumber: "",
     qualityType: "",
     sizeDetails: [],
@@ -104,6 +105,9 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
         ? paramData.skinCareInfo.avoidFor
         : [],
     },
+    // product published unpublished
+    isPublished:
+      typeof paramData.isPublished === "boolean" ? paramData.isPublished : true,
 
     // numbers keep as editable string
     price:
@@ -534,6 +538,20 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                 type="checkbox"
                 checked={Boolean(data.salesOn)}
                 name="salesOn"
+                onChange={handleOnChange}
+              />
+              <span className="slider round"></span>
+            </label>
+          </div>
+
+           {/* published switch */}
+            <div className="switch-wrapper">
+            <label className="switch-label">Published?</label>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={Boolean(data.isPublished)}
+                name="isPublished"
                 onChange={handleOnChange}
               />
               <span className="slider round"></span>
