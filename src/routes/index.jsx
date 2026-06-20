@@ -20,6 +20,7 @@ import OrderList from '../pages/AllOrderList'
 import UserProfile from '../pages/UserProfile'
 import SubCategoryWiseProduct from '../pages/SubCategoryWiseProduct'
 import AdminCoupons from '../pages/AdminCoupons'
+import AdminTracking from '../pages/AdminTracking'
 
 const router = createBrowserRouter([
     {
@@ -108,6 +109,11 @@ const router = createBrowserRouter([
                     {
                      path:"coupons" ,
                      element:<AdminCoupons/>
+
+                     },
+                    {
+                     path:"tracking" ,
+                     element:<AdminTracking/>
 
                      }
                 ]

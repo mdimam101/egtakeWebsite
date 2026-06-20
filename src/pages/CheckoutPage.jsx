@@ -26,6 +26,7 @@ import deleteCartItemWhenOrderplace from "../helpers/deleteCartItemWhenOrderplac
 import Context from "../context";
 import updateProductStock from "../helpers/updateProductStock";
 import { MdOutlineArrowBackIos } from "react-icons/md";
+import trackBasic from "../helpers/trackBasic";
 
 const PROCESSING_FEE = 5;
 
@@ -395,6 +396,8 @@ const CheckoutPage = () => {
         toast.error(data?.message || "Order failed");
         return;
       }
+
+      trackBasic("order_confirm", { count: selectedItems.length });
 
       // update address
       await upsertUserShipping();

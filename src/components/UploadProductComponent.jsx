@@ -400,8 +400,8 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
           <textarea
             id="description"
             name="description"
-            rows={3}
-            placeholder="Enter description"
+            rows={6}
+            placeholder={`Origin: Bangladesh\nProduct Size:\nS, M, L`}
             value={data.description}
             onChange={handleOnChange}
           ></textarea>

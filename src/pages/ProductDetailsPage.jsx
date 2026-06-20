@@ -28,6 +28,7 @@ import {
 import ProductDetailsSkeleton from "../components/skeletonAnime/ProductDetailsSkeleton";
 import { Helmet } from "react-helmet-async";
 import { cleanShortDescription, getPrimaryProductImage, productSeoKey, SITE_URL, toAbsoluteImageUrl } from "../helpers/productSeo";
+import trackBasic from "../helpers/trackBasic";
 
 /* =========================
    ✅ Web FullscreenImageModal (React)
@@ -346,6 +347,7 @@ const ProductDetailsPage = () => {
 
       // const d = result.data || {};
       setData(d);
+      trackBasic("product_view", { subCategory: d?.subCategory || d?.category });
       setloading(false);
 
       const images = (d.variants || []).flatMap((v) => v.images || []);
@@ -474,6 +476,7 @@ const ProductDetailsPage = () => {
       image: selectedImg,
       price: UpdatePrice,
       selling: updateSelling,
+      subCategory: data?.subCategory || data?.category,
     });
     fetchUserAddToCart();
   };
@@ -784,6 +787,10 @@ const ProductDetailsPage = () => {
   const shortDescription = cleanShortDescription({ ...data, productName: productTitle });
   const canonicalUrl = `${SITE_URL}/product/${productSeoKey(data)}`;
   const productImage = toAbsoluteImageUrl(selectedImg || getPrimaryProductImage(data));
+
+   const productDescriptionText = String(data?.description || "")
+    .replace(/\\r\\n/g, "\n")
+    .replace(/\\n/g, "\n");
   // onClick={window.scrollTo({ top: 0, behavior: "auto" })}
   return (
     <div className="product-details-container">
@@ -905,6 +912,7 @@ const ProductDetailsPage = () => {
         {UpdatePrice ? (
           <span className="original-price">৳{UpdatePrice}</span>
         ) : null}
+         {data?.sold > 0 &&  <span className="sold-badge">Sold: {Number(data?.sold || 0)}</span>}
       </div>
       <h1 className="product-name">{updateProductName}</h1>
 
@@ -1219,7 +1227,7 @@ const ProductDetailsPage = () => {
         Product code: {data?.productCodeNumber}
         <span style={{ paddingLeft: "10px" }}>|</span>
         <span className="cod-badge"> Cash on Delivery</span>
-        {data?.sold > 0 &&  <span className="sold-badge">Sold: {Number(data?.sold || 0)}</span>}
+       
       </div>
 
 
@@ -1285,22 +1293,14 @@ const ProductDetailsPage = () => {
           </h3>
         </div>
 
-        {!!data?.description && (
+        {!!productDescriptionText && (
           <div style={{ position: "relative" }}>
             {/* 10-line preview style (web) */}
             <div
               ref={descBoxRef}
-              style={{
-                whiteSpace: "pre-line",
-                lineHeight: "20px",
-                color: "#222",
-                maxHeight: 20 * 10, // 10 lines
-                overflow: "hidden",
-                fontSize: 14,
-                position: "relative",
-              }}
+              className="product-description-preview"
             >
-              {data.description}
+              {productDescriptionText}
             </div>
 
             {/* Soft fade at bottom only if truncated */}
@@ -1312,7 +1312,6 @@ const ProductDetailsPage = () => {
                   left: 0,
                   right: 0,
                   height: 40,
-                  pointerEvents: "none",
                   background:
                     "linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1))",
                 }}
@@ -1325,14 +1324,13 @@ const ProductDetailsPage = () => {
         <button
           type="button"
           onClick={() =>
-            openCommitmentModal("Product Details", data?.description || "")
+            openCommitmentModal("Product Details", productDescriptionText)
           }
           style={{
             marginTop: 10,
             background: "transparent",
             border: "none",
             padding: 0,
-            cursor: "pointer",
             color: "green",
             fontWeight: 600,
           }}
@@ -1474,9 +1472,10 @@ const ProductDetailsPage = () => {
 
             <pre
               style={{
-                fontSize: 16,
+                fontSize: 14,
                 margin: "0 0 20px 0",
                 whiteSpace: "pre-wrap",
+                fontFamily:'none',
                 lineHeight: "22px",
               }}
             >

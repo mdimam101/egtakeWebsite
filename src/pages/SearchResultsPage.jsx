@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import SummaryApi from "../common";
 import "../styles/SearchResultsPage.css";
+import trackBasic from "../helpers/trackBasic";
 
 const SearchResultsPage = () => {
   const { query } = useParams();
@@ -9,6 +10,12 @@ const SearchResultsPage = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+
+     if (query) {
+      trackBasic("search", { term: query });
+    }
+
+
     const fetchSearchResults = async () => {
       setLoading(true);
       try {

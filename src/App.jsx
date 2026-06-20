@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { setUserDetails } from "./store/userSlice";
 import { setCommonGetInfoList } from "./store/commonInfoSlice";
 import { Helmet } from "react-helmet-async";
+import trackBasic from "./helpers/trackBasic";
 
 function App() {
   // const t = localStorage.getItem("authToken");
@@ -75,6 +76,10 @@ function App() {
     //current user add to cart product count
     fetchUserAddToCart();
   }, [fetchUserAddToCart, fetchUserDetails]);
+
+   useEffect(() => {
+    trackBasic("visit_website");
+  }, []);
 
   useEffect(() => {
     const getCommonInfo = async () => {

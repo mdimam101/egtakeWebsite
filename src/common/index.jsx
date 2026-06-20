@@ -175,6 +175,27 @@ ai_size_recommend: {
     url: `${backendDomain}/api/account`,
     method: "DELETE",
   },
+
+ track_basic: {
+  url: `${backendDomain}/api/track-basic`,
+  method: "post",
+  },
+  analytics_basic_summary: {
+    url: `${backendDomain}/api/analytics-basic/summary`,
+    method: "get",
+  },
+  analytics_basic_subcategory: {
+    url: `${backendDomain}/api/analytics-basic/subcategory`,
+    method: "get",
+  },
+  analytics_basic_search_top: {
+    url: `${backendDomain}/api/analytics-basic/search-top`,
+    method: "get",
+  },
+  analytics_basic_timeseries: {
+    url: `${backendDomain}/api/analytics-basic/timeseries`,
+    method: "get",
+  },
 };
 
 export default SummaryApi;

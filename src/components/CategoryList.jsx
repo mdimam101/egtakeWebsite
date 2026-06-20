@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { setCategoryList } from "../store/categorySlice";
 import "../styles/CategoryListStyle.css";
+import trackBasic from "../helpers/trackBasic";
 
 const CategoryList = () => {
   const subCategory = "ALL";
@@ -124,6 +125,7 @@ const CategoryList = () => {
                 }}
                 onClick={() => {
                   setActiveCategory(category);
+                  trackBasic("category_click", { subCategory: category });
 
                   // category click করলে old product scroll restore বন্ধ করবে
                   sessionStorage.removeItem("last-product-list-path");

@@ -1,6 +1,7 @@
 // src/helpers/addToCart.js
 import SummaryApi from '../common';
 import { toast } from "react-toastify";
+import trackBasic from "./trackBasic";
 
 // const buildAuthHeaders = () => {
 //   const headers = { 'content-type': 'application/json' };
@@ -10,7 +11,7 @@ import { toast } from "react-toastify";
 //   return headers;
 // };
 
-const addToCart = async ({ productId,productName, size, color, image, price, selling }) => {
+const addToCart = async ({ productId,productName, size, color, image, price, selling, subCategory }) => {
     const t = localStorage.getItem('authToken');
   try {
     const response = await fetch(SummaryApi.addToCartProduct.url, {
@@ -25,6 +26,7 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
 
     if (result.success) {
       toast.success(result.message || "Added to cart");
+      trackBasic("add_to_cart", { subCategory, count: 1 });
       return true;
     } else {
       toast.error(result.message || "Failed to add to cart");

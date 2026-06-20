@@ -40,6 +40,7 @@ const AdminPanel = () => {
           <Link to="all-banners" onClick={closeSidebar}>All Banners</Link>
           <Link to="orders" onClick={closeSidebar}>Orders</Link>
           <Link to="coupons" onClick={closeSidebar}>Coupons</Link>
+           <Link to="tracking" onClick={closeSidebar}>Tracking</Link>
         </nav>
       </aside>
 

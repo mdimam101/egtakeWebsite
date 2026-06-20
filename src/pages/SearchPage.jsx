@@ -3,6 +3,7 @@ import { useParams } from "react-router";
 import SummaryApi from "../common";
 import UserProductCart from "../components/UserProductCart";
 import { generateOptimizedVariants } from "../helpers/variantUtils";
+import trackBasic from "../helpers/trackBasic";
 
 const SearchPage = () => {
   const { query } = useParams();
@@ -10,6 +11,10 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+     if (query) {
+      trackBasic("search", { term: query });
+    }
+
     const fetchSearchResults = async () => {
       setLoading(true);
       try {
