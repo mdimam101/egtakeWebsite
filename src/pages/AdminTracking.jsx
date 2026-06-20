@@ -219,9 +219,19 @@ const AdminTracking = () => {
 
       <section className="tracking-kpi-grid">
         <div className="tracking-kpi-card primary">
+          <span>Website Visits</span>
+          <strong>{compactNumber(summaryMap.visit_website)}</strong>
+          <small>Only website visitors in selected range</small>
+        </div>
+        <div className="tracking-kpi-card app-visit">
+          <span>App Visits</span>
+          <strong>{compactNumber(summaryMap.visit_app)}</strong>
+          <small>Only app visitors in selected range</small>
+        </div>
+        <div className="tracking-kpi-card">
           <span>Total Visits</span>
           <strong>{compactNumber(totalVisits)}</strong>
-          <small>Website + app visits in selected range</small>
+          <small>Website + app combined</small>
         </div>
         <div className="tracking-kpi-card">
           <span>Product Views</span>

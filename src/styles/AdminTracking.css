@@ -99,7 +99,7 @@
 
 .tracking-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px;
 }
 
@@ -120,6 +120,11 @@
 .tracking-kpi-card.primary {
   border-color: #bfdbfe;
   background: linear-gradient(180deg, #eff6ff, #ffffff);
+}
+
+.tracking-kpi-card.app-visit {
+  border-color: #bae6fd;
+  background: linear-gradient(180deg, #ecfeff, #ffffff);
 }
 
 .tracking-kpi-card span,
