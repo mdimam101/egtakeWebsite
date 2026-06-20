@@ -12,6 +12,7 @@
 */
 
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
 import "../styles/CheckoutPageStyle.css";
 import { useLocation, useNavigate } from "react-router";
 import CheckoutItemCard from "../components/CheckoutItemCard";
@@ -74,6 +75,35 @@ const CheckoutPage = () => {
     upazila: "", // only Narayanganj
     _toggleUpazilaOpen: false,
   });
+
+  // Prefill shipping if the logged-in user already has saved shipping details.
+  useEffect(() => {
+    const prefillShippingDetails = async () => {
+      try {
+        const t = localStorage.getItem("authToken");
+        const res = await axios.get(SummaryApi.current_user.url, {
+          withCredentials: true,
+          headers: t ? { Authorization: `Bearer ${t}` } : {},
+        });
+
+        const ship = res?.data?.data?.shipping;
+        if (!ship) return;
+
+        setFormData((prev) => ({
+          ...prev,
+          name: ship.name || "",
+          phone: ship.phone || "",
+          address: ship.address || "",
+          district: ship.district || "",
+          upazila: ship.upazila || "",
+        }));
+      } catch {
+        // Shipping prefill is optional; keep checkout usable if it fails.
+      }
+    };
+
+    prefillShippingDetails();
+  }, []);
 
   // ✅ delivery option: "FREE" | "EXPRESS" | "NAR120" | "STD"
   const [deliveryOption, setDeliveryOption] = useState("FREE");
@@ -290,6 +320,26 @@ const CheckoutPage = () => {
     if (result?.success) fetchUserAddToCart();
   };
 
+  // Save/update default shipping silently after a successful order.
+  const upsertUserShipping = async () => {
+    try {
+      const { name, phone, address, district, upazila } = formData;
+      if (!name || !phone || !address || !district) return;
+
+      const t = localStorage.getItem("authToken");
+      await axios.put(
+        SummaryApi.update_shipping.url,
+        { name, phone, address, district, upazila },
+        {
+          withCredentials: true,
+          headers: t ? { Authorization: `Bearer ${t}` } : {},
+        }
+      );
+    } catch {
+      // Saving default shipping should not block order completion.
+    }
+  };
+
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
 
@@ -345,6 +395,9 @@ const CheckoutPage = () => {
         toast.error(data?.message || "Order failed");
         return;
       }
+
+      // update address
+      await upsertUserShipping();
 
       // ✅ stock update (same as your existing behavior)
       for (const item of selectedItems) {

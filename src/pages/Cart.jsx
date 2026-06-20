@@ -65,8 +65,8 @@ const Cart = () => {
   };
 
   // ---- Fetch: cart from server (no localStorage fallback) ----
-  const fetchCartItems = async () => {
-    setIsLoading(true); // NEW
+  const fetchCartItems = async ({ silent = false } = {}) => {
+    if (!silent) setIsLoading(true);
     try {
       const t = localStorage.getItem('authToken');
       const res = await fetch(SummaryApi.getCartProduct.url, {
@@ -81,7 +81,7 @@ const Cart = () => {
       console.error("Failed to fetch cart items:", err);
       setCartItems([]); // NEW (safe fallback)
     } finally {
-      setIsLoading(false); // NEW
+      if (!silent) setIsLoading(false);
     }
   };
 
@@ -192,7 +192,7 @@ const Cart = () => {
             <CartItem
               key={`${item?._id}_${item?.addedAt || ""}`}
               product={item}
-              refreshCart={fetchCartItems}
+              refreshCart={() => fetchCartItems({ silent: true })}
               latestProducts={latestProducts}
               isSelected={!unselectedItems.includes(item._id)}
               toggleSelect={() => toggleSelectOne(item._id)}

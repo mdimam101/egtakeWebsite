@@ -19,6 +19,12 @@ import ProductQualityViz from "../components/ProductQualityViz";
 import { EGtakeCommitment } from "../components/EGtakeCommitment";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import { FaCartArrowDown } from "react-icons/fa";
+import {
+  IoChevronDown,
+  IoChevronUp,
+  IoSparkles,
+  IoSparklesOutline,
+} from "react-icons/io5";
 import ProductDetailsSkeleton from "../components/skeletonAnime/ProductDetailsSkeleton";
 import { Helmet } from "react-helmet-async";
 import { cleanShortDescription, getPrimaryProductImage, productSeoKey, SITE_URL, toAbsoluteImageUrl } from "../helpers/productSeo";
@@ -1039,12 +1045,24 @@ const ProductDetailsPage = () => {
               setAiSizeError("");
             }}
           >
-            {showAiSizeBox ? "Hide AI Size Helper" : "AI Suggest Size"}
+           <span className="ai-size-toggle-left">
+              <IoSparklesOutline size={18} />
+              <span>
+                <span className="ai-size-toggle-title">AI Size Helper</span>
+                <span className="ai-size-toggle-sub">
+                  আপনার height/weight দিয়ে best size খুঁজুন
+                </span>
+              </span>
+            </span>
+            {showAiSizeBox ? (
+              <IoChevronUp className="ai-size-toggle-icon" size={20} />
+            ) : (
+              <IoChevronDown className="ai-size-toggle-icon" size={20} />
+            )}
           </button>
 
           {showAiSizeBox && (
             <div className="ai-size-helper-card">
-              <h4 className="ai-size-helper-title">AI Size Helper</h4>
 
               {!Array.isArray(data?.sizeDetails) ||
               data.sizeDetails.length === 0 ? (
@@ -1057,60 +1075,86 @@ const ProductDetailsPage = () => {
                     <div className="ai-size-field">
                       <label>আপনার উচ্চতা</label>
                       <div className="ai-height-group">
-                        <input
-                          type="number"
-                          value={heightFeet}
-                          onChange={(e) => setHeightFeet(e.target.value)}
-                          placeholder="Feet"
-                          min="1"
-                          max="6"
-                        />
-                        <input
-                          type="number"
-                          value={heightInch}
-                          onChange={(e) => setHeightInch(e.target.value)}
-                          placeholder="Inch"
-                          min="0"
-                          max="11"
-                        />
+                         <div className="ai-input-with-unit">
+                          <input
+                            type="number"
+                            value={heightFeet}
+                            onChange={(e) => setHeightFeet(e.target.value)}
+                            placeholder="0"
+                            min="1"
+                            max="7"
+                            maxLength={1}
+                          />
+                          <span>ft</span>
+                        </div>
+                        <div className="ai-input-with-unit">
+                          <input
+                            type="number"
+                            value={heightInch}
+                            onChange={(e) => setHeightInch(e.target.value)}
+                            placeholder="0"
+                            min="0"
+                            max="11"
+                            maxLength={2}
+                          />
+                          <span>in</span>
+                        </div>
                       </div>
                     </div>
 
                     <div className="ai-size-field">
                       <label>আপনার ওজন (kg)</label>
-                      <input
-                        type="number"
-                        value={weight}
-                        onChange={(e) => setWeight(e.target.value)}
-                        placeholder="যেমন: 65"
-                        min="1"
-                      />
+                      <div className="ai-input-with-unit">
+                        <input
+                          type="number"
+                          value={weight}
+                          onChange={(e) => setWeight(e.target.value)}
+                          placeholder="যেমন: 65"
+                          min="1"
+                        />
+                        <span>kg</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="ai-size-field">
+                  <div className="ai-size-field ai-size-field-full">
                     <label>
                       কোমরের মাপ (inch) <span>Optional</span>
                     </label>
-                    <input
-                      type="number"
-                      value={waist}
-                      onChange={(e) => setWaist(e.target.value)}
-                      placeholder="যেমন: 32"
-                      min="1"
-                    />
+                    <div className="ai-input-with-unit">
+                      <input
+                        type="number"
+                        value={waist}
+                        onChange={(e) => setWaist(e.target.value)}
+                        placeholder="যেমন: 32"
+                        min="1"
+                      />
+                      <span>inch</span>
+                    </div>
                   </div>
 
-                  <div className="ai-size-field">
+                  <div className="ai-size-field ai-size-field-full">
                     <label>আপনি কেমন fit চান?</label>
-                    <select
-                      value={fitPreference}
-                      onChange={(e) => setFitPreference(e.target.value)}
-                    >
-                      <option value="slim">Slim Fit</option>
-                      <option value="regular">Regular Fit</option>
-                      <option value="loose">Loose Fit</option>
-                    </select>
+                    <div className="fit-chip-row">
+                      {[
+                        { label: "Slim Fit", value: "slim" },
+                        { label: "Regular Fit", value: "regular" },
+                        { label: "Loose Fit", value: "loose" },
+                      ].map((item) => (
+                        <button
+                          key={item.value}
+                          type="button"
+                          className={`fit-chip${
+                            fitPreference === item.value
+                              ? " active-fit-chip"
+                              : ""
+                          }`}
+                          onClick={() => setFitPreference(item.value)}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   {aiSizeError && (
@@ -1122,6 +1166,7 @@ const ProductDetailsPage = () => {
                     className="ai-size-submit-btn"
                     disabled={aiSizeLoading}
                   >
+                    <IoSparkles size={16} />
                     {aiSizeLoading
                       ? "AI আপনার size suggest করছে..."
                       : "Find My Size"}
@@ -1133,7 +1178,7 @@ const ProductDetailsPage = () => {
                 <div className="ai-size-result-card">
                   <div className="ai-size-result-top">
                     <span>Recommended Size</span>
-                    <strong>{aiSizeResult.recommendedSize}</strong>
+                    <strong>{aiSizeResult.recommendedSize || "-"}</strong>
                   </div>
 
                   {aiSizeResult.alternativeSize && (

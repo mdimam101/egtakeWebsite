@@ -93,9 +93,9 @@ const HomePage = () => {
     (product) => product?.trandingProduct === true,
   );
 
-  // 💰 ০~৯৯ টাকার লিস্ট
-  const productsBelow99 = allProducts.filter(
-    (product) => Number(product?.selling) <= 99,
+   // 💰 ০~১৯৯ টাকার লিস্ট
+  const productsBelow199 = allProducts.filter(
+    (product) => Number(product?.selling) <= 199,
   );
 
   const fetchBanners = useCallback(async () => {
@@ -156,7 +156,7 @@ const HomePage = () => {
   const selectedSlideProduct = showAllTranding
     ? trandingProducts
     : showAllLowPrice
-      ? productsBelow99
+      ? productsBelow199
       : [];
 
   return (
@@ -340,18 +340,18 @@ const HomePage = () => {
                   </div>
                 )}
 
-                {/* 💰 0~99 টাকা Shop Section */}
-                {productsBelow99 && productsBelow99.length > 0 && (
+                {/* 💰 0~199 টাকা Shop Section */}
+                {productsBelow199 && productsBelow199.length > 0 && (
                   <div className="low-price-section">
                     <h2 className="home-section-title section-budget">
-                      💰 ০~৯৯ টাকা
+                      💰 ০~১৯৯ টাকা
                     </h2>
                     <div className="tranding-slider">
-                      {productsBelow99.slice(0, 6).map((product, idx) => (
+                      {productsBelow199.slice(0, 6).map((product, idx) => (
                         <UserSlideProductCart productData={product} key={idx} />
                       ))}
 
-                      {productsBelow99.length > 6 && (
+                      {productsBelow199.length > 6 && (
                         <div
                           className="view-more-card"
                           onClick={() => {

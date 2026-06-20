@@ -1,4 +1,4 @@
-const backendDomain = "https://api.pyzara.com" //"https://e4imbebbpb.execute-api.ap-southeast-1.amazonaws.com";//"http://192.168.1.4:8080"//import.meta.env.VITE_APP_BACKEND_URL;
+const backendDomain ="http://localhost:8080"// "https://api.pyzara.com" //"https://e4imbebbpb.execute-api.ap-southeast-1.amazonaws.com";//"http://192.168.1.4:8080"//import.meta.env.VITE_APP_BACKEND_URL;
 //"http://localhost:8080"//
 const SummaryApi = {
   signUp: {
@@ -12,6 +12,10 @@ const SummaryApi = {
   current_user: {
     url: `${backendDomain}/api/user-details`,
     method: "get",
+  },
+  update_shipping: {
+    url: `${backendDomain}/api/user/shipping`,
+    method: "put",
   },
   logout_user: {
     url: `${backendDomain}/api/userLogout`,
