@@ -589,11 +589,21 @@ const UserProfile = () => {
 
       {/* Hero */}
       <div className="profile-hero">
+      {user?.profilePic ? (
+      <img
+        className="avatar"
+        src={user.profilePic}
+        alt={userInitial || "User avatar"}
+      />
+      ) : (
         <div className="avatar">{userInitial}</div>
+      )}
+        
+        {/* <div className="avatar">{userInitial}</div> */}
         <div className="hero-info">
           <div className="hero-name">{user?.name || user?.deviceId || "User"}</div>
           <div className="hero-email">{user?.email || "-"}</div>
-          <div className="member-badge">✓ Member</div>
+          <div className="member-badge">✓ {user?.role || "_"} Member</div>
         </div>
         <button
           className="btn btn--outline"
@@ -672,14 +682,6 @@ const UserProfile = () => {
       {/* Orders */}
       {!loading &&
         filteredOrders.map((o, idx) => <OrderCard key={o._id} order={o} index={idx} />)}
-
-      {/* Footer actions: Admin panel link removed from footer; now inside Settings */}
-      <div className="profile-footer">
-        <span />
-        <button className="btn btn--danger" onClick={() => setLogoutAsk(true)}>
-          Logout
-        </button>
-      </div>
 
       {/* Modals */}
       <ConfirmModal

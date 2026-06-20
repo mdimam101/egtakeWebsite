@@ -45,9 +45,12 @@ const CheckoutPage = () => {
 
   // ✅ UI states (same flow as RN)
   const [errors, setErrors] = useState({});
-  const [couponCode, setCouponCode] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const [couponMeta, setCouponMeta] = useState(null);
+  // const [couponCode, setCouponCode] = useState("");
+  // const [discount, setDiscount] = useState(0);
+  // const [couponMeta, setCouponMeta] = useState(null);
+  const couponCode = "web"
+  const discount = 0
+  const couponMeta = true
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -207,7 +210,7 @@ const CheckoutPage = () => {
 
   const handlingCharge = handlingChargeDefault;
 
-  const subtotal = baseTotal + deliveryCharge + handlingCharge + PROCESSING_FEE - discount;
+  const subtotal = baseTotal + deliveryCharge + handlingCharge + PROCESSING_FEE //- discount;
 
   const showExpress =
     formData.district === "Narayanganj" &&
@@ -227,45 +230,47 @@ const CheckoutPage = () => {
   };
 
   // ✅ Coupon apply (server optional)
-  const handleApplyCoupon = async () => {
-    const code = couponCode.trim().toUpperCase();
-    if (!code) {
-      toast.error("Please enter a coupon");
-      return;
-    }
+  // const handleApplyCoupon = async () => {
+    // const code = couponCode.trim().toUpperCase();
+    // if (!code) {
+    //   // toast.error("Please enter a coupon");
+    //   console.log("Please enter a coupon");
+    //   return;
+    // }
 
-    try {
-      const t = localStorage.getItem("authToken");
-      const res = await fetch(SummaryApi.coupon_apply.url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(t ? { Authorization: `Bearer ${t}` } : {}),
-        },
-        credentials: "include",
-        body: JSON.stringify({ code, subtotal: baseTotal }),
-      });
+    // try {
+    //   const t = localStorage.getItem("authToken");
+    //   const res = await fetch(SummaryApi.coupon_apply.url, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       ...(t ? { Authorization: `Bearer ${t}` } : {}),
+    //     },
+    //     credentials: "include",
+    //     body: JSON.stringify({ code, subtotal: baseTotal }),
+    //   });
 
-      const data = await res.json();
-      if (data?.success) {
-        const d = data?.totals?.discount || 0;
-        setDiscount(d);
-        setCouponMeta(data?.coupon || { code });
-        setCouponCode(code);
-        toast.success(`Coupon applied: ${code} (৳${d} off)`);
-      } else {
-        setDiscount(0);
-        setCouponMeta(null);
-        toast.error(data?.message || "Invalid coupon");
-      }
-    } catch (e) {
-      setDiscount(0);
-      setCouponMeta(null);
-      toast.error("Invalid coupon")
-      console.log(e);
-      ;
-    }
-  };
+    //   const data = await res.json();
+    //   if (data?.success) {
+    //     const d = data?.totals?.discount || 0;
+    //     setDiscount(d);
+    //     setCouponMeta(data?.coupon || { code });
+    //     setCouponCode(code);
+    //     toast.success(`Coupon applied: ${code} (৳${d} off)`);
+    //   } else {
+    //     setDiscount(0);
+    //     setCouponMeta(null);
+    //     console.log(data?.message || "Invalid coupon", couponCode);
+    //   }
+    // } catch (e) {
+    //   setDiscount(0);
+    //   setCouponMeta(null);
+    //   toast.error("Invalid coupon")
+    //   console.log(e);
+    //   console.log("Invalid coupon", couponCode);
+    //   ;
+    // }
+  // };
 
   // ✅ Validate (same rules as RN)
   const validate = () => {
@@ -655,7 +660,7 @@ const CheckoutPage = () => {
         </div>
 
         {/* Coupon */}
-        <div className="coupon-row">
+        {/* <div className="coupon-row">
           <input
             className="coupon-input"
             type="text"
@@ -672,7 +677,7 @@ const CheckoutPage = () => {
           >
             Apply
           </button>
-        </div>
+        </div> */}
 
         {/* Summary */}
         <div className="summary-box">
@@ -728,12 +733,12 @@ const CheckoutPage = () => {
             </div>
           </div>
 
-          {discount > 0 && (
+          {/* {discount > 0 && (
             <div className="sum-row">
               <div className="sum-label green">Coupon</div>
               <div className="sum-amount green">-৳{discount}</div>
             </div>
-          )}
+          )} */}
 
           <div className="sum-row total">
             <div className="sum-label red"><b>Subtotal</b></div>

@@ -110,6 +110,101 @@
   color: #0f172a;
 }
 
+.od-membership-card {
+  margin-bottom: 22px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.od-membership-info {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.od-membership-contact {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.od-membership-control {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 16px;
+}
+
+.membership-select {
+  width: 100%;
+  max-width: 280px;
+}
+
+.membership-updating {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.od-membership-dates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.membership-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.membership-general {
+  color: #334155;
+  background: #e2e8f0;
+}
+
+.membership-subpending {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.membership-premium {
+  color: #6b21a8;
+  background: #f3e8ff;
+}
+
+.membership-admin {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.membership-guest {
+  color: #475569;
+  background: #f1f5f9;
+}
+
+.od-membership-warning,
+.od-membership-empty {
+  margin: 12px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.od-product-list-spaced {
+  margin-bottom: 150px;
+}
+
 .od-list {
   margin: 0;
   padding: 0;
@@ -127,6 +222,18 @@
 @media (max-width: 520px) {
   .order-details-grid {
     grid-template-columns: 1fr;
+  }
+
+    .od-membership-info {
+    flex-direction: column;
+  }
+
+  .od-membership-dates {
+    grid-template-columns: 1fr;
+  }
+
+  .membership-select {
+    max-width: none;
   }
 
   .od-modal-body {

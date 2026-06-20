@@ -350,6 +350,15 @@
   color: #64748b;
 }
 
+.item-status-control {
+  margin-top: 8px;
+}
+
+.item-status-label {
+  display: block;
+  margin-bottom: 4px;
+}
+
 /* responsive */
 .desktop-only {
   display: block;

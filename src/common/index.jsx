@@ -1,4 +1,4 @@
-const backendDomain = "https://api.pyzara.com" //"https://e4imbebbpb.execute-api.ap-southeast-1.amazonaws.com";//"http://192.168.1.4:8080"//import.meta.env.VITE_APP_BACKEND_URL;
+const backendDomain = "http://localhost:8080"//"https://api.pyzara.com" //"https://e4imbebbpb.execute-api.ap-southeast-1.amazonaws.com";//"http://192.168.1.4:8080"//import.meta.env.VITE_APP_BACKEND_URL;
 //"http://localhost:8080"//
 const SummaryApi = {
   signUp: {
@@ -106,6 +106,16 @@ updateProductStock: {
     url: (orderId) => `${backendDomain}/api/admin/orders/${orderId}/status`,
     method: "PATCH",
   },
+  admin_update_user_membership: {
+  url: (userId) =>
+    `${backendDomain}/api/admin/users/${userId}/membership`,
+  method: "PATCH",
+},
+  admin_get_user_by_id: {
+    url: (userId) => `${backendDomain}/api/admin/users/${userId}`,
+    method: "GET",
+  },
+
   get_user_orders: {
     url: `${backendDomain}/api/user-all-ordrs`,
     method: "get",
@@ -156,6 +166,11 @@ ai_size_recommend: {
   url: `${backendDomain}/api/ai-size-recommend`,
   method: "POST",
 },
+//delete account 
+  delete_account: {
+    url: `${backendDomain}/api/account`,
+    method: "DELETE",
+  },
 };
 
 export default SummaryApi;

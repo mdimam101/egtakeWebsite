@@ -34,24 +34,55 @@ export const EGtakeCommitment = () => {
           <button
             type="button"
             className="egc-item"
-            //             onClick={() =>
-            //               openCommitmentModal(
-            //                 "Free Delivery",
-            //                 `✓নারায়ণগঞ্জে ${commonInfo[0]?.nrGanjMiniOrdr}+ টাকা বা তার বেশি অর্ডার করলে ফ্রি ডেলিভারি।
-            // ✓ঢাকা ${commonInfo[0]?.DhakaMiniOrdr}+ টাকা বা তার বেশি অর্ডার করলে ফ্রি ডেলিভারি।
-            // ✓নারায়ণগঞ্জ ও ঢাকার বাইরে ${commonInfo[0]?.OthersAreaMiniOrdr}+ টাকা বা তার বেশি অর্ডার করলে ফ্রি ডেলিভারি।
-            // ✓--Narayanganj Express delivery within 3 hours--`,
-            //               )
-            //             }
+                        onClick={() =>
+                          openCommitmentModal(
+                            "Everything You Need, All in One App",
+                            `✓ AI-Powered Skincare Suggestions
+  আপনার skin type ও concern অনুযায়ী উপযুক্ত skincare product recommendation পান।
+✓ Free Delivery Opportunities
+  নির্দিষ্ট offer বা order amount-এর ওপর free delivery সুবিধা উপভোগ করুন।
+✓ Apply Coupons & Save More
+  Coupon ব্যবহার করে আপনার order-এ additional discount পান।
+✓ Earn Reward Points
+  প্রতিটি purchase-এ points অর্জন করুন এবং পরবর্তী order-এ ব্যবহার করুন।
+✓ Live Customer Support
+  যেকোনো প্রয়োজনে দ্রুত সহায়তার জন্য live support পান।
+✓ And Many More Features
+  আরও সহজ, দ্রুত ও সুবিধাজনক shopping experience পেতে আজই app download করুন।
+                              `,
+                          )
+                        }
           >
             <div className="egc-rowJustify">
-              <div className="egc-title">🚚 Free delivery</div>
+              <div className="egc-title">✨ App Exclusive Features</div>
               <div className="egc-arrow">›</div>
             </div>
 
+            <div className="egc-row">
+              <div className="egc-check">
+                <span className="egc-green">✓</span> AI-Powered Skincare Product Suggestions
+              </div>
+            </div>
+
+            <div className="egc-row">
+              <div className="egc-check">
+                <span className="egc-green">✓</span> Free Delivery Opportunities
+              </div>
+              <div className="egc-check">
+                <span className="egc-green">✓</span> Live Customer Support
+              </div>
+            </div>
+            <div className="egc-row">
+              <div className="egc-check">
+                <span className="egc-green">✓</span> Apply Coupons & Save More
+              </div>
+               <div className="egc-check">
+                <span className="egc-green">✓</span> Earn Reward Points
+              </div>
+            </div>
+
             <div className="egc-check">
-              <span className="egc-green">✓</span> Available on{" "}
-              <span style={{ fontWeight: "bold", color: "red" }}>Pyzara</span>{" "}
+              <span className="egc-green">✓</span> And Many More Features{" "}
               <a
                 href={PLAY_STORE_URL}
                 target="_blank"

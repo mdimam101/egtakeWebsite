@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import SummaryApi from "../common";
 import "../styles/OrderList.css";
 import OrderDetailsModal from "../components/OrderDetailsModal";
@@ -13,10 +14,127 @@ const ORDER_STATUS_OPTIONS = [
   "Return",
 ];
 
+const MEMBERSHIP_ROLE_OPTIONS = ["GENERAL", "SUBPENDING", "PREMIUM"];
+
+const MEMBERSHIP_ROLE_LABELS = {
+  GENERAL: "General Member",
+  SUBPENDING: "Subscription Pending",
+  PREMIUM: "Premium Member",
+  ADMIN: "Admin",
+  GUEST: "Guest",
+};
+
 const isCancelledStatus = (status = "") => {
   const normalizedStatus = String(status).trim().toLowerCase();
   return normalizedStatus === "cancelled" || normalizedStatus === "canceled";
 };
+
+const getOrderUser = (order) => {
+  if (order?.user && typeof order.user === "object") {
+    return order.user;
+  }
+
+  if (order?.userId && typeof order.userId === "object") {
+    return order.userId;
+  }
+
+  return null;
+};
+
+const getOrderUserId = (order) => {
+  const orderUser = getOrderUser(order);
+
+  if (orderUser?._id) {
+    return orderUser._id;
+  }
+
+  if (typeof order?.userId === "string") {
+    return order.userId;
+  }
+
+  if (typeof order?.user === "string") {
+    return order.user;
+  }
+
+  return null;
+};
+
+const getMembershipBadge = (order) => {
+  const orderUser = getOrderUser(order);
+  const role = orderUser?.role || (getOrderUserId(order) ? "GENERAL" : "GUEST");
+
+  return (
+    <span
+      className={`membership-badge membership-${String(role).toLowerCase()}`}
+    >
+      {MEMBERSHIP_ROLE_LABELS[role] || role}
+    </span>
+  );
+};
+
+const mergeUpdatedUserIntoOrder = (order, userId, updatedMembership) => {
+  const currentUserId = getOrderUserId(order);
+
+  if (String(currentUserId) !== String(userId)) {
+    return order;
+  }
+
+  if (order?.user && typeof order.user === "object") {
+    return {
+      ...order,
+      user: {
+        ...order.user,
+        ...updatedMembership,
+      },
+    };
+  }
+
+  if (order?.userId && typeof order.userId === "object") {
+    return {
+      ...order,
+      userId: {
+        ...order.userId,
+        ...updatedMembership,
+      },
+    };
+  }
+
+  return {
+    ...order,
+    userId: {
+      _id: userId,
+      ...updatedMembership,
+    },
+  };
+};
+
+const fetchAdminUserById = async (userId, signal) => {
+  const token = localStorage.getItem("authToken");
+
+  const response = await fetch(SummaryApi.admin_get_user_by_id.url(userId), {
+    method: SummaryApi.admin_get_user_by_id.method,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    credentials: "include",
+    signal,
+  });
+
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok || !result?.success) {
+    throw new Error(result?.message || "Could not load user membership");
+  }
+
+  if (!result?.data?._id) {
+    throw new Error("User details response is missing user data");
+  }
+
+  console.log("🦌◆🦌order user detsils◆", result.data);
+  
+  return result.data;
+};
+
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
@@ -26,9 +144,15 @@ const OrderList = () => {
   const [updatingOrderId, setUpdatingOrderId] = useState("");
   const [updatingItemKey, setUpdatingItemKey] = useState("");
 
+  const [updatingMembershipUserId, setUpdatingMembershipUserId] = useState("");
+  const [loadingMembershipUserId, setLoadingMembershipUserId] = useState("");
+
   // optional: search + filter
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  const selectedOrderId = selectedOrder?._id || "";
+  const selectedOrderUserId = getOrderUserId(selectedOrder);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -54,6 +178,68 @@ const OrderList = () => {
 
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    if (!selectedOrderId || !selectedOrderUserId) {
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    let shouldIgnore = false;
+
+    const loadSelectedOrderUser = async () => {
+      setLoadingMembershipUserId(String(selectedOrderUserId));
+
+      try {
+        const userDetails = await fetchAdminUserById(
+          selectedOrderUserId,
+          controller.signal,
+        );
+
+        if (shouldIgnore) {
+          return;
+        }
+
+        setOrders((previousOrders) =>
+          previousOrders.map((currentOrder) =>
+            mergeUpdatedUserIntoOrder(
+              currentOrder,
+              selectedOrderUserId,
+              userDetails,
+            ),
+          ),
+        );
+
+        setSelectedOrder((previousOrder) =>
+          previousOrder
+            ? mergeUpdatedUserIntoOrder(
+                previousOrder,
+                selectedOrderUserId,
+                userDetails,
+              )
+            : previousOrder,
+        );
+      } catch (err) {
+        if (err?.name === "AbortError" || shouldIgnore) {
+          return;
+        }
+
+        console.error("User membership load error:", err);
+        setError(err.message || "Could not load user membership");
+      } finally {
+        if (!shouldIgnore) {
+          setLoadingMembershipUserId("");
+        }
+      }
+    };
+
+    loadSelectedOrderUser();
+
+    return () => {
+      shouldIgnore = true;
+      controller.abort();
+    };
+  }, [selectedOrderId, selectedOrderUserId]);
 
   // update order status
   const handleStatusUpdate = async (orderId, newStatus) => {
@@ -225,6 +411,110 @@ const OrderList = () => {
   };
 
 
+   const handleMembershipUpdate = async (order, requestedRole) => {
+    const userId = getOrderUserId(order);
+    let orderUser = getOrderUser(order);
+    let currentRole = orderUser?.role || "GENERAL";
+
+    if (!userId) {
+      const message =
+        "This is a guest order or registered user information is unavailable.";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
+    if (!MEMBERSHIP_ROLE_OPTIONS.includes(requestedRole)) {
+      const message = "Invalid membership role.";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
+    if (updatingMembershipUserId) {
+      return;
+    }
+
+    const token = localStorage.getItem("authToken");
+
+    setUpdatingMembershipUserId(String(userId));
+    setError("");
+
+    try {
+      orderUser = await fetchAdminUserById(userId);
+      currentRole = orderUser?.role || "GENERAL";
+
+      setOrders((previousOrders) =>
+        previousOrders.map((currentOrder) =>
+          mergeUpdatedUserIntoOrder(currentOrder, userId, orderUser),
+        ),
+      );
+
+      setSelectedOrder((previousOrder) =>
+        previousOrder
+          ? mergeUpdatedUserIntoOrder(previousOrder, userId, orderUser)
+          : previousOrder,
+      );
+
+      if (currentRole === "ADMIN") {
+        throw new Error("Admin membership role cannot be changed.");
+      }
+
+      if (currentRole === requestedRole) {
+        return;
+      }
+
+      const response = await fetch(
+        SummaryApi.admin_update_user_membership.url(userId),
+        {
+          method: SummaryApi.admin_update_user_membership.method,
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          credentials: "include",
+          body: JSON.stringify({ role: requestedRole }),
+        },
+      );
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message || "Membership update failed");
+      }
+
+      const updatedMembership = result?.data;
+
+      if (!updatedMembership?._id) {
+        throw new Error("Membership update response is missing user data");
+      }
+
+      setOrders((previousOrders) =>
+        previousOrders.map((currentOrder) =>
+          mergeUpdatedUserIntoOrder(currentOrder, userId, updatedMembership),
+        ),
+      );
+
+      setSelectedOrder((previousOrder) =>
+        previousOrder
+          ? mergeUpdatedUserIntoOrder(previousOrder, userId, updatedMembership)
+          : previousOrder,
+      );
+
+      toast.success(result?.message || "User membership updated successfully");
+    } catch (membershipError) {
+      console.error("Membership update error:", membershipError);
+
+      const message =
+        membershipError.message || "Could not update user membership";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setUpdatingMembershipUserId("");
+    }
+  };
+
+
   const filteredOrders = useMemo(() => {
     const q = query.trim().toLowerCase();
 
@@ -262,8 +552,8 @@ const OrderList = () => {
           </p>
           <p className="od-id">Product ID: {item.productId}</p>
            {shouldShowItemStatusControl && (
-            <div style={{ marginTop: 8 }}>
-              <small style={{ display: "block", marginBottom: 4 }}>Item Status</small>
+            <div className="item-status-control">
+              <small className="item-status-label">Item Status</small>
               <select
                 className="order-filter"
                 value={item?.itemStatus || "Pending"}
@@ -351,6 +641,7 @@ const OrderList = () => {
                   <th>Customer</th>
                   <th>District</th>
                   <th>Status</th>
+                   <th>Member</th>
                   <th>৳ Amount</th>
                   <th>Items</th>
                   <th>Details</th>
@@ -391,6 +682,7 @@ const OrderList = () => {
                         ))}
                       </select>
                     </td>
+                     <td>{getMembershipBadge(order)}</td>
                     <td>৳{order.totalAmount}</td>
                     <td>{order.items?.length || 0}</td>
                     <td>
@@ -456,6 +748,10 @@ const OrderList = () => {
                       {String(order._id).slice(-8)}
                     </p>
                   </div>
+                    <div className="kpi">
+                    <p className="kpi-label">Member</p>
+                    <div className="kpi-value">{getMembershipBadge(order)}</div>
+                  </div>
                 </div>
 
                 <button
@@ -476,6 +772,12 @@ const OrderList = () => {
         selectedOrder={selectedOrder}
         renderItems={renderItems}
         getStatusBadgeClass={getStatusBadgeClass}
+        getOrderUser={getOrderUser}
+        getOrderUserId={getOrderUserId}
+        onMembershipUpdate={handleMembershipUpdate}
+        updatingMembershipUserId={updatingMembershipUserId}
+        loadingMembershipUserId={loadingMembershipUserId}
+        membershipRoleLabels={MEMBERSHIP_ROLE_LABELS}
       >
         {/* {selectedOrder && (
           <div className="od-details">
