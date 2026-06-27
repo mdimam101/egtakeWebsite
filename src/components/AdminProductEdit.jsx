@@ -237,7 +237,11 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
   const handleUploadVariantImage = async (vIdx, e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const uploaded = await uploadImage(file);
+    // const uploaded = await uploadImage(file);
+    const uploaded = await uploadImage(file, {
+      mediaType: "product-image",
+      productId: data?._id,
+    });
     if (uploaded?.error)
       return toast.error(uploaded.message || "Upload failed");
 
@@ -258,7 +262,10 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     try {
       const file = e.target.files?.[0];
       if (!file) return;
-      const uploaded = await uploadImage(file);
+      const uploaded = await uploadImage(file, {
+        mediaType: "product-video",
+        productId: data?._id,
+      });
       if (uploaded?.error)
         return toast.error(uploaded.message || "Video upload failed");
       if (uploaded?.url) {
@@ -273,7 +280,10 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
   const handleUploadVideoThumb = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const uploaded = await uploadImage(file);
+    const uploaded = await uploadImage(file, {
+      mediaType: "video-thumbnail",
+      productId: data?._id,
+    });
     if (uploaded?.error)
       return toast.error(uploaded.message || "Thumbnail upload failed");
     if (uploaded?.url) {

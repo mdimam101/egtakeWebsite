@@ -98,6 +98,18 @@ updateProductStock: {
     url: `${backendDomain}/api/delete-banner`,
    method: "DELETE",
   },
+   media_presigned_upload: {
+    url: `${backendDomain}/api/media/presigned-upload`,
+    method: "post",
+  },
+  media_confirm_upload: {
+    url: `${backendDomain}/api/media/confirm-upload`,
+    method: "post",
+  },
+  media_delete: {
+    url: `${backendDomain}/api/media`,
+    method: "DELETE",
+  },
   orders: {
     url: `${backendDomain}/api/orders`,
    method: "post",
