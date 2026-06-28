@@ -10,7 +10,7 @@ const SubCategoryWiseProduct = () => {
   const [wishProductList, setWishProductList] = useState([]);
   const params = useParams();
 
-  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+  const clientKey =  "pyzarapyblickkeyblockaccessjhguygufkuylihiygiughiblkhgliughl"//import.meta.env.VITE_PUBLIC_CLIENT_KEY;
 
 if (!clientKey) {
   console.error("VITE_PUBLIC_CLIENT_KEY is missing");

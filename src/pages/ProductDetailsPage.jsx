@@ -222,7 +222,7 @@ const ProductDetailsPage = () => {
   console.log("🦌◆🦌◆location", location?.state?.selectedImage);
    const routeKey = param?.id;
 
-   const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+   const clientKey =  "pyzarapyblickkeyblockaccessjhguygufkuylihiygiughiblkhgliughl"//import.meta.env.VITE_PUBLIC_CLIENT_KEY;
 
 if (!clientKey) {
   console.error("VITE_PUBLIC_CLIENT_KEY is missing");
