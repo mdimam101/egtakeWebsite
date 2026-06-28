@@ -10,6 +10,12 @@ const SearchPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+
+if (!clientKey) {
+  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+}
+
   useEffect(() => {
      if (query) {
       trackBasic("search", { term: query });
@@ -21,7 +27,7 @@ const SearchPage = () => {
         const res =await fetch(`${SummaryApi.searchProduct.url}?q=${query}`, {
           credentials: "include",
           headers: {
-            "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+            "x-client-key": clientKey,
           },
         });
         const data = await res.json();

@@ -53,6 +53,12 @@ const HomePage = () => {
     }
   };
 
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+
+if (!clientKey) {
+  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+}
+
   const fetchAllProducts = useCallback(async () => {
     try {
       setProductLoading(true);
@@ -66,7 +72,7 @@ const HomePage = () => {
       const response = await fetch(SummaryApi.get_product.url, {
         credentials: "include",
         headers: {
-          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+          "x-client-key": clientKey,
         },
       });
       const data = await response.json();

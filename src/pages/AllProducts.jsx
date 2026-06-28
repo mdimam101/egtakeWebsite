@@ -10,13 +10,19 @@ const AllProducts = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+
+if (!clientKey) {
+  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+}
+
   const fetchAllProducts = async () => {
     try {
       setLoading(true);
       const response =  await fetch(SummaryApi.get_product.url, {
         credentials: "include",
         headers: {
-          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+          "x-client-key": clientKey,
         },
       });
       const data = await response.json();

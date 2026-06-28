@@ -10,6 +10,12 @@ const SubCategoryWiseProduct = () => {
   const [wishProductList, setWishProductList] = useState([]);
   const params = useParams();
 
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+
+if (!clientKey) {
+  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+}
+
   console.log("params.categoryName", params.categoryName);
   
 
@@ -17,7 +23,7 @@ const SubCategoryWiseProduct = () => {
     try {
       const response = await fetch(SummaryApi.category_wish_product.url, {
         method: SummaryApi.category_wish_product.method,
-        headers: { "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        headers: { "x-client-key": clientKey,
           "content-type": "application/json",
         },
         body: JSON.stringify({

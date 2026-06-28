@@ -222,6 +222,12 @@ const ProductDetailsPage = () => {
   console.log("🦌◆🦌◆location", location?.state?.selectedImage);
    const routeKey = param?.id;
 
+   const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+
+if (!clientKey) {
+  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+}
+
   const [data, setData] = useState({
     _id: "",
     productName: "",
@@ -326,7 +332,7 @@ const ProductDetailsPage = () => {
       let d = {};
       const response = await fetch(SummaryApi.product_details.url, {
         method: SummaryApi.product_details.method,
-        headers: { "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        headers: { "x-client-key": clientKey,
            "content-type": "application/json" },
          body: JSON.stringify({ productId: routeKey }),
       });
@@ -337,7 +343,7 @@ const ProductDetailsPage = () => {
         const allRes = await fetch(SummaryApi.get_product.url, {
           credentials: "include",
           headers: {
-            "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+            "x-client-key": clientKey,
           },
         });
         const allJson = await allRes.json();
@@ -381,7 +387,7 @@ const ProductDetailsPage = () => {
 
       const res = await fetch(SummaryApi.category_wish_product.url, {
         method: SummaryApi.category_wish_product.method,
-        headers: { "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        headers: { "x-client-key": clientKey,
            "content-type": "application/json" },
         body: JSON.stringify({ category: d.category }),
       });

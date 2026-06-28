@@ -31,11 +31,18 @@ const CategoryWiseProductListPage = () => {
     });
   }, [productCacheKey]);
 
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+
+if (!clientKey) {
+  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+}
+
+
   const fetchWishCategoryProduct = useCallback(async () => {
     try {
       const response = await fetch(SummaryApi.category_wish_product.url, {
         method: SummaryApi.category_wish_product.method,
-        headers: { "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        headers: { "x-client-key": clientKey,
           "content-type": "application/json",
         },
         body: JSON.stringify({

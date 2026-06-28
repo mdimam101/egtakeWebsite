@@ -57,13 +57,19 @@ const Cart = () => {
     // Loading state (new)
   const [isLoading, setIsLoading] = useState(true);
 
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+
+if (!clientKey) {
+  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+}
+
   // ---- Fetch: latest products (for stock validation) ----
    const fetchLatestProducts = useCallback(async () => {
     try {
       const res = await fetch(SummaryApi.get_product.url, {
         credentials: "include",
         headers: {
-          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+          "x-client-key": clientKey,
         },
       });
       const data = await res.json();

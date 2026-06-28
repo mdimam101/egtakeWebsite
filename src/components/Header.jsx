@@ -32,6 +32,12 @@ const Header = () => {
     navigate(`/search/${encodeURIComponent(value)}`);
   };
 
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+
+if (!clientKey) {
+  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+}
+
 useEffect(() => {
   if (!isUserTyping) return; // sudhu typing korle suggestions load hobe
 
@@ -45,7 +51,7 @@ useEffect(() => {
       const res = await fetch(`${SummaryApi.searchSuggestion.url}?q=${searchQuery}`, {
         credentials: "include",
         headers: {
-          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+          "x-client-key": clientKey,
         },
       });
       const data = await res.json();

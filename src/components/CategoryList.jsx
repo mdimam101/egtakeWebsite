@@ -26,6 +26,11 @@ const CategoryList = () => {
     categoryList.length > 0
       ? categoryList
       : [{ category: subCategory }];
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+
+if (!clientKey) {
+  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+}
 
   const fetchCategoryProduct = async () => {
     try {
@@ -34,7 +39,7 @@ const CategoryList = () => {
       const res = await fetch(SummaryApi.category_product.url, {
         credentials: "include",
         headers: {
-          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+          "x-client-key": clientKey,
         },
       });
       const json = await res.json();
