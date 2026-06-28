@@ -42,7 +42,12 @@ useEffect(() => {
     }
 
     try {
-      const res = await fetch(`${SummaryApi.searchSuggestion.url}?q=${searchQuery}`);
+      const res = await fetch(`${SummaryApi.searchSuggestion.url}?q=${searchQuery}`, {
+        credentials: "include",
+        headers: {
+          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        },
+      });
       const data = await res.json();
       if (data.success) {
         setSuggestions(data.data);

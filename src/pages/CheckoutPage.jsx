@@ -27,6 +27,7 @@ import Context from "../context";
 import updateProductStock from "../helpers/updateProductStock";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import trackBasic from "../helpers/trackBasic";
+import { clearGuestCart, consumePendingCheckoutItems } from "../helpers/guestCart";
 
 const PROCESSING_FEE = 5;
 
@@ -40,8 +41,11 @@ const NARAYANGANJ_UPAZILAS = [
 
 const CheckoutPage = () => {
   const { state } = useLocation();
-  const selectedItems = useMemo(() => state?.selectedItemsDetails || [], [state?.selectedItemsDetails]);
-
+ const [pendingCheckoutItems] = useState(() => consumePendingCheckoutItems());
+  const selectedItems = useMemo(
+    () => state?.selectedItemsDetails || pendingCheckoutItems || [],
+    [pendingCheckoutItems, state?.selectedItemsDetails]
+  );
   const navigate = useNavigate();
   const { fetchUserAddToCart } = useContext(Context);
 
@@ -413,7 +417,11 @@ const CheckoutPage = () => {
       }
 
       // ✅ remove from cart
-      await handleRemove(idArray);
+      if (selectedItems.some((item) => item?.isGuestCartItem || item?._id?.startsWith?.("guest::"))) {
+        clearGuestCart();
+      } else {
+        await handleRemove(idArray);
+      }
 
       setIsModalOpen(true);
     } catch (e) {

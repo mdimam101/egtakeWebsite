@@ -31,7 +31,12 @@ const CategoryList = () => {
     try {
       setLoading(true);
 
-      const res = await fetch(SummaryApi.category_product.url);
+      const res = await fetch(SummaryApi.category_product.url, {
+        credentials: "include",
+        headers: {
+          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        },
+      });
       const json = await res.json();
 
       const finalCategories = [

@@ -326,15 +326,20 @@ const ProductDetailsPage = () => {
       let d = {};
       const response = await fetch(SummaryApi.product_details.url, {
         method: SummaryApi.product_details.method,
-        headers: { "content-type": "application/json" },
-        // body: JSON.stringify({ productId: param?.id }),
+        headers: { "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+           "content-type": "application/json" },
          body: JSON.stringify({ productId: routeKey }),
       });
       const result = await response.json();
             if (result?.success) {
         d = result.data || {};
       } else {
-        const allRes = await fetch(SummaryApi.get_product.url);
+        const allRes = await fetch(SummaryApi.get_product.url, {
+          credentials: "include",
+          headers: {
+            "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+          },
+        });
         const allJson = await allRes.json();
         const allProducts = Array.isArray(allJson?.data) ? allJson.data : [];
         d =
@@ -376,7 +381,8 @@ const ProductDetailsPage = () => {
 
       const res = await fetch(SummaryApi.category_wish_product.url, {
         method: SummaryApi.category_wish_product.method,
-        headers: { "content-type": "application/json" },
+        headers: { "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+           "content-type": "application/json" },
         body: JSON.stringify({ category: d.category }),
       });
       const reco = await res.json();

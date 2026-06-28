@@ -63,7 +63,12 @@ const HomePage = () => {
       // const result1 = await response1.json();
       // console.log("fetchUserDetails999999", result1);
 
-      const response = await fetch(SummaryApi.get_product.url);
+      const response = await fetch(SummaryApi.get_product.url, {
+        credentials: "include",
+        headers: {
+          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        },
+      });
       const data = await response.json();
 
       if (data.success) {

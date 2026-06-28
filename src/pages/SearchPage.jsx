@@ -18,7 +18,12 @@ const SearchPage = () => {
     const fetchSearchResults = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${SummaryApi.searchProduct.url}?q=${query}`);
+        const res =await fetch(`${SummaryApi.searchProduct.url}?q=${query}`, {
+          credentials: "include",
+          headers: {
+            "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+          },
+        });
         const data = await res.json();
         if (data.success) {
           const optimized = generateOptimizedVariants(data.data);

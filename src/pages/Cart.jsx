@@ -1,9 +1,11 @@
 // pages/CartPage.js
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import SummaryApi from "../common";
 import CartItem from "../components/CartItem";
 import "../styles/CatrStyle.css";
 import { useNavigate } from "react-router";
+import {getGuestCart, savePendingCheckoutItems } from "../helpers/guestCart";
+import { useSelector } from "react-redux";
 
 // ---- Helper: find live stock/price using image (+ optional size) ----
 const findStockFromLatest = (item, latestProducts) => {
@@ -43,6 +45,8 @@ const findStockFromLatest = (item, latestProducts) => {
 const Cart = () => {
   const navigate = useNavigate();
 
+   const currentUser = useSelector((state) => state?.userState?.user);
+
   // Server cart only
   const [cartItems, setCartItems] = useState([]);
   // Selection lives in memory only (no localStorage)
@@ -54,24 +58,41 @@ const Cart = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // ---- Fetch: latest products (for stock validation) ----
-  const fetchLatestProducts = async () => {
+   const fetchLatestProducts = useCallback(async () => {
     try {
-      const res = await fetch(SummaryApi.get_product.url, { credentials: "include" });
+      const res = await fetch(SummaryApi.get_product.url, {
+        credentials: "include",
+        headers: {
+          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        },
+      });
       const data = await res.json();
       if (data?.success) setLatestProducts(data?.data || []);
     } catch (err) {
       console.error("Failed to fetch latest products:", err);
     }
-  };
+  }, []);
 
-  // ---- Fetch: cart from server (no localStorage fallback) ----
-  const fetchCartItems = async ({ silent = false } = {}) => {
+  const isLoggedIn = Boolean(localStorage.getItem("authToken") || currentUser?._id || currentUser?.email);
+
+  // ---- Fetch: cart from server, or localStorage for guest users ----
+  const fetchCartItems = useCallback(async ({ silent = false } = {}) => {
     if (!silent) setIsLoading(true);
+
+    const t = localStorage.getItem("authToken");
+    const hasSession = Boolean(t || currentUser?._id || currentUser?.email);
+    if (!hasSession) {
+      setCartItems(getGuestCart());
+      if (!silent) setIsLoading(false);
+      return;
+    }
+
+
     try {
       const t = localStorage.getItem('authToken');
       const res = await fetch(SummaryApi.getCartProduct.url, {
         method: SummaryApi.getCartProduct.method,
-         headers: t ? { Authorization: `Bearer ${t}` } : {},
+        headers: { Authorization: `Bearer ${t}` },
         credentials: "include", // rely on cookies/session
       });
       const data = await res.json();
@@ -83,12 +104,12 @@ const Cart = () => {
     } finally {
       if (!silent) setIsLoading(false);
     }
-  };
+  }, [currentUser?._id, currentUser?.email]);
 
   useEffect(() => {
     fetchLatestProducts();
     fetchCartItems();
-  }, []);
+  }, [fetchCartItems, fetchLatestProducts]);
 
   // Selected ids are those NOT in unselected
   const selectedItems = useMemo(
@@ -152,6 +173,17 @@ const Cart = () => {
       const res = findStockFromLatest(item, latestProducts);
       return res.inStock && selectedItems.includes(item._id);
     });
+
+   if (!isLoggedIn) {
+      savePendingCheckoutItems(selectedItemsDetails);
+      navigate("/sign-up", {
+        state: {
+          from: "/checkout",
+          checkoutState: { selectedItemsDetails },
+        },
+      });
+      return;
+    }
     navigate("/checkout", { state: { selectedItemsDetails } });
   };
 

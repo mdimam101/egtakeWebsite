@@ -1,169 +1,118 @@
-// cartStore/guestCart.js
-import AsyncStorage from '@react-native-async-storage/async-storage';
+export const GUEST_CART_KEY = "guestCart";
+export const PENDING_CHECKOUT_KEY = "pendingCheckoutItems";
 
-export const GUEST_CART_KEY = 'guestCart';
-
-// ছোট helper: JSON parse safe
 const parse = (raw) => {
-  try { return raw ? JSON.parse(raw) : []; } catch { return []; }
-};
-
-const norm = (v) => (v ?? '').toString().trim();
-const normImg = (img) => (img ? img.replace('https://', 'http://') : '');
-
-// cart item identity: productId + image + size + color                        
-// const sameItem = (a, b) =>
-//   (norm(a.productId) === norm(b.productId)) &&
-//   (norm(a.size) === norm(b.size)) &&
-//   (norm(a.color) === norm(b.color)) &&
-//   (normImg(a.image) === normImg(b.image));
-
-/** synthetic _id, কারণ CartPage item._id ও item.productId._id ইউজ করে */
-const makeGuestId = (it) => {
-  const pid = norm(it.productId);
-  const img = normImg(it.image);
-  const sz  = norm(it.size);
-  const col = norm(it.color);
-  return `guest::${pid}::${img}::${sz}::${col}`;
-};
-
-/**
- * ✅ DUPLICATE ব্লক রেখে add করবো
- * কিন্তু সেভ করবো এমন শেপে যেন CartPage / CartItem আগের মতোই কাজ করে:
- * - _id (string)
- * - productId: { _id, productName, price, selling }
- * - root: image, size, color, quantity/quantity, price, selling
- */
-export const pushGuestCartUnique = async (item) => {
-  // normalize করলে compare stable হয়
-  const normImage = (item.image || '').replace('https://', 'http://');
-  const normSize  = (item.size  || '').trim();
-  const normColor = (item.color || '').trim();
-
-  const raw = await AsyncStorage.getItem(GUEST_CART_KEY);
-  const arr = parse(raw);
-
-  const exists = arr.some(x =>
-    x.productId && typeof x.productId === 'object'
-      ? (
-          // new-shape item
-          x.productId._id === item.productId &&
-          (x.size || '')  === normSize &&
-          (x.color || '') === normColor &&
-          (x.image || '') === normImage
-        )
-      : (
-          // old-shape fallback
-          x.productId === item.productId &&
-          (x.size || '')  === normSize &&
-          (x.color || '') === normColor &&
-          (x.image || '') === normImage
-        )
-  );
-
-  if (exists) {
-    return { added: false, reason: 'duplicate' }; // ❌ already in cart
+  try {
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
+};
 
-  // CartPage expects server-like shape
-  const price   = Number(item.price ?? 0);
-  const selling = Number(item.selling ?? 0);
+const norm = (value) => (value ?? "").toString().trim();
+const normImg = (image) => norm(image).replace("https://", "http://");
 
-  const toSave = {
-    _id: makeGuestId({ productId: item.productId, image: normImage, size: normSize, color: normColor }),
+export const getGuestCart = () => parse(localStorage.getItem(GUEST_CART_KEY));
 
-    // CartPage uses item.productId._id, .selling, .price
+export const setGuestCart = (items) => {
+  const safeItems = Array.isArray(items) ? items : [];
+  localStorage.setItem(GUEST_CART_KEY, JSON.stringify(safeItems));
+  return safeItems;
+};
+
+export const clearGuestCart = () => {
+  localStorage.removeItem(GUEST_CART_KEY);
+};
+
+export const savePendingCheckoutItems = (items) => {
+  const safeItems = Array.isArray(items) ? items : [];
+  localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify(safeItems));
+  return safeItems;
+};
+
+export const consumePendingCheckoutItems = () => {
+  const items = parse(localStorage.getItem(PENDING_CHECKOUT_KEY));
+  localStorage.removeItem(PENDING_CHECKOUT_KEY);
+  return items;
+};
+
+const getProductId = (item) => {
+  if (item?.productId && typeof item.productId === "object") return item.productId._id;
+  return item?.productId;
+};
+
+const sameGuestItem = (a, b) =>
+  norm(getProductId(a)) === norm(getProductId(b)) &&
+  norm(a?.size).toLowerCase() === norm(b?.size).toLowerCase() &&
+  norm(a?.color).toLowerCase() === norm(b?.color).toLowerCase() &&
+  normImg(a?.image) === normImg(b?.image);
+
+const makeGuestId = (item) =>
+  `guest::${norm(getProductId(item))}::${normImg(item?.image)}::${norm(item?.size)}::${norm(item?.color)}`;
+
+const toGuestCartItem = (item) => {
+  const productId = norm(getProductId(item));
+  const price = Number(item?.price ?? item?.productId?.price ?? 0);
+  const selling = Number(item?.selling ?? item?.productId?.selling ?? 0);
+  const quantity = Number(item?.quantity ?? 1);
+
+  return {
+    _id: makeGuestId(item),
     productId: {
-      _id: item.productId,
-      productName: item.productName || '',
+      _id: productId,
+      productName: item?.productName || item?.productId?.productName || "",
       price,
       selling,
+      productCodeNumber: item?.productCodeNumber || item?.productId?.productCodeNumber,
     },
-
-    image: normImage,
-    size: normSize,
-    color: normColor,
-
-    // Qty fields (দুটো রাখছি)
-    quantity: 1,
-
-    // Root pricing (CartItem এ product?.selling * product.quantity)
+    productName: item?.productName || item?.productId?.productName || "",
+    image: normImg(item?.image),
+    size: norm(item?.size),
+    color: norm(item?.color),
+    quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
     price,
     selling,
-
-    addedAt: Date.now(),
-    isStoreData : true // default set
+    addedAt: item?.addedAt || Date.now(),
+    isGuestCartItem: true,
   };
-
-  arr.push(toSave);
-  await AsyncStorage.setItem(GUEST_CART_KEY, JSON.stringify(arr));
-  return { added: true };
 };
 
+export const pushGuestCartUnique = async (item) => {
+  const nextItem = toGuestCartItem(item);
+  const currentItems = getGuestCart();
 
-/** +1 / -1 quantity for a guest item (qty<=0 হলে remove). Returns updated array. */
-export async function guestBumpQty(match, delta) {
-  const raw = await AsyncStorage.getItem(GUEST_CART_KEY);
-  const arr = parse(raw);
-
-  // normalize match fields
-  const key = {
-    productId: norm(match.productId),
-    size: norm(match.size),
-    color: norm(match.color),
-    image: normImg(match.image),
-  };
-
-  // match both new-shape (productId is object) and old-shape
-  const idx = arr.findIndex(x => {
-    const pid = typeof x.productId === 'object' ? x.productId?._id : x.productId;
-    return (
-      norm(pid) === key.productId &&
-      norm(x.size) === key.size &&
-      norm(x.color) === key.color &&
-      normImg(x.image) === key.image
-    );
-  });
-
-  if (idx < 0) return { ok: false, reason: 'not_found', items: arr };
-
-  const cur = Number( arr[idx].quantity ?? 1);
-  const next = cur + Number(delta || 0);
-
-  if (next <= 0) {
-    arr.splice(idx, 1); // remove item
-  } else {
-    // keep BOTH fields for UI compatibility
-    arr[idx].quantity = next;
+  if (currentItems.some((existing) => sameGuestItem(existing, nextItem))) {
+    return { added: false, reason: "duplicate", items: currentItems };
   }
 
-  await AsyncStorage.setItem(GUEST_CART_KEY, JSON.stringify(arr));
-  return { ok: true, items: arr, qty: next <= 0 ? 0 : next };
-}
+  const updatedItems = [...currentItems, nextItem];
+  setGuestCart(updatedItems);
+  return { added: true, items: updatedItems };
+};
 
-/** Remove a guest item outright. */
-export async function guestRemove(match) {
-  const raw = await AsyncStorage.getItem(GUEST_CART_KEY);
-  const arr = parse(raw);
+export const guestBumpQty = async (match, delta) => {
+  const currentItems = getGuestCart();
+  const index = currentItems.findIndex((item) => sameGuestItem(item, match));
 
-  const key = {
-    productId: norm(match.productId),
-    size: norm(match.size),
-    color: norm(match.color),
-    image: normImg(match.image),
-  };
+  if (index < 0) return { ok: false, reason: "not_found", items: currentItems };
 
-  const filtered = arr.filter(x => {
-    const pid = typeof x.productId === 'object' ? x.productId?._id : x.productId;
-    return !(
-      norm(pid) === key.productId &&
-      norm(x.size) === key.size &&
-      norm(x.color) === key.color &&
-      normImg(x.image) === key.image
-    );
-  });
+  const currentQty = Number(currentItems[index].quantity ?? 1);
+  const nextQty = currentQty + Number(delta || 0);
 
-  await AsyncStorage.setItem(GUEST_CART_KEY, JSON.stringify(filtered));
-  return { ok: true, items: filtered };
-}
+  const updatedItems = [...currentItems];
+  if (nextQty <= 0) {
+    updatedItems.splice(index, 1);
+  } else {
+    updatedItems[index] = { ...updatedItems[index], quantity: nextQty };
+  }
 
+  setGuestCart(updatedItems);
+  return { ok: true, items: updatedItems, qty: Math.max(nextQty, 0) };
+};
+
+export const guestRemove = async (match) => {
+  const updatedItems = getGuestCart().filter((item) => !sameGuestItem(item, match));
+  setGuestCart(updatedItems);
+  return { ok: true, items: updatedItems };
+};

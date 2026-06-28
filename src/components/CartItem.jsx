@@ -6,6 +6,7 @@ import increaseQuantity from "../helpers/increaseQuantity ";
 import decreaseQuantity from "../helpers/decreaseQuantity";
 import removeFromCart from "../helpers/removeFromCart";
 import { toast } from "react-toastify";
+import { guestBumpQty, guestRemove } from "../helpers/guestCart";
 
 // ছোট helper: http → https
 const ensureHttps = (u = "") => u.replace("http://", "https://");
@@ -59,12 +60,22 @@ const CartItem = ({
 
   const sellingPrice = product?.selling * qty;
 
+  const isGuestItem = product?.isGuestCartItem || product?._id?.startsWith?.("guest::");
+
   // 📈 Increase
   const handleIncrease = async () => {
     if (qty >= liveStock) {
       toast.info("Stock limit reached");
       return;
     }
+
+     if (isGuestItem) {
+      const res = await guestBumpQty(product, 1);
+      if (res?.ok) refreshCart?.();
+      else toast.error("Failed to update quantity");
+      return;
+    }
+
     const res = await increaseQuantity(product?._id);
     if (res?.success) {
       await fetchUserAddToCart(true);
@@ -76,6 +87,14 @@ const CartItem = ({
 
   // 📉 Decrease
   const handleDecrease = async () => {
+
+    if (isGuestItem) {
+      const res = await guestBumpQty(product, -1);
+      if (res?.ok) refreshCart?.();
+      else toast.error("Failed to update quantity");
+      return;
+    }
+
     const res = await decreaseQuantity(product?._id);
     if (res?.success) {
       await fetchUserAddToCart(true);
@@ -87,6 +106,14 @@ const CartItem = ({
 
   // 🗑 Remove
   const handleRemove = async () => {
+
+    if (isGuestItem) {
+      const res = await guestRemove(product);
+      if (res?.ok) refreshCart?.();
+      else toast.error("Failed to remove item");
+      return;
+    }
+
     const res = await removeFromCart(product?._id);
     if (res?.success) {
       await fetchUserAddToCart(true);

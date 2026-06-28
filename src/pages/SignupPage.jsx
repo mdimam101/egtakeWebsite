@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useContext } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,6 +11,7 @@ import Context from "../context";
 
 export default function SignupPage() {
   const navigate = useNavigate();
+   const location = useLocation();
   const { fetchUserDetails } = useContext(Context) || {
     fetchUserDetails: () => {},
   };
@@ -81,7 +82,8 @@ export default function SignupPage() {
             console.log("fetchUserDetails error", e);
           }
 
-          navigate("/", { replace: true });
+          const from = location.state?.from || "/";
+          navigate(from, { state: location.state?.checkoutState, replace: true });
           return;
         }
 
@@ -136,7 +138,8 @@ const handleGoogleSuccess = async (credentialResponse) => {
         console.log("fetchUserDetails error", e);
       }
 
-      navigate("/", { replace: true });
+      const from = location.state?.from || "/";
+      navigate(from, { state: location.state?.checkoutState, replace: true });
       return;
     }
 

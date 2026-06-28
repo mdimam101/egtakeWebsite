@@ -35,7 +35,7 @@ const CategoryWiseProductListPage = () => {
     try {
       const response = await fetch(SummaryApi.category_wish_product.url, {
         method: SummaryApi.category_wish_product.method,
-        headers: {
+        headers: { "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
           "content-type": "application/json",
         },
         body: JSON.stringify({

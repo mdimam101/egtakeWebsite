@@ -13,8 +13,11 @@ const AllProducts = () => {
   const fetchAllProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(SummaryApi.get_product.url, {
+      const response =  await fetch(SummaryApi.get_product.url, {
         credentials: "include",
+        headers: {
+          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        },
       });
       const data = await response.json();
 

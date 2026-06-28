@@ -52,7 +52,12 @@ const CategoryPage = () => {
 
   const fetchCategoryProduct = async () => {
     try {
-      const response = await fetch(SummaryApi.category_product.url);
+      const response = await fetch(SummaryApi.category_product.url, {
+        credentials: "include",
+        headers: {
+          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        },
+      });
       const dataResponse = await response.json();
 
       const finalCategoryList = Array.isArray(dataResponse?.data)
@@ -68,7 +73,12 @@ const CategoryPage = () => {
 
   const fetchAllProducts = async () => {
     try {
-      const response = await fetch(SummaryApi.get_product.url);
+      const response =await fetch(SummaryApi.get_product.url, {
+        credentials: "include",
+        headers: {
+          "x-client-key": import.meta.env.VITE_PUBLIC_CLIENT_KEY,
+        },
+      });
       const data = await response.json();
 
       const finalProductList =

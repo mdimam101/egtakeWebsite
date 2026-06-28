@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import "../styles/LoginStyles.css";
-import { Link,useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { FaRegUser } from "react-icons/fa";
 import SummaryApi from "../common";
 import { toast } from "react-toastify";
@@ -9,6 +9,7 @@ import Context from "../context";
 const Login = () => {
 
     const navigate = useNavigate()
+     const location = useLocation()
     // const { fetchUser } = useContext(Context); // ❌ কাজ করবে না
     // এখানে fetchUser নামে খুঁজতেছো, কিন্তু Context.Provider তো fetchUserDetails নামে পাঠিয়েছে। তাই undefined পাবে।
     const {fetchUserDetails} = useContext(Context)
@@ -56,9 +57,9 @@ const Login = () => {
           console.log("'login successfully'",);
          localStorage.setItem('authToken', dataApi.data);
           
-          // redirect to home page
-          // navigate('/home')
-          navigate('/')
+         
+          const from = location.state?.from || "/"
+          navigate(from, { state: location.state?.checkoutState, replace: true })
           // Login সফল হলে, আবার fetchUserDetails() কল করো যেন নতুন token দিয়ে user info পাওয়া যায়।
           fetchUserDetails()
         }
