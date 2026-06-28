@@ -10,7 +10,8 @@ const SearchPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const clientKey = "pyzarapyblickkeyblockaccessjhguygufkuylihiygiughiblkhgliughl"//import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+  console.log("clientKey",clientKey);
 
 if (!clientKey) {
   console.error("VITE_PUBLIC_CLIENT_KEY is missing");
