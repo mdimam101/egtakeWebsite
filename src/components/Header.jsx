@@ -32,11 +32,11 @@ const Header = () => {
     navigate(`/search/${encodeURIComponent(value)}`);
   };
 
-  const clientKey =  "pyzarapyblickkeyblockaccessjhguygufkuylihiygiughiblkhgliughl"//import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
 
-if (!clientKey) {
-  console.error("VITE_PUBLIC_CLIENT_KEY is missing");
-}
+  if (!clientKey) {
+    console.error("VITE_PUBLIC_CLIENT_KEY is missing");
+  }
 
 useEffect(() => {
   if (!isUserTyping) return; // sudhu typing korle suggestions load hobe
