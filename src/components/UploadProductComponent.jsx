@@ -802,6 +802,7 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
                 <p>Upload Images for this color variant</p>
                 <input
                   type="file"
+                  accept="image/*,.heic,.heif"
                   multiple={false}
                   ref={(el) => (variantImageInputRefs.current[vIndex] = el)}
                   onChange={(e) => handleUploadVariantImage(vIndex, e)}

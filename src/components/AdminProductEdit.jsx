@@ -661,7 +661,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             <p>Upload Thumbnail (image)</p>
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,.heic,.heif"
               ref={videoThumbInputRef}
               onChange={handleUploadVideoThumb}
               style={{ display: "none" }}
@@ -848,7 +848,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
                 <p>Upload Images for this color variant</p>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.heic,.heif"
                   multiple={false}
                   ref={(el) => (variantImageInputRefs.current[vIndex] = el)}
                   onChange={(e) => handleUploadVariantImage(vIndex, e)}

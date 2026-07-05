@@ -225,8 +225,31 @@
 
 import SummaryApi from "../common";
 
-const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+const IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+];
+
+const VIDEO_TYPES = [
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+];
+const MIME_BY_EXTENSION = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  webp: "image/webp",
+  heic: "image/heic",
+  heif: "image/heif",
+  mp4: "video/mp4",
+  webm: "video/webm",
+  mov: "video/quicktime",
+  qt: "video/quicktime",
+};
 
 const IMAGE_MAX_BYTES = 10 * 1024 * 1024;
 const VIDEO_MAX_BYTES = 50 * 1024 * 1024;
@@ -242,6 +265,19 @@ const getAuthHeaders = () => {
         Authorization: `Bearer ${token}`,
       }
     : {};
+};
+
+const getFileExtension = (fileName = "") =>
+  String(fileName).split(".").pop()?.trim().toLowerCase() || "";
+
+const getNormalizedContentType = (file) => {
+  const browserType = String(file?.type || "").trim().toLowerCase();
+
+  if (browserType) {
+    return browserType;
+  }
+
+  return MIME_BY_EXTENSION[getFileExtension(file?.name)] || "";
 };
 
 const isVideoMediaType = (mediaType) => mediaType === "product-video";
@@ -261,13 +297,14 @@ const validateFile = (file, mediaType) => {
   const allowedTypes = isVideoMediaType(mediaType)
     ? VIDEO_TYPES
     : IMAGE_TYPES;
+  const contentType = getNormalizedContentType(file);
 
   const maxSize = getExpectedMaxSize(mediaType);
 
-  if (!allowedTypes.includes(file.type)) {
+   if (!allowedTypes.includes(contentType)) {
     return isVideoMediaType(mediaType)
       ? "Only MP4, WebM, or QuickTime videos are allowed"
-      : "Only JPEG, PNG, or WebP images are allowed";
+       : "Only JPEG, PNG, WebP, HEIC, or HEIF images are allowed";
   }
 
   if (file.size > maxSize) {
@@ -305,6 +342,9 @@ const uploadImage = async (
       };
     }
 
+    const contentType = getNormalizedContentType(file);
+    const safeFileName = file.name || `upload-${Date.now()}`;
+
     // 1. Backend থেকে presigned URL নেওয়া
     const presignedResponse = await fetch(
       SummaryApi.media_presigned_upload.url,
@@ -317,8 +357,8 @@ const uploadImage = async (
         },
         credentials: "include",
         body: JSON.stringify({
-          fileName: file.name,
-          contentType: file.type,
+          fileName: safeFileName,
+          contentType,
           fileSize: file.size,
           mediaType,
           ...(productId ? { productId } : {}),
@@ -380,7 +420,7 @@ const uploadImage = async (
         credentials: "include",
         body: JSON.stringify({
           key: presignedData.key,
-          expectedContentType: file.type,
+          expectedContentType: contentType,
           expectedMaxSize: getExpectedMaxSize(mediaType),
         }),
       }
