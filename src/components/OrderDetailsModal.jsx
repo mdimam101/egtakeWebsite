@@ -11,6 +11,15 @@ const DEFAULT_MEMBERSHIP_ROLE_LABELS = {
   GUEST: "Guest",
 };
 
+
+const getOrderSource = (order) => {
+  const code = String(order?.couponCode || "").trim().toUpperCase();
+  return code === "WEB" ? "Website" : "App";
+};
+
+const getOrderPayableAmount = (order) =>
+  order?.totals?.payable || order?.totalAmount || 0;
+
 const formatMembershipDate = (value) => {
   if (!value) {
     return "-";
@@ -104,9 +113,39 @@ const OrderDetailsModal = ({
                 </div>
 
                 <div className="od-box">
+                  <p className="od-label">Delivery Type</p>
+                  <p className="od-value">{selectedOrder.deliveryType || "-"}</p>
+                </div>
+
+                <div className="od-box">
+                  <p className="od-label">Delivery Charge</p>
+                  <p className="od-value">৳{selectedOrder.deliveryCharge ?? 0}</p>
+                </div>
+
+                <div className="od-box">
+                  <p className="od-label">Payment Method</p>
+                  <p className="od-value">{selectedOrder.paymentMethod || "-"}</p>
+                </div>
+
+                <div className="od-box">
+                  <p className="od-label">Discount</p>
+                  <p className="od-value">৳{selectedOrder.discount ?? 0}</p>
+                </div>
+
+                <div className="od-box">
+                  <p className="od-label">Coupon Code</p>
+                  <p className="od-value">{selectedOrder.couponCode || "-"}</p>
+                </div>
+
+                <div className="od-box">
+                  <p className="od-label">Order Source</p>
+                  <p className="od-value">{getOrderSource(selectedOrder)}</p>
+                </div>
+
+                <div className="od-box">
                   <p className="od-label">Total Amount</p>
                   <p className="od-value">
-                    ৳{selectedOrder.totalAmount ?? 0}
+                     ৳{getOrderPayableAmount(selectedOrder)}
                   </p>
                 </div>
 

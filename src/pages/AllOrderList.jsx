@@ -11,7 +11,15 @@ const ORDER_STATUS_OPTIONS = [
   "Shipped",
   "Delivered",
   "Canceled",
+];
+
+const ITEM_STATUS_OPTIONS = [
+  "Normal",
   "Return",
+  "RConfirmed",
+  "ReturnComplete",
+  "Reviewed",
+  "Canceled",
 ];
 
 const MEMBERSHIP_ROLE_OPTIONS = ["GENERAL", "SUBPENDING", "PREMIUM"];
@@ -27,6 +35,23 @@ const MEMBERSHIP_ROLE_LABELS = {
 const isCancelledStatus = (status = "") => {
   const normalizedStatus = String(status).trim().toLowerCase();
   return normalizedStatus === "cancelled" || normalizedStatus === "canceled";
+};
+
+
+const getOrderSource = (order) => {
+  const code = String(order?.couponCode || "").trim().toUpperCase();
+  return code === "WEB" ? "Website" : "App";
+};
+
+const getOrderPayableAmount = (order) =>
+  order?.totals?.payable || order?.totalAmount || 0;
+
+const getStatusOptions = (options, currentStatus) => {
+  if (!currentStatus || options.includes(currentStatus)) {
+    return options;
+  }
+
+  return [currentStatus, ...options];
 };
 
 const getOrderUser = (order) => {
@@ -523,12 +548,20 @@ const OrderList = () => {
       const phone = (o?.shippingDetails?.phone || "").toLowerCase();
       const district = (o?.shippingDetails?.district || "").toLowerCase();
       const status = (o?.status || "").toLowerCase();
+      const source = getOrderSource(o).toLowerCase();
+      const couponCode = (o?.couponCode || "").toLowerCase();
+      const deliveryType = (o?.deliveryType || "").toLowerCase();
+      const paymentMethod = (o?.paymentMethod || "").toLowerCase();
 
       const matchQuery =
         !q ||
         name.includes(q) ||
         phone.includes(q) ||
         district.includes(q) ||
+        source.includes(q) ||
+        couponCode.includes(q) ||
+        deliveryType.includes(q) ||
+        paymentMethod.includes(q) ||
         (o?._id || "").toLowerCase().includes(q);
 
       const matchStatus =
@@ -539,7 +572,6 @@ const OrderList = () => {
   }, [orders, query, statusFilter]);
 
    const renderItems = (orderId, items = []) => {
-    const shouldShowItemStatusControl = items.length > 1;
     return items.map((item, idx) => (
       <li key={item?._id || idx} className="od-item">
         <img className="od-img" src={item.image} alt="product" />
@@ -551,25 +583,25 @@ const OrderList = () => {
             <span>Color: {item.color || "-"}</span>
           </p>
           <p className="od-id">Product ID: {item.productId}</p>
-           {shouldShowItemStatusControl && (
-            <div className="item-status-control">
-              <small className="item-status-label">Item Status</small>
-              <select
-                className="order-filter"
-                value={item?.itemStatus || "Pending"}
-                onChange={(e) =>
-                  handleItemStatusUpdate(orderId, item?._id, e.target.value)
-                }
-                disabled={updatingItemKey === `${orderId}:${item?._id}`}
-              >
-                {ORDER_STATUS_OPTIONS.map((status) => (
+           <div className="item-status-control">
+            <small className="item-status-label">Item Status</small>
+            <select
+              className="order-filter"
+              value={item?.itemStatus || "Normal"}
+              onChange={(e) =>
+                handleItemStatusUpdate(orderId, item?._id, e.target.value)
+              }
+              disabled={updatingItemKey === `${orderId}:${item?._id}`}
+            >
+              {getStatusOptions(ITEM_STATUS_OPTIONS, item?.itemStatus).map(
+                (status) => (
                   <option key={status} value={status}>
                     {status}
                   </option>
-                ))}
-              </select>
-            </div>
-          )}
+                ),
+              )}
+            </select>
+          </div>
         </div>
       </li>
     ));
@@ -616,7 +648,6 @@ const OrderList = () => {
             <option value="shipped">Shipped</option>
             <option value="delivered">Delivered</option>
             <option value="cancelled">Canceled</option>
-            <option value="return">Return</option>
           </select>
         </div>
       </div>
@@ -641,7 +672,9 @@ const OrderList = () => {
                   <th>Customer</th>
                   <th>District</th>
                   <th>Status</th>
-                   <th>Member</th>
+                  <th>Member</th>
+                  <th>Source</th>
+                  <th>Payment</th>
                   <th>৳ Amount</th>
                   <th>Items</th>
                   <th>Details</th>
@@ -675,7 +708,7 @@ const OrderList = () => {
                         }
                         disabled={updatingOrderId === order._id}
                       >
-                        {ORDER_STATUS_OPTIONS.map((status) => (
+                         {getStatusOptions(ORDER_STATUS_OPTIONS, order.status).map((status) => (
                           <option key={status} value={status}>
                             {status}
                           </option>
@@ -683,7 +716,13 @@ const OrderList = () => {
                       </select>
                     </td>
                      <td>{getMembershipBadge(order)}</td>
-                    <td>৳{order.totalAmount}</td>
+                      <td>
+                      <span className={`source-badge source-${getOrderSource(order).toLowerCase()}`}>
+                        {getOrderSource(order)}
+                      </span>
+                    </td>
+                    <td>{order.paymentMethod || "-"}</td>
+                    <td>৳{getOrderPayableAmount(order)}</td>
                     <td>{order.items?.length || 0}</td>
                     <td>
                       <button
@@ -725,7 +764,7 @@ const OrderList = () => {
                     }
                     disabled={updatingOrderId === order._id}
                   >
-                    {ORDER_STATUS_OPTIONS.map((status) => (
+                     {getStatusOptions(ORDER_STATUS_OPTIONS, order.status).map((status) => (
                       <option key={status} value={status}>
                         {status}
                       </option>
@@ -736,11 +775,15 @@ const OrderList = () => {
                 <div className="order-card-mid">
                   <div className="kpi">
                     <p className="kpi-label">Amount</p>
-                    <p className="kpi-value">৳{order.totalAmount}</p>
+                    <p className="kpi-value">৳{getOrderPayableAmount(order)}</p>
                   </div>
                   <div className="kpi">
                     <p className="kpi-label">Items</p>
                     <p className="kpi-value">{order.items?.length || 0}</p>
+                  </div>
+                   <div className="kpi">
+                    <p className="kpi-label">Source</p>
+                    <p className="kpi-value">{getOrderSource(order)}</p>
                   </div>
                   <div className="kpi">
                     <p className="kpi-label">Order ID</p>
