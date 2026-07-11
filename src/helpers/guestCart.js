@@ -11,7 +11,7 @@ const parse = (raw) => {
 };
 
 const norm = (value) => (value ?? "").toString().trim();
-const normImg = (image) => norm(image).replace("https://", "http://");
+const normImg = (image) => norm(image).replace(/^http:\/\//i, "https://");
 
 export const getGuestCart = () => parse(localStorage.getItem(GUEST_CART_KEY));
 

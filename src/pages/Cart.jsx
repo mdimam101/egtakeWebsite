@@ -17,8 +17,10 @@ const findStockFromLatest = (item, latestProducts) => {
   if (!latest) return { inStock: false };
 
   // 👉 We identify variant by the image URL (first image match), just like RN
-  const img = (item?.image || "").replace("https://", "http://");
-  const variant = latest.variants?.find((v) => (v?.images?.[0] || "") === img);
+  const img = (item?.image || "").replace(/^http:\/\//i, "https://");
+  const variant = latest.variants?.find(
+    (v) => (v?.images?.[0] || "").replace(/^http:\/\//i, "https://") === img
+  );
   if (!variant) return { inStock: false };
 
   // If size provided, check that size’s stock; else sum all sizes

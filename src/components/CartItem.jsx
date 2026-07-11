@@ -28,14 +28,16 @@ const CartItem = ({
 
   // RN-এর মত: variant match by image (first image)
   const variantImage = product?.image || productData?.productImg?.[0] || "/no-image.png";
-  const imgIdentity = (variantImage || "").replace("https://", "http://");
+  const imgIdentity = (variantImage || "").replace(/^http:\/\//i, "https://");
 
   // 🔍 Live stock finder (RN logic)
   const liveStock = useMemo(() => {
     const latest = latestProducts?.find(p => p?._id === productData?._id);
     if (!latest) return 0;
 
-    const variant = (latest?.variants || []).find(v => (v?.images?.[0] || "") === imgIdentity);
+    const variant = (latest?.variants || []).find(
+      v => (v?.images?.[0] || "").replace(/^http:\/\//i, "https://") === imgIdentity
+    );
     if (!variant) return 0;
 
     const sizeKey = (product?.size || "").trim().toLowerCase();
