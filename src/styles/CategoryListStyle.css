@@ -48,7 +48,7 @@
   bottom:0;
   width: 18px;
   pointer-events:none;
-  z-index: 2;
+  z-index: 0;
 }
 
 .top-slide-category::before{
@@ -65,6 +65,8 @@
 .category-item{
   flex: 0 0 auto;
   scroll-snap-align: start;
+  position: relative;
+  z-index: 1;
   text-decoration: none;
   padding: 8px 14px;
   border-radius: 999px;
