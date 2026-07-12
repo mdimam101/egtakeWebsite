@@ -15,7 +15,6 @@ export const userSlice = createSlice({
         state.user = action.payload মানে হলো নতুন user data দিয়ে পুরাতনটা আপডেট করো। */
     setUserDetails: (state, action) => {
       state.user = action.payload;
-      console.log("setUserDetails-action.payload", action.payload);
     },
   },
 });

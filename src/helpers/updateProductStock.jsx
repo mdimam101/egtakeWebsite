@@ -20,7 +20,6 @@ const updateProductStock = async (productId, variantImage, size, quantity, isCan
          headers: t ? { Authorization: `Bearer ${t}` } : {},
       }
     );
-    console.log("updateProductStock...", res.data);
     
     return res.data;
   } catch {

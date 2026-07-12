@@ -345,7 +345,7 @@
   border: 1px solid rgba(15, 23, 42, 0.08);
   background: #fff;
   color: #475569;
-  padding: 11px 1px;
+  padding: 11px 14px;
   margin-top: 10px;
   border-radius: 999px;
   margin-left: 5px;
@@ -461,6 +461,11 @@
   color: #c62828;
 }
 
+.status-canceled {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
 .order-meta {
   font-size: 13px;
   color: #64748b;
@@ -559,6 +564,27 @@
 .tag--gray {
   background: #eef2f7;
   color: #475569;
+}
+
+.tag--return {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.tag--rconfirmed,
+.tag--returncomplete {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+.tag--reviewed {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.tag--canceled {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 /* Order actions */

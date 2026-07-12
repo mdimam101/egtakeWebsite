@@ -50,8 +50,8 @@ const CategoryList = () => {
       ];
 
       dispatch(setCategoryList(finalCategories));
-    } catch (err) {
-      console.log("CategoryList", err.message);
+    } catch{
+      console.log();
     } finally {
       setLoading(false);
     }

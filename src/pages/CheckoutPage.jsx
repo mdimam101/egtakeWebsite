@@ -1,10 +1,8 @@
 /**
 ・District select করলে delivery option auto-control
-・Narayanganj হলে Upazila দেখাবে
-・Upazila অনুযায়ী FREE threshold বদলাবে
-・FREE locked হলে “Add ৳X more…” + Locked badge
-・Narayanganj এ “Standard ৳120” + (Sodor/Bandar হলে) “Express ৳150”
-・Dhaka/Others under threshold হলে Std option দেখাবে
+・Premium Narayanganj free delivery lock দেখাবে
+・Narayanganj এ “Standard ৳70” + “Express ৳160”
+・Dhaka/Others standard delivery দেখাবে
 ・Payment only COD
 ・Coupon apply API call করবে (তোমার backend থাকলে)
 ・Submit lock + “Placing order…” text
@@ -12,6 +10,7 @@
 */
 
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import "../styles/CheckoutPageStyle.css";
 import { useLocation, useNavigate } from "react-router";
@@ -31,22 +30,16 @@ import { clearGuestCart, consumePendingCheckoutItems } from "../helpers/guestCar
 
 const PROCESSING_FEE = 5;
 
-// 🔽 Narayanganj Upazila list (same as RN)
-const NARAYANGANJ_UPAZILAS = [
-  "Narayanganj Sodor",
-  "Bandar",
-  "Shonargaon",
-  "Others Upazila",
-];
-
 const CheckoutPage = () => {
   const { state } = useLocation();
- const [pendingCheckoutItems] = useState(() => consumePendingCheckoutItems());
+  const [pendingCheckoutItems] = useState(() => consumePendingCheckoutItems());
   const selectedItems = useMemo(
     () => state?.selectedItemsDetails || pendingCheckoutItems || [],
     [pendingCheckoutItems, state?.selectedItemsDetails]
   );
   const navigate = useNavigate();
+  const user = useSelector((state) => state?.userState?.user);
+  const commonInfo = useSelector((state) => state?.commonState?.commonInfoList || []);
   const { fetchUserAddToCart } = useContext(Context);
 
   // ✅ UI states (same flow as RN)
@@ -54,9 +47,9 @@ const CheckoutPage = () => {
   // const [couponCode, setCouponCode] = useState("");
   // const [discount, setDiscount] = useState(0);
   // const [couponMeta, setCouponMeta] = useState(null);
-  const couponCode = "web"
-  const discount = 0
-  const couponMeta = true
+  const couponCode = "web";
+  const discount = 0;
+  const couponMeta = true;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -64,21 +57,22 @@ const CheckoutPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submitLockRef = useRef(false);
 
-  // ✅ Thresholds & charges (fallback defaults; later you can feed from API/redux)
-  const MIN_FREE_NAR = 999;
-  const MIN_FREE_DHK = 1190;
-  const MIN_FREE_OTH = 1500;
+  // ✅ Thresholds & charges from common info, with app fallback defaults.
+  const MIN_FREE_NAR = commonInfo[0]?.nrGanjMiniOrdr
+    ? Number(commonInfo[0].nrGanjMiniOrdr)
+    : 999;
 
-  const handlingChargeDefault = 15;
+  const handlingCharge = commonInfo[0]?.handlingCharge
+    ? Number(commonInfo[0].handlingCharge)
+    : 15;
 
-  // ✅ shipping form + upazila
+  // ✅ shipping form 
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     address: "",
     district: "", // Dhaka | Narayanganj | Others
-    upazila: "", // only Narayanganj
-    _toggleUpazilaOpen: false,
+    upazila: "", // kept in payload if backend already supports it
   });
 
   // Prefill shipping if the logged-in user already has saved shipping details.
@@ -100,7 +94,7 @@ const CheckoutPage = () => {
           phone: ship.phone || "",
           address: ship.address || "",
           district: ship.district || "",
-          upazila: ship.upazila || "",
+          upazila: "",
         }));
       } catch {
         // Shipping prefill is optional; keep checkout usable if it fails.
@@ -110,9 +104,8 @@ const CheckoutPage = () => {
     prefillShippingDetails();
   }, []);
 
-  // ✅ delivery option: "FREE" | "EXPRESS" | "NAR120" | "STD"
+  // ✅ delivery option: "FREE" | "EXPRESS" | "NAR70" | "STD"
   const [deliveryOption, setDeliveryOption] = useState("FREE");
-  const [userTouchedDelivery, setUserTouchedDelivery] = useState(false);
 
   // ✅ payment option (only COD)
   const [paymentMethod, setPaymentMethod] = useState("COD");
@@ -123,6 +116,15 @@ const CheckoutPage = () => {
     [selectedItems]
   );
 
+    // ✅ district base charges (same as app)
+  const districtCharge = (district) => {
+    if (district === "Narayanganj") return 70;
+    if (district === "Dhaka") return 80;
+    if (district === "Others") return 130;
+    return 0;
+  };
+
+
   const baseTotal = useMemo(() => {
     return selectedItems.reduce((acc, item) => {
       const price = item?.selling || item?.productId?.selling || 0;
@@ -131,132 +133,66 @@ const CheckoutPage = () => {
     }, 0);
   }, [selectedItems]);
 
-  // ✅ district base charges (same as RN)
-  const districtCharge = (district) => {
-    if (district === "Narayanganj") return 0;
-    if (district === "Dhaka") return 50;
-    if (district === "Others") return 130;
-    return 0;
-  };
+  const isPremiumUser = user?.role === "PREMIUM";
 
-  // 🔽 Upazila-wise threshold (same as RN)
-  const getNarUpazilaThreshold = (upazila) => {
-    if (upazila === "Narayanganj Sodor" || upazila === "Bandar") return MIN_FREE_NAR;
-    if (upazila === "Shonargaon") return MIN_FREE_DHK;
-    if (upazila === "Others Upazila") return MIN_FREE_OTH;
-    return MIN_FREE_NAR; // fallback
-  };
-
-  const getFreeThreshold = useCallback((district, upazila) => {
-    if (district === "Narayanganj") return getNarUpazilaThreshold(upazila);
-    if (district === "Dhaka") return MIN_FREE_DHK;
-    if (district === "Others") return MIN_FREE_OTH;
-    return Infinity;
- }, []);
-
-  const currentThreshold = useMemo(
-    () => getFreeThreshold(formData.district, formData.upazila),
-    [formData.district, formData.upazila, getFreeThreshold]
+   // ✅ App basic logic: only premium Narayanganj users can unlock free delivery.
+  const getFreeThreshold = useCallback(
+    (district) => (district === "Narayanganj" ? MIN_FREE_NAR : Infinity),
+    [MIN_FREE_NAR]
   );
 
-  const freeEligible = formData.district ? baseTotal >= currentThreshold : true;
-  const freeDisabled = !!formData.district && !freeEligible;
+  const currentThreshold = useMemo(
+       () => getFreeThreshold(formData.district),
+    [formData.district, getFreeThreshold]
+  );
+
+ const premiumMinimumEligible =
+    formData.district === "Narayanganj" &&
+    isPremiumUser &&
+    baseTotal >= currentThreshold;
+
+  const freeDisabled = !premiumMinimumEligible;
 
   const remainingForFree = formData.district
     ? Math.max(0, currentThreshold - baseTotal)
     : 0;
 
-  // ✅ Narayanganj guard: under threshold & FREE -> force NAR120
   useEffect(() => {
-    if (
-      formData.district === "Narayanganj" &&
-      baseTotal < currentThreshold &&
-      deliveryOption === "FREE"
-    ) {
-      setDeliveryOption("NAR120");
-    }
-  }, [formData.district, formData.upazila, baseTotal, currentThreshold, deliveryOption]);
+    if (!formData.district) return;
 
-  // ✅ Disallow EXPRESS outside Sodor/Bandar
-  useEffect(() => {
-    if (
-      formData.district === "Narayanganj" &&
-      deliveryOption === "EXPRESS" &&
-      !["Narayanganj Sodor", "Bandar"].includes(formData.upazila)
-    ) {
-      setDeliveryOption("NAR120");
-      setUserTouchedDelivery(false);
-    }
-  }, [formData.district, formData.upazila, deliveryOption]);
-
-  // ✅ District switch normalization + upazila reset
-  useEffect(() => {
-    const d = formData.district;
-    if (!d) return;
-
-    if (d === "Narayanganj") {
-      if (!formData.upazila) {
-        setDeliveryOption("NAR120");
-      }
-      if (deliveryOption === "STD") {
-        setDeliveryOption(baseTotal >= currentThreshold ? "FREE" : "NAR120");
-        setUserTouchedDelivery(false);
-      }
+    if (formData.district === "Narayanganj") {
+      setDeliveryOption(premiumMinimumEligible ? "FREE" : "NAR70");
       return;
     }
 
-    // leaving Narayanganj -> clear upazila
-    if (formData.upazila) {
-      setFormData((p) => ({ ...p, upazila: "", _toggleUpazilaOpen: false }));
-    }
+    setDeliveryOption("STD");
+  }, [formData.district, premiumMinimumEligible]);
 
-    if (deliveryOption === "EXPRESS" || deliveryOption === "NAR120") {
-      setDeliveryOption(freeEligible ? "FREE" : "STD");
-      setUserTouchedDelivery(false);
-    }
-  }, [formData.district, formData.upazila, baseTotal, freeEligible, currentThreshold, deliveryOption]); // keep same behavior
-  // ✅ Dhaka/Others: auto toggle STD <-> FREE unless user touched
-  useEffect(() => {
-    if (
-      !userTouchedDelivery &&
-      (formData.district === "Dhaka" || formData.district === "Others")
-    ) {
-      if (!freeEligible && deliveryOption === "FREE") setDeliveryOption("STD");
-      if (freeEligible && deliveryOption === "STD") setDeliveryOption("FREE");
-    }
-  }, [formData.district, freeEligible, deliveryOption, userTouchedDelivery]);
+  const computeDeliveryCharge = useCallback(
+    (district, option) => {
+      if (district === "Narayanganj") {
+        if (option === "FREE" && premiumMinimumEligible) return 0;
+        if (option === "EXPRESS") return 160;
+        return districtCharge(district);
+      }
 
-  // ✅ delivery charge compute (same as RN)
-  const computeDeliveryCharge = useCallback((district, option) => {
-    if (district === "Narayanganj") {
-      if (option === "EXPRESS") return 150;
-      if (option === "NAR120") return 120;
-      return 0; // FREE
-    }
-    if (district === "Dhaka") return baseTotal >= MIN_FREE_DHK ? 0 : districtCharge(district);
-    if (district === "Others") return baseTotal >= MIN_FREE_OTH ? 0 : districtCharge(district);
-    return districtCharge(district);
-   }, [baseTotal]);
+      return districtCharge(district);
+    },
+    [premiumMinimumEligible]
+  );
+
 
   const deliveryCharge = useMemo(
     () => computeDeliveryCharge(formData.district, deliveryOption),
     [computeDeliveryCharge, formData.district, deliveryOption]
   );
 
-  const handlingCharge = handlingChargeDefault;
-
-  const subtotal = baseTotal + deliveryCharge + handlingCharge + PROCESSING_FEE //- discount;
-
-  const showExpress =
-    formData.district === "Narayanganj" &&
-    ["Narayanganj Sodor", "Bandar"].includes(formData.upazila);
+ const subtotal = baseTotal + deliveryCharge + handlingCharge + PROCESSING_FEE - discount;
 
   const deliveryLabelValue = deliveryCharge === 0 ? "FREE" : `৳${deliveryCharge}`;
 
   const freeTitleByArea = () => {
-    if (formData.district === "Narayanganj") return `Free Delivery ৳${currentThreshold}+`;
-    if (formData.district === "Dhaka") return `Free Delivery ৳${MIN_FREE_DHK}+`;
-    if (formData.district === "Others") return `Free Delivery ৳${MIN_FREE_OTH}+`;
+    if (formData.district === "Narayanganj") return `Premium Free Delivery ৳${MIN_FREE_NAR}+`;
     return "Delivery commitment";
   };
 
@@ -309,12 +245,11 @@ const CheckoutPage = () => {
 
   // ✅ Validate (same rules as RN)
   const validate = () => {
-    const { name, phone, address, district, upazila } = formData;
+    const { name, phone, address, district } = formData;
     const newErrors = {};
     if (!name) newErrors.name = "Full name is required";
     if (!phone) newErrors.phone = "Phone number is required";
     if (!district) newErrors.district = "Please select your district";
-    if (district === "Narayanganj" && !upazila) newErrors.upazila = "Please select your upazila";
     if (!address) newErrors.address = "Full address is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -507,11 +442,7 @@ const CheckoutPage = () => {
           value={formData.district}
           onChange={(e) => {
             const val = e.target.value;
-            onChange("district", val);
-            if (val !== "Narayanganj") {
-              setFormData((p) => ({ ...p, upazila: "", _toggleUpazilaOpen: false }));
-            }
-            setUserTouchedDelivery(false);
+           setFormData((p) => ({ ...p, district: val, upazila: "" }));
           }}
           className={`input ${errors.district ? "input-error" : ""}`}
           disabled={isSubmitting}
@@ -525,42 +456,8 @@ const CheckoutPage = () => {
         </select>
         {errors.district && <div className="error">{errors.district}</div>}
 
-        {/* Upazila */}
-        {formData.district === "Narayanganj" && (
-          <>
-            <div
-              className={`input upazila-trigger ${errors.upazila ? "input-error" : ""}`}
-              onClick={() => !isSubmitting && setFormData((p) => ({ ...p, _toggleUpazilaOpen: !p._toggleUpazilaOpen }))}
-              role="button"
-            >
-              <span className={formData.upazila ? "upazila-selected" : "upazila-placeholder"}>
-                {formData.upazila || "Select Upazila (Narayanganj)"}
-              </span>
-              <span className="chev">▾</span>
-            </div>
-
-            {errors.upazila && <div className="error">{errors.upazila}</div>}
-
-            {formData._toggleUpazilaOpen && (
-              <div className="dropdown-list">
-                {NARAYANGANJ_UPAZILAS.map((u) => (
-                  <div
-                    key={u}
-                    className="dropdown-item"
-                    onClick={() => {
-                      onChange("upazila", u);
-                      onChange("_toggleUpazilaOpen", false);
-                      setUserTouchedDelivery(false);
-                    }}
-                    role="button"
-                  >
-                    {u}
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+         {/* Upazila intentionally not shown on website checkout. */}
+        
 
         <input
           type="text"
@@ -583,7 +480,6 @@ const CheckoutPage = () => {
               onClick={() => {
                 if (isSubmitting || freeDisabled) return;
                 setDeliveryOption("FREE");
-                setUserTouchedDelivery(true);
               }}
               role="button"
             >
@@ -594,16 +490,12 @@ const CheckoutPage = () => {
               <div className="opt-mid">
                 <div className="opt-title">{freeTitleByArea()}</div>
                 <div className="opt-sub">
-                  {formData.district === "Narayanganj"
-                    ? "Delivery time 3–36 hours"
-                    : formData.district === "Dhaka"
-                    ? "Delivery time within 48 hours"
-                    : "Delivery time within 1–3 days"}
+                  Premium users get free delivery after minimum order
                 </div>
 
                 {freeDisabled && (
                   <div className="lock-hint">
-                    Add ৳{remainingForFree} more to unlock FREE
+                    {isPremiumUser ? `Add ৳${remainingForFree} more to unlock FREE` : "Only PREMIUM users can unlock FREE delivery"}
                   </div>
                 )}
               </div>
@@ -616,33 +508,31 @@ const CheckoutPage = () => {
             {/* Narayanganj Standard */}
             {formData.district === "Narayanganj" && (
               <div
-                className={`option-row ${deliveryOption === "NAR120" ? "active" : ""} ${isSubmitting ? "disabled" : ""}`}
+                 className={`option-row ${deliveryOption === "NAR70" ? "active" : ""} ${isSubmitting ? "disabled" : ""}`}
                 onClick={() => {
                   if (isSubmitting) return;
-                  setDeliveryOption("NAR120");
-                  setUserTouchedDelivery(true);
+                   setDeliveryOption("NAR70");
                 }}
                 role="button"
               >
                 <div className="radio">
-                  <div className={`dot ${deliveryOption === "NAR120" ? "dot-on" : ""}`} />
+                  <div className={`dot ${deliveryOption === "NAR70" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
                   <div className="opt-title">Standard Delivery</div>
                   <div className="opt-sub">Delivery time 3–24 hours</div>
                 </div>
-                <div className="opt-price">৳120</div>
+                <div className="opt-price">৳70</div>
               </div>
             )}
 
             {/* Express */}
-            {showExpress && (
+             {formData.district === "Narayanganj" && (
               <div
                 className={`option-row ${deliveryOption === "EXPRESS" ? "active" : ""} ${isSubmitting ? "disabled" : ""}`}
                 onClick={() => {
                   if (isSubmitting) return;
                   setDeliveryOption("EXPRESS");
-                  setUserTouchedDelivery(true);
                 }}
                 role="button"
               >
@@ -653,18 +543,18 @@ const CheckoutPage = () => {
                   <div className="opt-title">Express Delivery</div>
                   <div className="opt-sub">Delivery within 3 hours</div>
                 </div>
-                <div className="opt-price">৳150</div>
+                 <div className="opt-price">৳160</div>
               </div>
             )}
 
             {/* Dhaka Std */}
-            {formData.district === "Dhaka" && !freeEligible && (
+             {formData.district === "Dhaka" && (
               <div
                 className={`option-row ${deliveryOption === "STD" ? "active" : ""} ${isSubmitting ? "disabled" : ""}`}
                 onClick={() => {
                   if (isSubmitting) return;
                   setDeliveryOption("STD");
-                  setUserTouchedDelivery(true);
+                 
                 }}
                 role="button"
               >
@@ -680,13 +570,12 @@ const CheckoutPage = () => {
             )}
 
             {/* Others Std */}
-            {formData.district === "Others" && !freeEligible && (
+           {formData.district === "Others" && (
               <div
                 className={`option-row ${deliveryOption === "STD" ? "active" : ""} ${isSubmitting ? "disabled" : ""}`}
                 onClick={() => {
                   if (isSubmitting) return;
                   setDeliveryOption("STD");
-                  setUserTouchedDelivery(true);
                 }}
                 role="button"
               >
@@ -771,15 +660,15 @@ const CheckoutPage = () => {
           <div className="sum-row">
             <div className="sum-label">
               Delivery Charge (
-              {deliveryOption === "EXPRESS"
+               {deliveryOption === "FREE"
+                ? "Premium Free"
+                : deliveryOption === "EXPRESS"
                 ? "Express"
-                : formData.district === "Narayanganj"
-                ? "Narayanganj Std/Free"
                 : "Standard"}
               )
             </div>
             <div className="sum-amount">
-              <span className="old-price">৳150</span> {deliveryLabelValue}
+               <span className="old-price">৳160</span> {deliveryLabelValue}
             </div>
           </div>
 

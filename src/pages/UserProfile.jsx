@@ -15,28 +15,61 @@ const ORDER_STATUS = {
   CONFIRMED: "Confirmed",
   SHIPPED: "Shipped",
   DELIVERED: "Delivered",
-  RETURN: "Return",
-  CANCELLED: "Canceled",
+  CANCELED: "Canceled",
 };
 
 const ITEM_STATUS = {
-  PENDING: "Pending",
-  SHIPPED: "Shipped",
-  DELIVERED: "Delivered",
-  RETURN_PENDING: "Return Pending",
-  RETURN_CONFIRMED: "Return Confirmed",
+  NORMAL: "Normal",
+  RETURN: "Return",
+  R_CONFIRMED: "RConfirmed",
+  RETURN_COMPLETE: "ReturnComplete",
+  REVIEWED: "Reviewed",
+  CANCELED: "Canceled",
 };
 
+const PROFILE_TABS = ["Pending", "Shipped", "Delivered", "Return", "Review"];
+
 // ---------- Normalizers ----------
-const normalizeItemStatus = (s = "") => {
-  const t = String(s).toLowerCase().replace(/\s+/g, "");
-  if (t === "returnpending" || t === "return") return ITEM_STATUS.RETURN_PENDING;
-  if (t === "returnconfirmed") return ITEM_STATUS.RETURN_CONFIRMED;
-  if (t === "shipped") return ITEM_STATUS.SHIPPED;
-  if (t === "delivered") return ITEM_STATUS.DELIVERED;
-  if (t === "pending") return ITEM_STATUS.PENDING;
-  return s || ITEM_STATUS.PENDING;
+const normalizeItemStatus = (status = "") => {
+  const raw = String(status || "").trim();
+  const key = raw.toLowerCase().replace(/[\s_-]+/g, "");
+
+  if (!key || key === "normal" || key === "pending" || key === "delivered" || key === "shipped") {
+    return ITEM_STATUS.NORMAL;
+  }
+
+  if (key === "return" || key === "returnpending") return ITEM_STATUS.RETURN;
+  if (key === "rconfirmed" || key === "returnconfirmed") return ITEM_STATUS.R_CONFIRMED;
+  if (key === "returncomplete" || key === "complete") return ITEM_STATUS.RETURN_COMPLETE;
+  if (key === "reviewed" || key === "review") return ITEM_STATUS.REVIEWED;
+  if (key === "canceled" || key === "cancelled" || key === "returncanceled" || key === "returncancelled") {
+    return ITEM_STATUS.CANCELED;
+  }
+
+  return raw || ITEM_STATUS.NORMAL;
 };
+
+const getItemStatusLabel = (status) => {
+  switch (normalizeItemStatus(status)) {
+    case ITEM_STATUS.RETURN:
+      return "Return Pending";
+    case ITEM_STATUS.R_CONFIRMED:
+      return "Return Confirmed";
+    case ITEM_STATUS.RETURN_COMPLETE:
+      return "Return Complete";
+    case ITEM_STATUS.REVIEWED:
+      return "Reviewed";
+    case ITEM_STATUS.CANCELED:
+      return "Return Canceled";
+    default:
+      return "";
+  }
+};
+
+const isReturnResolvedStatus = (status) =>
+  [ITEM_STATUS.R_CONFIRMED, ITEM_STATUS.RETURN_COMPLETE, ITEM_STATUS.CANCELED].includes(
+    normalizeItemStatus(status)
+  );
 
 // ---------- Tiny helpers ----------
 const telHref = (phone) => `tel:${phone}`;
@@ -134,7 +167,7 @@ const UserProfile = () => {
   const WHATSAPP_PHONE = commonInfo[0]?.whatsAppNumber || "";
 
   const [orders, setOrders] = useState([]);
-  const [selectedTab, setSelectedTab] = useState("All");
+  const [selectedTab, setSelectedTab] = useState("Pending");
   const [loading, setLoading] = useState(false);
 
   // modals / asks
@@ -185,7 +218,7 @@ const UserProfile = () => {
 
 
 
-  // Filters per tab (Review section fully removed)
+  // Filters per tab. No "All" bucket; item status decides Delivered/Return/Review placement.
   const filteredOrders = useMemo(() => {
     const base = [...orders].sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -195,7 +228,7 @@ const UserProfile = () => {
       return base.filter((o) => o.status === ORDER_STATUS.PENDING);
     }
 
-    if (selectedTab === "Shipping") {
+    if (selectedTab === "Shipped") {
       return base.filter((o) =>
         [ORDER_STATUS.CONFIRMED, ORDER_STATUS.SHIPPED].includes(o.status)
       );
@@ -206,38 +239,46 @@ const UserProfile = () => {
         .filter((o) => o.status === ORDER_STATUS.DELIVERED)
         .map((o) => ({
           ...o,
-          // review বাদ, শুধু return-confirmed বাদ দিই
-          items: (o.items || []).filter(
-            (it) => it.itemStatus !== ITEM_STATUS.RETURN_CONFIRMED
-          ),
+           items: (o.items || []).filter((it) => {
+            const itemStatus = normalizeItemStatus(it.itemStatus);
+            return !isReturnResolvedStatus(itemStatus) && itemStatus !== ITEM_STATUS.REVIEWED;
+          }),
         }))
         .filter((o) => (o.items || []).length > 0);
     }
 
     if (selectedTab === "Return") {
+       return base
+        .map((o) => ({
+          ...o,
+          items: (o.items || []).filter((it) => isReturnResolvedStatus(it.itemStatus)),
+        }))
+        .filter((o) => (o.items || []).length > 0);
+    }
+
+    if (selectedTab === "Review") {
       return base
         .map((o) => ({
           ...o,
           items: (o.items || []).filter(
-            (it) => it.itemStatus === ITEM_STATUS.RETURN_CONFIRMED
+             (it) => normalizeItemStatus(it.itemStatus) === ITEM_STATUS.REVIEWED
           ),
         }))
         .filter((o) => (o.items || []).length > 0);
     }
 
-    return base; // All
+     return [];
   }, [orders, selectedTab]);
 
   // Stats
   const stats = useMemo(() => {
-    const all = orders.length;
+    const pending = orders.filter((o) => o.status === ORDER_STATUS.PENDING).length;
     const delivered = orders.filter((o) => o.status === ORDER_STATUS.DELIVERED).length;
-    const returnConfirmed = orders.reduce(
-      (acc, o) =>
-        acc + (o.items || []).filter((it) => it.itemStatus === ITEM_STATUS.RETURN_CONFIRMED).length,
+     const returnItems = orders.reduce(
+      (acc, o) => acc + (o.items || []).filter((it) => isReturnResolvedStatus(it.itemStatus)).length,
       0
     );
-    return { all, delivered, returnConfirmed };
+    return { pending, delivered, returnItems };
   }, [orders]);
 
   // Actions
@@ -258,8 +299,8 @@ const UserProfile = () => {
     } else {
       toast.error(data.message || "Logout failed");
     }
-  } catch (error) {
-    console.log("logout error", error);
+  } catch {
+    console.log();
     toast.error("Network error");
   } finally {
     setLogoutAsk(false);
@@ -295,7 +336,6 @@ const UserProfile = () => {
   // };
 
   const doCancelOrder = async (orderId, item) => {
-    console.log("order cancel...", orderId, item);
     
     try {
       const response = await fetch(`${SummaryApi.cancel_user_order.url}/${orderId}`, {
@@ -325,47 +365,15 @@ const UserProfile = () => {
     }
   };
 
-  const handleReturnOrder = async (orderId) => {
+  const handleReturnItem = async (orderId, itemId) => {
     try {
-      const response = await fetch(`${SummaryApi.return_user_order.url}/${orderId}`, {
-        method: "PUT",
+      const response = await fetch(`${SummaryApi.return_user_order.url}/${orderId}/${itemId}`, {
+        method: SummaryApi.return_user_order.method.toUpperCase(),
         credentials: "include",
-         headers: t ? { Authorization: `Bearer ${t}` } : {},
+        headers: t ? { Authorization: `Bearer ${t}` } : {},
       });
       const data = await response.json();
-      if (data.success) {
-        setOrders((prev) =>
-          prev.map((o) => (o._id === orderId ? { ...o, status: ORDER_STATUS.RETURN } : o))
-        );
-        toast.success("Return requested");
-      } else {
-        toast.error(data?.message || "Return failed");
-      }
-    } catch {
-      toast.error("Network error");
-    }
-  };
 
-  const handleReturnItem = async (orderId, itemId, newStatus = ORDER_STATUS.RETURN) => {
-    try {
-      const t = localStorage.getItem("authToken");
-      const response = await fetch(
-        SummaryApi.admin_update_order_status.url(orderId),
-        {
-          method: SummaryApi.admin_update_order_status.method,
-          headers: {
-            "Content-Type": "application/json",
-            ...(t ? { Authorization: `Bearer ${t}` } : {}),
-          },
-          body: JSON.stringify({
-            status: newStatus,
-            itemId,
-            isItemStatus: true,
-          }),
-          credentials: "include",
-        }
-      );
-      const data = await response.json();
       if (data.success) {
         setOrders((prev) =>
           prev.map((o) =>
@@ -373,19 +381,15 @@ const UserProfile = () => {
               ? {
                   ...o,
                   items: (o.items || []).map((it) =>
-                     it._id === itemId ? { ...it, itemStatus: newStatus } : it
+                    it._id === itemId ? { ...it, itemStatus: ITEM_STATUS.RETURN } : it
                   ),
                 }
               : o
           )
         );
-        toast.success(
-          newStatus === ORDER_STATUS.RETURN
-            ? "Item marked for return"
-            : "Item status restored"
-        );
+        toast.success(data?.message || "Item return request submitted");
       } else {
-         toast.error(data?.message || "Status update failed");
+        toast.error(data?.message || "Return failed");
       }
     } catch {
       toast.error("Network error");
@@ -401,35 +405,13 @@ const UserProfile = () => {
   const OrderItemRow = ({ item, order, context }) => {
     const img = item?.image ? item.image.replace("http://", "https://") : null;
 
-    const deliveredTab = context.selectedTab === "Delivered";
-    const shippingTabOnlyTrack =
-      context.selectedTab === "Shipping" && order.status === ORDER_STATUS.CONFIRMED;
-    const returnTab = context.selectedTab === "Return";
+    const itemStatus = normalizeItemStatus(item.itemStatus);
+    const statusLabel = getItemStatusLabel(itemStatus);
 
-    let showReturnBtn = false;
-    let showReturnPendingBadge = false;
-
-    if (deliveredTab) {
-      if (
-        item.itemStatus === ITEM_STATUS.RETURN_PENDING ||
-        item.itemStatus === ORDER_STATUS.RETURN
-      ) {
-        showReturnPendingBadge = true;
-        showReturnBtn = false;
-      } else {
-        showReturnBtn = true;
-      }
-    }
-
-    if (shippingTabOnlyTrack) {
-      showReturnBtn = false;
-      showReturnPendingBadge = false;
-    }
-
-    if (returnTab) {
-      showReturnBtn = false;
-      showReturnPendingBadge = false;
-    }
+    const canRequestReturn =
+      context.selectedTab === "Delivered" &&
+      order.status === ORDER_STATUS.DELIVERED &&
+      itemStatus === ITEM_STATUS.NORMAL;
 
     return (
       <div className="order-item">
@@ -448,21 +430,11 @@ const UserProfile = () => {
         </div>
 
         <div className="order-item__actions">
-          {showReturnPendingBadge ? (
-            <>
-              <span className="tag tag--gray">Return Pending</span>
-              <button
-                className="btn btn--danger"
-                onClick={() =>
-                  handleReturnItem(order._id, item._id, ORDER_STATUS.DELIVERED)
-                }
-              >
-                Cancel
-              </button>
-            </>
+           {statusLabel ? (
+            <span className={`tag tag--${itemStatus.toLowerCase()}`}>{statusLabel}</span>
           ) : null}
 
-          {showReturnBtn ? (
+          {canRequestReturn ? (
             <button
               className="btn btn--ghost"
               onClick={() => handleReturnItem(order._id, item._id)}
@@ -480,10 +452,6 @@ const UserProfile = () => {
     const createdAt = order?.createdAt ? new Date(order.createdAt) : null;
 
     const isPending = order.status === ORDER_STATUS.PENDING;
-    const isConfirmed = order.status === ORDER_STATUS.CONFIRMED;
-    const isShipped = order.status === ORDER_STATUS.SHIPPED;
-
-    const shippingTabOnlyTrack = selectedTab === "Shipping" && isConfirmed;
 
     return (
       <div className="order-card">
@@ -533,26 +501,15 @@ const UserProfile = () => {
 
         {/* Order-level actions (bottom) */}
         <div className="order-actions">
-          {selectedTab !== "Return" && (
-            <>
-              {isPending ? (
-                <button className="btn btn--danger" onClick={() => setCancelAskId({orderId:order._id, orderItems:order.items})}>
-                  Cancel
-                </button>
-              ) : (
-                <button className="btn btn--primary" onClick={() => openTrack(order.status)}>
-                  Track
-                </button>
-              )}
-            </>
-          )}
-
-          {/* Hide in Delivered; Confirmed = only Track; Shipped can Return */}
-          {selectedTab !== "Delivered" && !shippingTabOnlyTrack && isShipped ? (
-            <button className="btn btn--warn" onClick={() => handleReturnOrder(order._id)}>
-              {(order.items || []).length > 1 ? "Return All" : "Return"}
+           {isPending ? (
+            <button className="btn btn--danger" onClick={() => setCancelAskId({orderId:order._id, orderItems:order.items})}>
+              Cancel
             </button>
-          ) : null}
+           ) : (
+            <button className="btn btn--primary" onClick={() => openTrack(order.status)}>
+              Track
+            </button>
+          )}
         </div>
       </div>
     );
@@ -615,16 +572,16 @@ const UserProfile = () => {
 
       {/* Stats */}
       <div className="stats-row">
-        <button className="stat-card" onClick={() => setSelectedTab("All")}>
-          <div className="stat-val">{stats.all}</div>
-          <div className="stat-label">Orders</div>
+        <button className="stat-card" onClick={() => setSelectedTab("Pending")}>
+          <div className="stat-val">{stats.pending}</div>
+          <div className="stat-label">Pending</div>
         </button>
         <button className="stat-card" onClick={() => setSelectedTab("Delivered")}>
           <div className="stat-val">{stats.delivered}</div>
           <div className="stat-label">Delivered</div>
         </button>
         <button className="stat-card" onClick={() => setSelectedTab("Return")}>
-          <div className="stat-val">{stats.returnConfirmed}</div>
+          <div className="stat-val">{stats.returnItems}</div>
           <div className="stat-label">Return</div>
         </button>
       </div>
@@ -651,9 +608,9 @@ const UserProfile = () => {
         </button>
       </div> */}
 
-      {/* Tabs (Review removed) */}
+       {/* Tabs */}
       <div className="tabs-row">
-        {["All", "Pending", "Shipping", "Delivered", "Return"].map((t) => (
+        {PROFILE_TABS.map((t) => (
           <button
             key={t}
             className={["p-chip", selectedTab === t ? "is-active" : ""].join(" ")}
@@ -665,7 +622,7 @@ const UserProfile = () => {
       </div>
 
       <div className="section-title">
-        {selectedTab === "All" ? "Recent Orders" : `${selectedTab} Orders`}
+        {`${selectedTab} Orders`}
       </div>
 
       {/* Loader / Empty */}

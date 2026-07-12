@@ -15,10 +15,7 @@ const SubCategoryWiseProduct = () => {
   if (!clientKey) {
     console.error("VITE_PUBLIC_CLIENT_KEY is missing");
   }
-
-  console.log("params.categoryName", params.categoryName);
   
-
    const fetchWishCategoryProduct = useCallback(async () => {
     try {
       const response = await fetch(SummaryApi.category_wish_product.url, {
@@ -33,7 +30,6 @@ const SubCategoryWiseProduct = () => {
       const result = await response.json();
 
       if (result.success) {
-        console.log("setWishProductList", result.data);
         const optimized = generateOptimizedVariants(result.data);
         setWishProductList(optimized);
       }

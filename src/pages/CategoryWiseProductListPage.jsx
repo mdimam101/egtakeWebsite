@@ -63,8 +63,8 @@ const CategoryWiseProductListPage = () => {
         setWishProductList([]);
         sessionStorage.removeItem(productCacheKey);
       }
-    } catch (error) {
-      console.log("Error fetching category product:", error);
+    } catch {
+      console.log();
     }
   }, [categoryName, productCacheKey]);
 
@@ -79,8 +79,8 @@ const CategoryWiseProductListPage = () => {
     if (cachedProducts) {
       try {
         setWishProductList(JSON.parse(cachedProducts));
-      } catch (error) {
-        console.log("Category cache parse error:", error);
+      } catch {
+        console.log();
         setWishProductList([]);
         sessionStorage.removeItem(productCacheKey);
       }

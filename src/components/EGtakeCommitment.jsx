@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 import "../styles/EGtakeCommitment.css";
 
 const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.emamexp2.testeasupload";
 
 export const EGtakeCommitment = () => {
-  const commonInfo = useSelector((s) => s.commonState.commonInfoList) ?? [];
+  // const commonInfo = useSelector((s) => s.commonState.commonInfoList) ?? [];
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCommitment, setSelectedCommitment] = useState({
     title: "",
@@ -17,7 +17,6 @@ export const EGtakeCommitment = () => {
     setSelectedCommitment({ title, detail });
     setModalVisible(true);
   };
-  console.log("🌻🌻🌻", commonInfo);
 
   // const c0 = commonInfo?.[0] || {};
 

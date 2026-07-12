@@ -27,7 +27,6 @@ function App() {
   }, []);
 
   const fetchUserDetails = useCallback(async () => {
-    console.log("fetchUserDetails11111111");
 
     try {
       const response = await fetch(SummaryApi.current_user.url, {
@@ -51,7 +50,6 @@ function App() {
       }
     } catch (error) {
       console.error("Error fetching user details:", error);
-      console.log("◆error", error.message);
     }
   }, [dispatch, getAuthHeaders]);
 
@@ -93,8 +91,7 @@ function App() {
         if (result.success) {
           dispatch(setCommonGetInfoList(result.data));
         }
-      } catch (error) {
-        console.log(error);
+      } catch {console.log();
       }
     };
 
@@ -104,7 +101,6 @@ function App() {
   const path = location.pathname;
   const hideHeader = path.startsWith("/product") || path.startsWith("/profile");
   const isCategoryPage = path === "/category";
-  console.log(path);
   
   //  const lockMainScroll = path.includes("/category");
    useEffect(() => {

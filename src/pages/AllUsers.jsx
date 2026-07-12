@@ -12,7 +12,6 @@ const AllUsers = () => {
             credentials : 'include'
         })
         const dataResponse = await fetchData.json()
-        console.log("AllUsers-dataResponse", dataResponse);
 
         if (dataResponse.success) {
             setAllUsers(dataResponse.data)

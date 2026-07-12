@@ -78,8 +78,8 @@ export default function SignupPage() {
           toast.success("Login successful");
           try {
             await fetchUserDetails?.();
-          } catch (e) {
-            console.log("fetchUserDetails error", e);
+          } catch {
+            console.log();
           }
 
           const from = location.state?.from || "/";
@@ -134,8 +134,8 @@ const handleGoogleSuccess = async (credentialResponse) => {
 
       try {
         await fetchUserDetails?.();
-      } catch (e) {
-        console.log("fetchUserDetails error", e);
+      } catch {
+        console.log();
       }
 
       const from = location.state?.from || "/";

@@ -72,8 +72,8 @@ const CategoryPage = () => {
         : [];
 
       dispatch(setCategoryList(finalCategoryList));
-    } catch (err) {
-      console.log("CategoryPage Error:", err?.message);
+    } catch {
+      console.log();
       dispatch(setCategoryList([]));
     }
   };
@@ -92,8 +92,8 @@ const CategoryPage = () => {
         data?.success && Array.isArray(data?.data) ? data.data : [];
 
       dispatch(setCategoryPageProductList(finalProductList));
-    } catch (err) {
-      console.log("Products fetch error:", err);
+    } catch {
+      console.log();
       dispatch(setCategoryPageProductList([]));
     }
   };

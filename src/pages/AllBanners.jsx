@@ -24,8 +24,8 @@ const AllBanners = () => {
       } else {
         toast.error(data.message || "Failed to fetch banners");
       }
-    } catch (err) {
-      console.log(err);
+    } catch  {
+      console.log();
       toast.error("Failed to fetch banners");
     }
   };
@@ -47,8 +47,8 @@ const AllBanners = () => {
       setNewBanner((prev) => ({ ...prev, imageUrl: uploaded.url }));
       setPreviewImage(uploaded.url);
       toast.success("Image uploaded successfully");
-    } catch (err) {
-      console.log(err);
+    } catch {
+      console.log();
       toast.error("Image upload failed");
     } finally {
       setIsUploading(false);
@@ -81,8 +81,8 @@ const AllBanners = () => {
       } else {
         toast.error(data.message || "Upload failed");
       }
-    } catch (err) {
-      console.log(err);
+    } catch {
+      console.log();
       toast.error("Network error");
     }
   };
@@ -114,8 +114,8 @@ const AllBanners = () => {
       } else {
         toast.error(data.message || "Delete failed");
       }
-    } catch (err) {
-      console.log(err);
+    } catch  {
+      console.log();
       toast.error("Network error");
     }
   };

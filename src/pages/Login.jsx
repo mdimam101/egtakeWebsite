@@ -21,7 +21,6 @@ const Login = () => {
     })
 
     const handleOnChange= (e) => {
-        console.log("Login-e.target",e.target);
         
         const {name, value} = e.target //note : name holo tar input er email,password , value holo type text
         setData((preve)=>{
@@ -35,8 +34,7 @@ const Login = () => {
     // console.log("Login-data",data);
 
     const handleSubmit = async (e) => {
-        console.log("preventDefault",e);
-        console.log("Login-data",data);
+
         e.preventDefault()
 
         const responseData = await fetch (SummaryApi.signIn.url,{
@@ -49,12 +47,9 @@ const Login = () => {
         })
 
         const dataApi = await responseData.json()
-        console.log("dataApi for local ", dataApi.data);
-        
 
         if (dataApi.success) {
           toast.success('login successfully')
-          console.log("'login successfully'",);
          localStorage.setItem('authToken', dataApi.data);
           
          
@@ -66,7 +61,6 @@ const Login = () => {
         
         if (dataApi.error) {
           toast.error(dataApi.message)
-          console.log("'login ERROR'",dataApi.message);
         }
     }
 

@@ -34,8 +34,6 @@ const HomePage = () => {
   const [showPyzaraAppCard, setShowPyzaraAppCard] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  console.log("◆productList◆from store", allProducts);
-
   // 👇 Touch start
   const handleTouchStart = (e) => {
     setTouchStartX(e.touches[0].clientX);
@@ -78,15 +76,13 @@ const HomePage = () => {
       const data = await response.json();
 
       if (data.success) {
-        console.log("productdata", data.data);
         const optimized = generateOptimizedVariants(data.data);
-        console.log("◆productList◆optimized", allProducts);
         dispatch(setAllProductList(optimized));
       } else {
         toast.error(data.message);
       }
-    } catch (err) {
-      console.log(err);
+    } catch  {
+      console.log();
       toast.error("Failed to fetch products");
     } finally {
       setProductLoading(false);

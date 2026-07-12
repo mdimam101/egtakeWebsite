@@ -219,7 +219,6 @@ const Stars = ({ value = 0 }) => {
 const ProductDetailsPage = () => {
   const param = useParams();
   const location = useLocation();
-  console.log("🦌◆🦌◆location", location?.state?.selectedImage);
    const routeKey = param?.id;
 
    const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
@@ -555,7 +554,6 @@ const ProductDetailsPage = () => {
       fitPreference: fitPreference || "regular",
     };
 
-    console.log("FINAL AI PAYLOAD:", payload);
 
     try {
       const response = await fetch(SummaryApi.ai_size_recommend.url, {
@@ -568,7 +566,6 @@ const ProductDetailsPage = () => {
       });
 
       const result = await response.json();
-      console.log("AI size response:", result);
 
       if (!response.ok || !result?.success) {
         throw new Error(result?.message || "AI size suggestion failed");

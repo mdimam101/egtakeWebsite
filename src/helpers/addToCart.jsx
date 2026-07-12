@@ -38,10 +38,8 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
       toast.error(result.message || "Failed to add to cart");
       return false;
     }
-  } catch (error) {
+  } catch  {
     if (t) {
-      console.error("Error adding to cart:", error);
-      console.log("Error adding to cart:", error);
       toast.error("Something went wrong!");
       return false;
     }

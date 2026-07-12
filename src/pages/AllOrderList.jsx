@@ -154,8 +154,6 @@ const fetchAdminUserById = async (userId, signal) => {
   if (!result?.data?._id) {
     throw new Error("User details response is missing user data");
   }
-
-  console.log("🦌◆🦌order user detsils◆", result.data);
   
   return result.data;
 };
@@ -192,8 +190,8 @@ const OrderList = () => {
         } else {
           setError(data?.message || "Failed to fetch orders");
         }
-      } catch (err) {
-        console.log(err);
+      } catch {
+        console.log();
 
         setError("Something went wrong");
       } finally {
@@ -352,14 +350,14 @@ const OrderList = () => {
     }
   };
 
-  const handleItemStatusUpdate = async (orderId, itemId, newStatus) => {
-    if (!orderId || !itemId || !newStatus) return;
+  const handleItemStatusUpdate = async (orderId, itemId, newItemStatus) => {
+    if (!orderId || !itemId || !newItemStatus) return;
 
     const targetOrder = orders.find((order) => order._id === orderId);
     const targetItem = targetOrder?.items?.find((item) => item?._id === itemId);
     const previousItemStatus = targetItem?.itemStatus || "Pending";
 
-    if (previousItemStatus === newStatus) return;
+    if (previousItemStatus === newItemStatus) return;
 
     const itemKey = `${orderId}:${itemId}`;
     setUpdatingItemKey(itemKey);
@@ -375,7 +373,7 @@ const OrderList = () => {
             ...(t ? { Authorization: `Bearer ${t}` } : {}),
           },
           body: JSON.stringify({
-            status: newStatus,
+            status: newItemStatus,
             itemId,
             isItemStatus: true,
           }),
@@ -388,7 +386,7 @@ const OrderList = () => {
         throw new Error(result?.message || "Item status update failed");
       }
 
-      if (isCancelledStatus(newStatus) && !isCancelledStatus(previousItemStatus)) {
+      if (isCancelledStatus(newItemStatus) && !isCancelledStatus(previousItemStatus)) {
         const stockRes = await updateProductStock(
           targetItem?.productId,
           targetItem?.image,
@@ -408,7 +406,7 @@ const OrderList = () => {
             ...order,
             items: (order.items || []).map((item) =>
               item?._id === itemId
-                ? { ...item, itemStatus: result?.data?.items?.find((it) => it?._id === itemId)?.itemStatus || newStatus }
+                ? { ...item, itemStatus: result?.data?.items?.find((it) => it?._id === itemId)?.itemStatus || newItemStatus }
                 : item,
             ),
           };
@@ -420,11 +418,11 @@ const OrderList = () => {
         return {
           ...prev,
           items: (prev.items || []).map((item) =>
-            item?._id === itemId ? { ...item, itemStatus: newStatus } : item,
+            item?._id === itemId ? { ...item, itemStatus: newItemStatus } : item,
           ),
         };
       });
-      if (!isCancelledStatus(newStatus) || isCancelledStatus(previousItemStatus)) {
+      if (!isCancelledStatus(newItemStatus) || isCancelledStatus(previousItemStatus)) {
         setError("");
       }
     } catch (err) {
