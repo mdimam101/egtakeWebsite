@@ -316,6 +316,31 @@ const ProductDetailsPage = () => {
     setModalVisible(true);
   };
 
+  const closeCommitmentModal = () => {
+    setModalVisible(false);
+  };
+
+  useEffect(() => {
+    if (!modalVisible) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeCommitmentModal();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [modalVisible]);
+
+
   // ✅ detect truncation (after description changes)
   useEffect(() => {
     const el = descBoxRef.current;
@@ -1451,67 +1476,55 @@ const ProductDetailsPage = () => {
           ))}
       </div>
       {/* ✅ Modal (web) */}
-      {modalVisible && (
+       {modalVisible && (
         <div
-          onClick={() => setModalVisible(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.3)",
-            display: "flex",
-            justifyContent: "flex-end",
-            zIndex: 999999,
-          }}
-          role="presentation"
+          className="product-spec-modal-overlay"
+          onClick={closeCommitmentModal}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="product-spec-modal-title"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              width: "100%",
-              background: "#fff",
-              padding: 24,
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-            }}
-            role="presentation"
+             className="product-spec-modal"
           >
-            <div style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-              {selectedCommitment.title}
+            <div className="product-spec-modal-header">
+              <div>
+                {/* <p className="product-spec-modal-eyebrow">Premium Details</p> */}
+                <h2
+                  id="product-spec-modal-title"
+                  className="product-spec-modal-title"
+                >
+                  {selectedCommitment.title}
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeCommitmentModal}
+                className="product-spec-modal-close"
+                aria-label="Close product details"
+              >
+                ✕
+              </button>
             </div>
 
-            <pre
-              style={{
-                fontSize: 14,
-                margin: "0 0 20px 0",
-                whiteSpace: "pre-wrap",
-                fontFamily:'none',
-                lineHeight: "22px",
-              }}
-            >
-              {selectedCommitment.detail}
-            </pre>
+            <div className="product-spec-modal-body">
+              <div className="product-spec-modal-copy">
+                {selectedCommitment.detail}
+              </div>
+            </div>
 
             <button
               type="button"
-              onClick={() => setModalVisible(false)}
-              style={{
-                width: "100%",
-                background: "#ff5722",
-                padding: 12,
-                border: "none",
-                borderRadius: 8,
-                fontWeight: "bold",
-                color: "#fff",
-                fontSize: 16,
-                cursor: "pointer",
-              }}
+              onClick={closeCommitmentModal}
+              className="product-spec-modal-footer-btn"
             >
               Close
             </button>
           </div>
         </div>
-      )}
-
+      )} 
        {/* apps logo */}
       <a
         href={PLAY_STORE_URL}
