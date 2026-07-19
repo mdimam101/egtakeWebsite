@@ -128,15 +128,46 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
   const variantImageInputRefs = useRef([]);
   const videoFileInputRef = useRef(null);
   const videoThumbInputRef = useRef(null);
+  const variantUploadLocksRef = useRef(new Set());
+  const mediaUploadLocksRef = useRef({
+    video: false,
+    thumbnail: false,
+  });
+
+  // upload states
+  const [uploadingVariants, setUploadingVariants] = useState({});
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingThumb, setUploadingThumb] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const hasActiveUpload =
+    uploadingVideo ||
+    uploadingThumb ||
+    Object.values(uploadingVariants).some(Boolean);
+
+  const getProductId = () => data?._id || paramData?._id;
 
   // helpers
+  const getUploadErrorMessage = (uploaded, fallback) => {
+    const message = uploaded?.message || fallback;
+    const details = [
+      uploaded?.stage,
+      uploaded?.status ? `HTTP ${uploaded.status}` : "",
+      uploaded?.requestId ? `ID ${uploaded.requestId}` : "",
+    ].filter(Boolean);
+
+    return details.length
+      ? `${message} [${details.join(" | ")}]`
+      : message;
+  };
+
   const setVideoField = (key, value) =>
     setData((prev) => ({
       ...prev,
       productVideo: { ...prev.productVideo, [key]: value },
     }));
 
-     const setSkinCareField = (key, value) =>
+  const setSkinCareField = (key, value) =>
     setData((prev) => ({
       ...prev,
       skinCareInfo: { ...(prev.skinCareInfo || {}), [key]: value },
@@ -167,13 +198,22 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     }));
 
   const handleSizeDetailChange = (i, field, value) => {
-    const list = [...(data.sizeDetails || [])];
-    if (field === "length" || field === "chest") {
-      list[i][field] = value === "" ? "" : Number(value);
-    } else {
-      list[i][field] = value;
-    }
-    setData((p) => ({ ...p, sizeDetails: list }));
+    setData((prev) => ({
+      ...prev,
+      sizeDetails: (prev.sizeDetails || []).map((row, index) =>
+        index === i
+          ? {
+              ...row,
+              [field]:
+                field === "length" || field === "chest"
+                  ? value === ""
+                    ? ""
+                    : Number(value)
+                  : value,
+            }
+          : row
+      ),
+    }));
   };
 
   // ===== Variants =====
@@ -203,93 +243,268 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     }));
 
   const handleVariantColorChange = (idx, value) => {
-    const variants = [...(data.variants || [])];
-    variants[idx].color = value;
-    setData((p) => ({ ...p, variants }));
+    setData((prev) => ({
+      ...prev,
+      variants: (prev.variants || []).map((variant, index) =>
+        index === idx
+          ? { ...variant, color: value }
+          : variant
+      ),
+    }));
   };
 
   // 🔥 Spc fields change handler
   const handleVariantSpcChange = (variantIndex, field, value) => {
-    const variants = [...(data.variants || [])];
-    variants[variantIndex][field] = value;
-    setData((p) => ({ ...p, variants }));
+    setData((prev) => ({
+      ...prev,
+      variants: (prev.variants || []).map((variant, index) =>
+        index === variantIndex
+          ? { ...variant, [field]: value }
+          : variant
+      ),
+    }));
   };
 
   const addSizeToVariant = (vIdx) => {
-    const variants = [...(data.variants || [])];
-    variants[vIdx].sizes.push({ size: "", stock: "" });
-    setData((p) => ({ ...p, variants }));
+    setData((prev) => ({
+      ...prev,
+      variants: (prev.variants || []).map((variant, index) =>
+        index === vIdx
+          ? {
+              ...variant,
+              sizes: [
+                ...(variant.sizes || []),
+                { size: "", stock: "" },
+              ],
+            }
+          : variant
+      ),
+    }));
   };
 
   const removeSizeFromVariant = (vIdx, sIdx) => {
-    const variants = [...(data.variants || [])];
-    variants[vIdx].sizes = variants[vIdx].sizes.filter((_, i) => i !== sIdx);
-    setData((p) => ({ ...p, variants }));
+    setData((prev) => ({
+      ...prev,
+      variants: (prev.variants || []).map((variant, index) =>
+        index === vIdx
+          ? {
+              ...variant,
+              sizes: (variant.sizes || []).filter(
+                (_, sizeIndex) => sizeIndex !== sIdx
+              ),
+            }
+          : variant
+      ),
+    }));
   };
 
   const handleSizeChange = (vIdx, sIdx, field, value) => {
-    const variants = [...(data.variants || [])];
-    variants[vIdx].sizes[sIdx][field] = value;
-    setData((p) => ({ ...p, variants }));
+    setData((prev) => ({
+      ...prev,
+      variants: (prev.variants || []).map((variant, variantIndex) =>
+        variantIndex === vIdx
+          ? {
+              ...variant,
+              sizes: (variant.sizes || []).map((size, sizeIndex) =>
+                sizeIndex === sIdx
+                  ? { ...size, [field]: value }
+                  : size
+              ),
+            }
+          : variant
+      ),
+    }));
   };
 
   // variant images
   const handleUploadVariantImage = async (vIdx, e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    // const uploaded = await uploadImage(file);
-    const uploaded = await uploadImage(file, {
-      mediaType: "product-image",
-      productId: data?._id,
-    });
-    if (uploaded?.error)
-      return toast.error(uploaded.message || "Upload failed");
+    const input = e.target;
+    const file = input.files?.[0];
 
-    const variants = [...(data.variants || [])];
-    variants[vIdx].images.push(uploaded.url);
-    setData((p) => ({ ...p, variants }));
-    toast.success("Variant image uploaded");
+    if (!file) return;
+
+    const productId = getProductId();
+
+    if (!productId) {
+      input.value = "";
+      toast.error("Product ID missing. Please save product first.");
+      return;
+    }
+
+    if (variantUploadLocksRef.current.has(vIdx)) {
+      toast.info("This image upload is already running");
+      input.value = "";
+      return;
+    }
+
+    variantUploadLocksRef.current.add(vIdx);
+    setUploadingVariants((prev) => ({
+      ...prev,
+      [vIdx]: true,
+    }));
+
+    try {
+      const uploaded = await uploadImage(file, {
+        mediaType: "product-image",
+        productId,
+      });
+
+      if (uploaded?.error || !uploaded?.url) {
+        toast.error(
+          getUploadErrorMessage(
+            uploaded,
+            "Image upload failed"
+          )
+        );
+        return;
+      }
+
+      setData((prev) => ({
+        ...prev,
+        variants: (prev.variants || []).map((variant, index) =>
+          index === vIdx
+            ? {
+                ...variant,
+                images: [
+                  ...(variant.images || []),
+                  uploaded.url,
+                ],
+              }
+            : variant
+        ),
+      }));
+
+      toast.success("Variant image uploaded");
+    } catch (error) {
+      console.error("Variant image upload error:", error);
+      toast.error(error?.message || "Image upload failed");
+    } finally {
+      variantUploadLocksRef.current.delete(vIdx);
+      setUploadingVariants((prev) => ({
+        ...prev,
+        [vIdx]: false,
+      }));
+      input.value = "";
+    }
   };
 
   const handleDeleteVariantImage = (vIdx, i) => {
-    const variants = [...(data.variants || [])];
-    variants[vIdx].images = variants[vIdx].images.filter((_, idx) => idx !== i);
-    setData((p) => ({ ...p, variants }));
+    setData((prev) => ({
+      ...prev,
+      variants: (prev.variants || []).map((variant, index) =>
+        index === vIdx
+          ? {
+              ...variant,
+              images: (variant.images || []).filter((_, idx) => idx !== i),
+            }
+          : variant
+      ),
+    }));
+
+    toast.info("Image removed");
   };
 
   // video
   const handleUploadVideoFile = async (e) => {
+    const input = e.target;
+    const file = input.files?.[0];
+
+    if (!file) return;
+
+    const productId = getProductId();
+
+    if (!productId) {
+      input.value = "";
+      toast.error("Product ID missing. Please save product first.");
+      return;
+    }
+
+    if (mediaUploadLocksRef.current.video) {
+      toast.info("Video upload is already running");
+      input.value = "";
+      return;
+    }
+
+    mediaUploadLocksRef.current.video = true;
+    setUploadingVideo(true);
+
     try {
-      const file = e.target.files?.[0];
-      if (!file) return;
       const uploaded = await uploadImage(file, {
         mediaType: "product-video",
-        productId: data?._id,
+        productId,
       });
-      if (uploaded?.error)
-        return toast.error(uploaded.message || "Video upload failed");
-      if (uploaded?.url) {
-        setVideoField("url", uploaded.url);
-        toast.success("Video uploaded");
-      } else toast.error("Video upload failed");
-    } catch {
-      toast.error("Video upload error");
+
+      if (uploaded?.error || !uploaded?.url) {
+        toast.error(
+          getUploadErrorMessage(
+            uploaded,
+            "Video upload failed"
+          )
+        );
+        return;
+      }
+
+      setVideoField("url", uploaded.url);
+      toast.success("Video uploaded");
+    } catch (error) {
+      console.error("Video upload error:", error);
+      toast.error(error?.message || "Video upload failed");
+    } finally {
+      mediaUploadLocksRef.current.video = false;
+      setUploadingVideo(false);
+      input.value = "";
     }
   };
 
   const handleUploadVideoThumb = async (e) => {
-    const file = e.target.files?.[0];
+    const input = e.target;
+    const file = input.files?.[0];
+
     if (!file) return;
-    const uploaded = await uploadImage(file, {
-      mediaType: "video-thumbnail",
-      productId: data?._id,
-    });
-    if (uploaded?.error)
-      return toast.error(uploaded.message || "Thumbnail upload failed");
-    if (uploaded?.url) {
+
+    const productId = getProductId();
+
+    if (!productId) {
+      input.value = "";
+      toast.error("Product ID missing. Please save product first.");
+      return;
+    }
+
+    if (mediaUploadLocksRef.current.thumbnail) {
+      toast.info("Thumbnail upload is already running");
+      input.value = "";
+      return;
+    }
+
+    mediaUploadLocksRef.current.thumbnail = true;
+    setUploadingThumb(true);
+
+    try {
+      const uploaded = await uploadImage(file, {
+        mediaType: "video-thumbnail",
+        productId,
+      });
+
+      if (uploaded?.error || !uploaded?.url) {
+        toast.error(
+          getUploadErrorMessage(
+            uploaded,
+            "Thumbnail upload failed"
+          )
+        );
+        return;
+      }
+
       setVideoField("thumbnail", uploaded.url);
       toast.success("Thumbnail uploaded");
-    } else toast.error("Thumbnail upload failed");
+    } catch (error) {
+      console.error("Thumbnail upload error:", error);
+      toast.error(error?.message || "Thumbnail upload failed");
+    } finally {
+      mediaUploadLocksRef.current.thumbnail = false;
+      setUploadingThumb(false);
+      input.value = "";
+    }
   };
 
   const handleDeleteVideo = () => {
@@ -312,79 +527,109 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // fallback subCategory
-    if (!data.subCategory || data.subCategory.trim() === "") {
-      data.subCategory = data.category;
+    if (hasActiveUpload) {
+      toast.error("Please wait until all media uploads are complete");
+      return;
     }
 
-    // totalStock
-    const totalStock = (data.variants || []).reduce((sum, v) => {
-      const vs = (v.sizes || []).reduce((s, sz) => {
-        const n = Number(sz.stock);
-        return s + (isNaN(n) ? 0 : n);
+    if (isSubmitting) {
+      return;
+    }
+
+    const totalStock = (data.variants || []).reduce((sum, variant) => {
+      const variantStock = (variant.sizes || []).reduce((subSum, size) => {
+        const stockNumber = Number(size.stock);
+        return subSum + (Number.isNaN(stockNumber) ? 0 : stockNumber);
       }, 0);
-      return sum + vs;
+
+      return sum + variantStock;
     }, 0);
-    data.totalStock = totalStock;
 
-    if (data.productVideo?.url && typeof data.productVideo.url === "string") {
-      data.productVideo.url = data.productVideo.url.trim();
-    }
-
-    data.sizeDetails = (data.sizeDetails || []).map((row) => ({
-      size: (row.size || "").trim(),
-      length: row.length === "" ? undefined : Number(row.length || 0),
-      chest: row.chest === "" ? undefined : Number(row.chest || 0),
-      unit: row.unit || "inche",
-    }));
-
-    if (typeof data.productCodeNumber === "string") {
-      data.productCodeNumber = data.productCodeNumber.trim();
-    }
-    // skin care info
     const splitToArray = (value = "") =>
       String(value)
         .split(",")
         .map((item) => item.trim())
         .filter(Boolean);
+
     const skin = data.skinCareInfo || {};
-    data.skinCareInfo = {
-      productType: (skin.productType || "").trim(),
-      ingredients: Array.isArray(skin.ingredients)
-        ? skin.ingredients
-        : splitToArray(skin.ingredients),
-      suitableSkinTypes: Array.isArray(skin.suitableSkinTypes)
-        ? skin.suitableSkinTypes
-        : splitToArray(skin.suitableSkinTypes),
-      targetConcerns: Array.isArray(skin.targetConcerns)
-        ? skin.targetConcerns
-        : splitToArray(skin.targetConcerns),
-      avoidFor: Array.isArray(skin.avoidFor)
-        ? skin.avoidFor
-        : splitToArray(skin.avoidFor),
-      usageTime: (skin.usageTime || "").trim(),
-      texture: (skin.texture || "").trim(),
-      isNonComedogenic: Boolean(skin.isNonComedogenic),
+
+    const payload = {
+      ...data,
+      subCategory: data.subCategory?.trim() || data.category,
+      totalStock,
+      productCodeNumber:
+        typeof data.productCodeNumber === "string"
+          ? data.productCodeNumber.trim()
+          : data.productCodeNumber,
+      productVideo: {
+        ...(data.productVideo || {}),
+        url:
+          typeof data.productVideo?.url === "string"
+            ? data.productVideo.url.trim()
+            : "",
+      },
+      sizeDetails: (data.sizeDetails || []).map((row) => ({
+        size: (row.size || "").trim(),
+        length:
+          row.length === ""
+            ? undefined
+            : Number(row.length || 0),
+        chest:
+          row.chest === ""
+            ? undefined
+            : Number(row.chest || 0),
+        unit: row.unit || "inche",
+      })),
+      skinCareInfo: {
+        productType: (skin.productType || "").trim(),
+        ingredients: Array.isArray(skin.ingredients)
+          ? skin.ingredients
+          : splitToArray(skin.ingredients),
+        suitableSkinTypes: Array.isArray(skin.suitableSkinTypes)
+          ? skin.suitableSkinTypes
+          : splitToArray(skin.suitableSkinTypes),
+        targetConcerns: Array.isArray(skin.targetConcerns)
+          ? skin.targetConcerns
+          : splitToArray(skin.targetConcerns),
+        avoidFor: Array.isArray(skin.avoidFor)
+          ? skin.avoidFor
+          : splitToArray(skin.avoidFor),
+        usageTime: (skin.usageTime || "").trim(),
+        texture: (skin.texture || "").trim(),
+        isNonComedogenic: Boolean(skin.isNonComedogenic),
+      },
     };
+
+    setIsSubmitting(true);
 
     try {
       const response = await fetch(SummaryApi.update_product.url, {
         method: SummaryApi.update_product.method,
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
-      const result = await response.json();
 
-      if (result?.success) {
-        toast.success(result.message || "Product updated");
-        onClose?.();
-        fatchData?.();
-      } else {
-        toast.error(result?.message || "Update failed");
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok || !result?.success) {
+        toast.error(
+          result?.message ||
+            `Update failed (HTTP ${response.status})`
+        );
+        return;
       }
-    } catch {
-      toast.error("Network error");
+
+      toast.success(result.message || "Product updated");
+      onClose?.();
+      fatchData?.();
+    } catch (error) {
+      console.error("Product update failed:", error);
+      toast.error(error?.message || "Network error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -554,8 +799,8 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             </label>
           </div>
 
-           {/* published switch */}
-            <div className="switch-wrapper">
+          {/* published switch */}
+          <div className="switch-wrapper">
             <label className="switch-label">Published?</label>
             <label className="switch">
               <input
@@ -582,16 +827,30 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
 
           <div
             className="upload-section"
-            onClick={() => videoFileInputRef.current?.click()}
-            style={{ marginTop: 8 }}
+            onClick={() => {
+              if (!uploadingVideo) {
+                videoFileInputRef.current?.click();
+              }
+            }}
+            aria-busy={uploadingVideo}
+            style={{
+              marginTop: 8,
+              opacity: uploadingVideo ? 0.65 : 1,
+              cursor: uploadingVideo ? "wait" : "pointer",
+            }}
           >
             <FaCloudDownloadAlt className="upload-icon" />
-            <p>Upload Video (Cloudinary auto: image + video)</p>
+            <p>
+              {uploadingVideo
+                ? "Uploading video..."
+                : "Upload Video (AWS S3)"}
+            </p>
             <input
               type="file"
-              accept="video/*"
+              accept="video/mp4,video/webm,video/quicktime"
               ref={videoFileInputRef}
               onChange={handleUploadVideoFile}
+              disabled={uploadingVideo}
               style={{ display: "none" }}
             />
           </div>
@@ -655,15 +914,29 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
           <label style={{ marginTop: 12 }}>Video Thumbnail (poster):</label>
           <div
             className="upload-section"
-            onClick={() => videoThumbInputRef.current?.click()}
+            onClick={() => {
+              if (!uploadingThumb) {
+                videoThumbInputRef.current?.click();
+              }
+            }}
+            aria-busy={uploadingThumb}
+            style={{
+              opacity: uploadingThumb ? 0.65 : 1,
+              cursor: uploadingThumb ? "wait" : "pointer",
+            }}
           >
             <FaCloudDownloadAlt className="upload-icon" />
-            <p>Upload Thumbnail (image)</p>
+            <p>
+              {uploadingThumb
+                ? "Uploading thumbnail..."
+                : "Upload Thumbnail (image)"}
+            </p>
             <input
               type="file"
               accept="image/*,.heic,.heif"
               ref={videoThumbInputRef}
               onChange={handleUploadVideoThumb}
+              disabled={uploadingThumb}
               style={{ display: "none" }}
             />
           </div>
@@ -842,16 +1115,30 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
               <label>Variant Images:</label>
               <div
                 className="upload-section variant-upload"
-                onClick={() => variantImageInputRefs.current[vIndex]?.click()}
+                onClick={() => {
+                  if (!uploadingVariants[vIndex]) {
+                    variantImageInputRefs.current[vIndex]?.click();
+                  }
+                }}
+                aria-busy={Boolean(uploadingVariants[vIndex])}
+                style={{
+                  opacity: uploadingVariants[vIndex] ? 0.65 : 1,
+                  cursor: uploadingVariants[vIndex] ? "wait" : "pointer",
+                }}
               >
                 <FaCloudDownloadAlt className="upload-icon" />
-                <p>Upload Images for this color variant</p>
+                <p>
+                  {uploadingVariants[vIndex]
+                    ? "Uploading image..."
+                    : "Upload Images for this color variant"}
+                </p>
                 <input
                   type="file"
                   accept="image/*,.heic,.heif"
                   multiple={false}
                   ref={(el) => (variantImageInputRefs.current[vIndex] = el)}
                   onChange={(e) => handleUploadVariantImage(vIndex, e)}
+                  disabled={Boolean(uploadingVariants[vIndex])}
                   style={{ display: "none" }}
                 />
               </div>
@@ -925,7 +1212,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             + Add Variant
           </button>
 
-           <h3>Skin Care / Beauty Info (Optional)</h3>
+          <h3>Skin Care / Beauty Info (Optional)</h3>
 
           <label htmlFor="editSkinProductType">Product Type:</label>
           <input
@@ -1028,8 +1315,23 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
             </label>
           </div>
 
-          <button type="submit" className="btn btn-primary">
-            Update Product
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={hasActiveUpload || isSubmitting}
+            style={{
+              opacity: hasActiveUpload || isSubmitting ? 0.65 : 1,
+              cursor:
+                hasActiveUpload || isSubmitting
+                  ? "not-allowed"
+                  : "pointer",
+            }}
+          >
+            {isSubmitting
+              ? "Updating Product..."
+              : hasActiveUpload
+              ? "Please wait for uploads..."
+              : "Update Product"}
           </button>
         </form>
       </div>

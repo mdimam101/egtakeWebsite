@@ -1,477 +1,3 @@
-// const cloudName = process.env.REACT_APP_CLOUDE_NAME_CLOUDINARY; //next i will solve it why precess is undefined
-// const REACT_APP_CLOUDE_NAME_CLOUDINARY = 'dhs48crvv';
-// const cloudName = import.meta.env.VITE_CLOUD_NAME_CLOUDINARY;
-// console.log("cloudName--.", cloudName);
-
-
-// const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-
-// const uploadImage = async (image) => {
-
-//     const formData = new FormData();
-
-//     formData.append('file', image);
-//     formData.append('upload_preset', 'qcommerce_product'); // Replace with your actual preset
-
-//     try {
-//         const dataResponse = await fetch(url, {
-//             method: 'POST',
-//             body: formData,
-//         });
-
-//         const result = await dataResponse.json();
-//         console.log("uploadImage-response", result);
-//         return result;
-//     } catch (error) {
-//         console.error("uploadImage-error", error);
-//         return { error: true, message: "Upload failed" };
-//     }
-// };
-
-// export default uploadImage;
-
-
-
-
-
-// helpers/uploadImage.js
-// Vite env (.env) থেকে নাও
-// const cloudName = import.meta.env.VITE_CLOUD_NAME_CLOUDINARY;
-// const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "qcommerce_product";
-// // Optional: client-side guard
-// const MAX_BYTES = Number(import.meta.env.VITE_CLOUDINARY_MAX_BYTES) || 10485760; // 10MB default
-
-// // ❗ আগের /image/upload → এখন /auto/upload (image + video)
-// const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
-
-// const uploadImage = async (file) => {
-//   try {
-//     if (!file) return { error: true, message: "No file selected" };
-
-//     // Optional: client-side size guard (preset-এও limit বড়াতে হবে)
-//     if (file.size && file.size > MAX_BYTES) {
-//       return {
-//         error: true,
-//         message: `File too large (${(file.size / 1024 / 1024).toFixed(
-//           1
-//         )}MB). Max ${(MAX_BYTES / 1024 / 1024).toFixed(1)}MB.`,
-//       };
-//     }
-
-//     const formData = new FormData();
-//     formData.append("file", file);
-//     formData.append("upload_preset", preset);
-
-//     const res = await fetch(url, { method: "POST", body: formData });
-//     const result = await res.json();
-
-//     // Cloudinary error pass-through
-//     if (!res.ok || result?.error) {
-//       return { error: true, message: result?.error?.message || "Upload failed" };
-//     }
-
-//     // normalize → আগের কোডে uploaded.url ব্যবহার হচ্ছে
-//     if (!result.url && result.secure_url) result.url = result.secure_url;
-
-//     return result;
-//   } catch (error) {
-//     console.error("uploadImage-error", error);
-//     return { error: true, message: error?.message || "Upload failed" };
-//   }
-// };
-
-// export default uploadImage;
-
-
-// import SummaryApi from "../common";
-
-// const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-// const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
-
-// const IMAGE_MAX_BYTES = 10485760;
-// const VIDEO_MAX_BYTES = 52428800;
-
-// const getSafeMessage = (message, fallback = "Upload failed") =>
-//   typeof message === "string" && message.trim() ? message : fallback;
-
-// const getAuthHeaders = () => {
-//   const token = localStorage.getItem("authToken");
-//   return token ? { Authorization: `Bearer ${token}` } : {};
-// };
-
-// const isVideoMediaType = (mediaType) => mediaType === "product-video";
-
-// const getExpectedMaxSize = (mediaType) =>
-//   isVideoMediaType(mediaType) ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
-
-// const validateFile = (file, mediaType) => {
-//   if (!file) return "No file selected";
-
-//   const allowedTypes = isVideoMediaType(mediaType) ? VIDEO_TYPES : IMAGE_TYPES;
-//   const maxSize = getExpectedMaxSize(mediaType);
-
-//   if (!allowedTypes.includes(file.type)) {
-//      console.log("🦌◆Upload ooo000🦌◆",);
-//     return isVideoMediaType(mediaType)
-//       ? "Only MP4, WebM, or QuickTime videos are allowed"
-//       : "Only JPEG, PNG, or WebP images are allowed";
-//   }
-
-//   if (file.size > maxSize) {
-//     return `File too large (${(file.size / 1024 / 1024).toFixed(
-//       1
-//     )}MB). Max ${(maxSize / 1024 / 1024).toFixed(1)}MB.`;
-//   }
-
-//   return "";
-// };
-
-// const parseJsonResponse = async (response) => {
-//   try {
-//     return await response.json();
-//   } catch {
-//     return {};
-//   }
-// };
-
-// const uploadImage = async (
-//   file,
-//   { mediaType = "product-image", productId } = {}
-// ) => {
-//   try {
-//     const validationError = validateFile(file, mediaType);
-//     if (validationError) return { error: true, message: validationError };
-
-//     const presignedResponse = await fetch(SummaryApi.media_presigned_upload.url, {
-//       method: SummaryApi.media_presigned_upload.method.toUpperCase(),
-//       headers: {
-//         "Content-Type": "application/json",
-//         ...getAuthHeaders(),
-//       },
-//       credentials: "include",
-//       body: JSON.stringify({
-//         fileName: file.name,
-//         contentType: file.type,
-//         fileSize: file.size,
-//         mediaType,
-//         ...(productId ? { productId } : {}),
-//       }),
-//     });
-
-//     const presignedData = await parseJsonResponse(presignedResponse);
-
-//     if (!presignedResponse.ok || !presignedData?.uploadUrl) {
-//        console.log("🦌◆Upload failed111🦌◆",s3Response);
-//       return {
-//         error: true,
-//         message: getSafeMessage(presignedData?.message, "Upload failed"),
-//       };
-//     }
-
-//     const s3Response = await fetch(presignedData.uploadUrl, {
-//       method: presignedData.method,
-//       headers: presignedData.headers || {},
-//       body: file,
-//     });
-
-//     if (!s3Response.ok) {
-//       console.log("🦌◆Upload failed🦌◆",s3Response);
-      
-//       return { error: true, message: "Upload failed" };
-//     }
-
-//     const confirmResponse = await fetch(SummaryApi.media_confirm_upload.url, {
-//       method: SummaryApi.media_confirm_upload.method.toUpperCase(),
-//       headers: {
-//         "Content-Type": "application/json",
-//         ...getAuthHeaders(),
-//       },
-//       credentials: "include",
-//       body: JSON.stringify({
-//         key: presignedData.key,
-//         expectedContentType: file.type,
-//         expectedMaxSize: getExpectedMaxSize(mediaType),
-//       }),
-//     });
-
-//     const confirmedData = await parseJsonResponse(confirmResponse);
-
-//     if (!confirmResponse.ok || !confirmedData?.url) {
-//       return {
-//         error: true,
-//         message: getSafeMessage(confirmedData?.message, "Upload failed"),
-//       };
-//     }
-
-//     return {
-//       error: false,
-//       url: confirmedData.url,
-//       key: confirmedData.key,
-//       contentType: confirmedData.contentType,
-//       size: confirmedData.size,
-//       etag: confirmedData.etag,
-//     };
-//   } catch (error) {
-//     console.error("uploadImage-error", error);
-//     return { error: true, message: "Upload failed" };
-//   }
-// };
-
-// export default uploadImage;
-
-
-
-
-
-// import SummaryApi from "../common";
-
-// const IMAGE_TYPES = [
-//   "image/jpeg",
-//   "image/png",
-//   "image/webp",
-//   "image/heic",
-//   "image/heif",
-// ];
-
-// const VIDEO_TYPES = [
-//   "video/mp4",
-//   "video/webm",
-//   "video/quicktime",
-// ];
-// const MIME_BY_EXTENSION = {
-//   jpg: "image/jpeg",
-//   jpeg: "image/jpeg",
-//   png: "image/png",
-//   webp: "image/webp",
-//   heic: "image/heic",
-//   heif: "image/heif",
-//   mp4: "video/mp4",
-//   webm: "video/webm",
-//   mov: "video/quicktime",
-//   qt: "video/quicktime",
-// };
-
-// const IMAGE_MAX_BYTES = 10 * 1024 * 1024;
-// const VIDEO_MAX_BYTES = 50 * 1024 * 1024;
-
-// const getSafeMessage = (message, fallback = "Upload failed") =>
-//   typeof message === "string" && message.trim() ? message : fallback;
-
-// const getAuthHeaders = () => {
-//   const token = localStorage.getItem("authToken");
-
-//   return token
-//     ? {
-//         Authorization: `Bearer ${token}`,
-//       }
-//     : {};
-// };
-
-// const getFileExtension = (fileName = "") =>
-//   String(fileName).split(".").pop()?.trim().toLowerCase() || "";
-
-// const getNormalizedContentType = (file) => {
-//   const browserType = String(file?.type || "").trim().toLowerCase();
-
-//   if (browserType) {
-//     return browserType;
-//   }
-
-//   return MIME_BY_EXTENSION[getFileExtension(file?.name)] || "";
-// };
-
-// const isVideoMediaType = (mediaType) => mediaType === "product-video";
-
-// const getExpectedMaxSize = (mediaType) =>
-//   isVideoMediaType(mediaType) ? VIDEO_MAX_BYTES : IMAGE_MAX_BYTES;
-
-// const validateFile = (file, mediaType) => {
-//   if (!file) {
-//     return "No file selected";
-//   }
-
-//   if (!file.size) {
-//     return "Empty file is not allowed";
-//   }
-
-//   const allowedTypes = isVideoMediaType(mediaType)
-//     ? VIDEO_TYPES
-//     : IMAGE_TYPES;
-//   const contentType = getNormalizedContentType(file);
-
-//   const maxSize = getExpectedMaxSize(mediaType);
-
-//    if (!allowedTypes.includes(contentType)) {
-//     return isVideoMediaType(mediaType)
-//       ? "Only MP4, WebM, or QuickTime videos are allowed"
-//        : "Only JPEG, PNG, WebP, HEIC, or HEIF images are allowed";
-//   }
-
-//   if (file.size > maxSize) {
-//     return `File too large (${(file.size / 1024 / 1024).toFixed(
-//       1
-//     )}MB). Max ${(maxSize / 1024 / 1024).toFixed(1)}MB.`;
-//   }
-
-//   return "";
-// };
-
-// const parseJsonResponse = async (response) => {
-//   try {
-//     return await response.json();
-//   } catch {
-//     return {};
-//   }
-// };
-
-// const uploadImage = async (
-//   file,
-//   {
-//     mediaType = "product-image",
-//     productId,
-//     uploadSessionId,
-//   } = {}
-// ) => {
-//   try {
-//     const validationError = validateFile(file, mediaType);
-
-//     if (validationError) {
-//       return {
-//         error: true,
-//         message: validationError,
-//       };
-//     }
-
-//     const contentType = getNormalizedContentType(file);
-//     const safeFileName = file.name || `upload-${Date.now()}`;
-
-//     // 1. Backend থেকে presigned URL নেওয়া
-//     const presignedResponse = await fetch(
-//       SummaryApi.media_presigned_upload.url,
-//       {
-//         method:
-//           SummaryApi.media_presigned_upload.method?.toUpperCase() || "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//           ...getAuthHeaders(),
-//         },
-//         credentials: "include",
-//         body: JSON.stringify({
-//           fileName: safeFileName,
-//           contentType,
-//           fileSize: file.size,
-//           mediaType,
-//           ...(productId ? { productId } : {}),
-//           ...(uploadSessionId ? { uploadSessionId } : {}),
-//         }),
-//       }
-//     );
-
-//     const presignedResult = await parseJsonResponse(presignedResponse);
-//     const presignedData = presignedResult?.data;
-
-//     if (
-//       !presignedResponse.ok ||
-//       !presignedResult?.success ||
-//       !presignedData?.uploadUrl ||
-//       !presignedData?.key
-//     ) {
-//       console.error(
-//         "Presigned upload request failed:",
-//         presignedResponse.status
-//       );
-
-//       return {
-//         error: true,
-//         message: getSafeMessage(
-//           presignedResult?.message,
-//           "Could not create upload URL"
-//         ),
-//       };
-//     }
-
-//     // 2. File সরাসরি S3-তে upload করা
-//     const s3Response = await fetch(presignedData.uploadUrl, {
-//       method: presignedData.method || "PUT",
-//       headers: presignedData.headers || {},
-//       body: file,
-//       credentials: "omit",
-//     });
-
-//     if (!s3Response.ok) {
-//       console.error("S3 upload failed:", s3Response.status);
-
-//       return {
-//         error: true,
-//         message: "File upload failed",
-//       };
-//     }
-
-//     // 3. Backend দিয়ে আসল uploaded object verify করা
-//     const confirmResponse = await fetch(
-//       SummaryApi.media_confirm_upload.url,
-//       {
-//         method:
-//           SummaryApi.media_confirm_upload.method?.toUpperCase() || "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//           ...getAuthHeaders(),
-//         },
-//         credentials: "include",
-//         body: JSON.stringify({
-//           key: presignedData.key,
-//           expectedContentType: contentType,
-//           expectedMaxSize: getExpectedMaxSize(mediaType),
-//         }),
-//       }
-//     );
-
-//     const confirmResult = await parseJsonResponse(confirmResponse);
-//     const confirmedData = confirmResult?.data;
-
-//     if (
-//       !confirmResponse.ok ||
-//       !confirmResult?.success ||
-//       !confirmedData?.url
-//     ) {
-//       console.error(
-//         "Upload confirmation failed:",
-//         confirmResponse.status
-//       );
-
-//       return {
-//         error: true,
-//         message: getSafeMessage(
-//           confirmResult?.message,
-//           "Upload confirmation failed"
-//         ),
-//       };
-//     }
-
-//     return {
-//       error: false,
-//       url: confirmedData.url,
-//       key: confirmedData.key,
-//       contentType: confirmedData.contentType,
-//       size: confirmedData.size,
-//       etag: confirmedData.etag,
-//       uploadSessionId: presignedData.uploadSessionId,
-//     };
-//   } catch (error) {
-//     console.error("uploadImage-error:", error?.message);
-
-//     return {
-//       error: true,
-//       message: "Upload failed",
-//     };
-//   }
-// };
-
-// export default uploadImage;
-
-
-
-
 import SummaryApi from "../common";
 
 const IMAGE_TYPES = [
@@ -562,16 +88,35 @@ const replaceFileExtension = (
 };
 
 const getNormalizedContentType = (file) => {
-  const browserType = String(file?.type || "")
+  const browserType = String(
+    file?.type || ""
+  )
     .trim()
     .toLowerCase();
 
-  if (browserType) {
-    return browserType;
+  const extensionType =
+    MIME_BY_EXTENSION[
+      getFileExtension(file?.name)
+    ] || "";
+
+  const normalizedTypes = {
+    "image/heic-sequence": "image/heic",
+    "image/heif-sequence": "image/heif",
+  };
+
+  if (
+    !browserType ||
+    browserType ===
+      "application/octet-stream" ||
+    browserType ===
+      "binary/octet-stream"
+  ) {
+    return extensionType;
   }
 
   return (
-    MIME_BY_EXTENSION[getFileExtension(file?.name)] || ""
+    normalizedTypes[browserType] ||
+    browserType
   );
 };
 
@@ -966,6 +511,150 @@ const compressImage = async (
   }
 };
 
+const RETRYABLE_HTTP_STATUSES = new Set([
+  408,
+  425,
+  429,
+  500,
+  502,
+  503,
+  504,
+]);
+
+const RETRY_DELAYS_MS = [350, 900];
+
+const wait = (milliseconds) =>
+  new Promise((resolve) =>
+    setTimeout(resolve, milliseconds)
+  );
+
+const getResponseRequestId = (response) =>
+  response?.headers?.get?.("x-request-id") ||
+  response?.headers?.get?.("x-amz-request-id") ||
+  "";
+
+const createUploadError = (
+  stage,
+  message,
+  {
+    status,
+    requestId,
+    cause,
+  } = {}
+) => {
+  const error = new Error(message);
+  error.stage = stage;
+  error.status = status;
+  error.requestId = requestId;
+  error.cause = cause;
+  return error;
+};
+
+const fetchWithRetry = async (
+  url,
+  options,
+  {
+    stage,
+    retries = 2,
+    timeoutMs = 20000,
+  }
+) => {
+  let lastError;
+
+  for (
+    let attempt = 0;
+    attempt <= retries;
+    attempt += 1
+  ) {
+    const controller =
+      new AbortController();
+
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      timeoutMs
+    );
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      const shouldRetry =
+        !response.ok &&
+        RETRYABLE_HTTP_STATUSES.has(
+          response.status
+        ) &&
+        attempt < retries;
+
+      if (!shouldRetry) {
+        return response;
+      }
+
+      lastError = createUploadError(
+        stage,
+        `${stage} failed with HTTP ${response.status}`,
+        {
+          status: response.status,
+          requestId:
+            getResponseRequestId(response),
+        }
+      );
+    } catch (error) {
+      clearTimeout(timeoutId);
+
+      const message =
+        error?.name === "AbortError"
+          ? `${stage} timed out`
+          : `${stage} network error`;
+
+      lastError = createUploadError(
+        stage,
+        message,
+        {
+          cause: error,
+        }
+      );
+
+      if (attempt >= retries) {
+        throw lastError;
+      }
+    }
+
+    await wait(
+      RETRY_DELAYS_MS[
+        Math.min(
+          attempt,
+          RETRY_DELAYS_MS.length - 1
+        )
+      ]
+    );
+  }
+
+  throw (
+    lastError ||
+    createUploadError(
+      stage,
+      `${stage} failed`
+    )
+  );
+};
+
+const createFailureResult = (
+  stage,
+  message,
+  response
+) => ({
+  error: true,
+  stage,
+  status: response?.status,
+  requestId:
+    getResponseRequestId(response),
+  message,
+});
+
 const uploadImage = async (
   file,
   {
@@ -982,20 +671,31 @@ const uploadImage = async (
       );
 
     if (validationError) {
-      return {
-        error: true,
-        message: validationError,
-      };
+      return createFailureResult(
+        "VALIDATION_FAILED",
+        validationError
+      );
     }
 
-    /*
-     * Video আগের মতো original থাকবে।
-     * শুধু image compress হবে।
-     */
-    const uploadFile =
-      isVideoMediaType(mediaType)
-        ? file
-        : await compressImage(file);
+    let uploadFile;
+
+    try {
+      uploadFile =
+        isVideoMediaType(mediaType)
+          ? file
+          : await compressImage(file);
+    } catch (error) {
+      console.error(
+        "Image preparation failed:",
+        error
+      );
+
+      return createFailureResult(
+        "COMPRESSION_FAILED",
+        error?.message ||
+          "Image preparation failed"
+      );
+    }
 
     const contentType =
       getNormalizedContentType(uploadFile);
@@ -1019,11 +719,8 @@ const uploadImage = async (
       }
     );
 
-    /*
-     * 1. Backend থেকে presigned URL নেওয়া
-     */
     const presignedResponse =
-      await fetch(
+      await fetchWithRetry(
         SummaryApi.media_presigned_upload
           .url,
         {
@@ -1032,29 +729,29 @@ const uploadImage = async (
               .media_presigned_upload
               .method?.toUpperCase() ||
             "POST",
-
           headers: {
             "Content-Type":
               "application/json",
             ...getAuthHeaders(),
           },
-
           credentials: "include",
-
           body: JSON.stringify({
             fileName: safeFileName,
             contentType,
             fileSize: uploadFile.size,
             mediaType,
-
             ...(productId
               ? { productId }
               : {}),
-
             ...(uploadSessionId
               ? { uploadSessionId }
               : {}),
           }),
+        },
+        {
+          stage: "PRESIGN_FAILED",
+          retries: 2,
+          timeoutMs: 15000,
         }
       );
 
@@ -1074,53 +771,75 @@ const uploadImage = async (
     ) {
       console.error(
         "Presigned upload request failed:",
-        presignedResponse.status
+        {
+          status:
+            presignedResponse.status,
+          requestId:
+            getResponseRequestId(
+              presignedResponse
+            ),
+          result: presignedResult,
+        }
       );
 
-      return {
-        error: true,
-        message: getSafeMessage(
+      return createFailureResult(
+        "PRESIGN_FAILED",
+        getSafeMessage(
           presignedResult?.message,
           "Could not create upload URL"
         ),
-      };
+        presignedResponse
+      );
     }
 
-    /*
-     * 2. Compressed image সরাসরি S3-তে upload
-     */
-    const s3Response = await fetch(
-      presignedData.uploadUrl,
-      {
-        method:
-          presignedData.method || "PUT",
-
-        headers:
-          presignedData.headers || {},
-
-        body: uploadFile,
-
-        credentials: "omit",
-      }
-    );
-
-    if (!s3Response.ok) {
-      console.error(
-        "S3 upload failed:",
-        s3Response.status
+    const s3Response =
+      await fetchWithRetry(
+        presignedData.uploadUrl,
+        {
+          method:
+            presignedData.method || "PUT",
+          headers:
+            presignedData.headers || {},
+          body: uploadFile,
+          credentials: "omit",
+        },
+        {
+          stage: "S3_PUT_FAILED",
+          retries: 2,
+          timeoutMs:
+            isVideoMediaType(mediaType)
+              ? 120000
+              : 30000,
+        }
       );
 
-      return {
-        error: true,
-        message: "File upload failed",
-      };
+    if (!s3Response.ok) {
+      const s3ErrorBody =
+        await s3Response
+          .text()
+          .catch(() => "");
+
+      console.error(
+        "S3 upload failed:",
+        {
+          status: s3Response.status,
+          requestId:
+            getResponseRequestId(
+              s3Response
+            ),
+          body: s3ErrorBody.slice(0, 500),
+        }
+      );
+
+      return createFailureResult(
+        "S3_PUT_FAILED",
+        `File upload failed (HTTP ${s3Response.status})`,
+        s3Response
+      );
     }
 
-    /*
-     * 3. Backend দিয়ে uploaded object verify
-     */
     const confirmResponse =
-      await fetch(
+      await fetchWithRetry(
         SummaryApi.media_confirm_upload
           .url,
         {
@@ -1129,15 +848,12 @@ const uploadImage = async (
               .media_confirm_upload
               .method?.toUpperCase() ||
             "POST",
-
           headers: {
             "Content-Type":
               "application/json",
             ...getAuthHeaders(),
           },
-
           credentials: "include",
-
           body: JSON.stringify({
             key: presignedData.key,
             expectedContentType:
@@ -1147,6 +863,11 @@ const uploadImage = async (
                 mediaType
               ),
           }),
+        },
+        {
+          stage: "CONFIRM_FAILED",
+          retries: 2,
+          timeoutMs: 15000,
         }
       );
 
@@ -1165,20 +886,33 @@ const uploadImage = async (
     ) {
       console.error(
         "Upload confirmation failed:",
-        confirmResponse.status
+        {
+          status:
+            confirmResponse.status,
+          requestId:
+            getResponseRequestId(
+              confirmResponse
+            ),
+          result: confirmResult,
+          key: presignedData.key,
+        }
       );
 
-      return {
-        error: true,
-        message: getSafeMessage(
+      return createFailureResult(
+        confirmResponse.status === 401
+          ? "AUTH_FAILED"
+          : "CONFIRM_FAILED",
+        getSafeMessage(
           confirmResult?.message,
           "Upload confirmation failed"
         ),
-      };
+        confirmResponse
+      );
     }
 
     return {
       error: false,
+      stage: "COMPLETED",
       url: confirmedData.url,
       key: confirmedData.key,
       contentType:
@@ -1187,15 +921,30 @@ const uploadImage = async (
       etag: confirmedData.etag,
       uploadSessionId:
         presignedData.uploadSessionId,
+      requestId:
+        getResponseRequestId(
+          confirmResponse
+        ),
     };
   } catch (error) {
     console.error(
       "uploadImage-error:",
-      error?.message
+      {
+        stage: error?.stage,
+        status: error?.status,
+        requestId: error?.requestId,
+        message: error?.message,
+        error,
+      }
     );
 
     return {
       error: true,
+      stage:
+        error?.stage ||
+        "UPLOAD_FAILED",
+      status: error?.status,
+      requestId: error?.requestId,
       message:
         error?.message ||
         "Upload failed",
