@@ -1,0 +1,68 @@
+.district-dropdown__trigger {
+  width: 100%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 13px;
+  padding: 0 13px;
+  border: 1px solid #d8e0ea;
+  border-radius: 13px;
+  color: #0f172a;
+  background: #f8fafc;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.district-dropdown__trigger:hover { border-color: #94a3b8; }
+.district-dropdown__trigger:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.district-dropdown__trigger:disabled { opacity: .65; cursor: not-allowed; }
+.district-dropdown__trigger--error { border-color: #dc2626; }
+.district-dropdown__trigger-icon { display: inline-flex; color: #64748b; font-size: 18px; }
+.district-dropdown__value, .district-dropdown__placeholder { flex: 1; font-size: 14px; }
+.district-dropdown__placeholder { color: #999; }
+.district-dropdown__chevron { flex: 0 0 auto; color: #64748b; }
+
+.district-dropdown__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-top: 40px;
+  background: rgba(15, 23, 42, .5);
+  animation: district-overlay-in 180ms ease-out both;
+}
+
+.district-dropdown__sheet {
+  width: min(620px, 100%);
+  max-height: min(78vh, 720px);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 18px 22px;
+  border-radius: 24px 24px 0 0;
+  background: #fff;
+  box-shadow: 0 -12px 40px rgba(15, 23, 42, .18);
+  box-sizing: border-box;
+  animation: district-sheet-in 240ms ease-out both;
+}
+
+.district-dropdown__handle { width: 42px; height: 4px; margin: 0 auto 15px; border-radius: 999px; background: #cbd5e1; }
+.district-dropdown__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 10px; }
+.district-dropdown__header h3 { margin: 0; color: #0f172a; font-size: 19px; }
+.district-dropdown__header p { margin: 4px 0 0; color: #64748b; font-size: 12px; }
+.district-dropdown__header button { width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 50%; color: #475569; background: #f1f5f9; cursor: pointer; font-size: 18px; }
+.district-dropdown__list { overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.district-dropdown__item { width: 100%; min-height: 54px; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 0; border-bottom: 1px solid #eef2f7; color: #1e293b; background: #fff; font-size: 15px; font-weight: 600; text-align: left; cursor: pointer; }
+.district-dropdown__item:hover { background: #f8fafc; }
+.district-dropdown__item--selected { border-radius: 12px; color: #1d4ed8; background: #eff6ff; }
+.district-dropdown__item-icon { width: 34px; height: 34px; display: grid; flex: 0 0 34px; place-items: center; border-radius: 11px; color: #1d4ed8; background: #eff6ff; }
+.district-dropdown__item > span:nth-child(2) { flex: 1; }
+.district-dropdown__item small { margin-right: 8px; color: #1d4ed8; font-size: 10px; font-weight: 700; }
+.district-dropdown__check { flex: 0 0 auto; color: #1d4ed8; font-size: 20px; }
+
+@keyframes district-overlay-in { from { opacity: 0; } }
+@keyframes district-sheet-in { from { transform: translateY(24px); opacity: .7; } }
+@media (prefers-reduced-motion: reduce) { .district-dropdown__overlay, .district-dropdown__sheet { animation: none; } }

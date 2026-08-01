@@ -27,6 +27,9 @@ import updateProductStock from "../helpers/updateProductStock";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import trackBasic from "../helpers/trackBasic";
 import { clearGuestCart, consumePendingCheckoutItems } from "../helpers/guestCart";
+import GuidedCoachmark from "../components/GuidedCoachmark";
+import DistrictDropdown from "../components/DistrictDropdown";
+import { FiMapPin, FiShield } from "react-icons/fi";
 
 const PROCESSING_FEE = 5;
 
@@ -71,7 +74,7 @@ const CheckoutPage = () => {
     name: "",
     phone: "",
     address: "",
-    district: "", // Dhaka | Narayanganj | Others
+    district: "", // One of Bangladesh's 64 districts
     upazila: "", // kept in payload if backend already supports it
   });
 
@@ -93,7 +96,7 @@ const CheckoutPage = () => {
           name: ship.name || "",
           phone: ship.phone || "",
           address: ship.address || "",
-          district: ship.district || "",
+          district: ship.district === "Others" ? "" : ship.district || "",
           upazila: "",
         }));
       } catch {
@@ -120,8 +123,7 @@ const CheckoutPage = () => {
   const districtCharge = (district) => {
     if (district === "Narayanganj") return 70;
     if (district === "Dhaka") return 80;
-    if (district === "Others") return 130;
-    return 0;
+    return district ? 130 : 0;
   };
 
 
@@ -415,9 +417,19 @@ const CheckoutPage = () => {
 
       {/* Shipping */}
       <form className="shipping-card" onSubmit={handleSubmitOrder}>
-        <div className="card-title">🚚 Shipping Details</div>
+        <div className="shipping-card__header">
+          <span className="shipping-card__header-icon"><FiMapPin /></span>
+          <div>
+            <div className="shipping-card__title">Shipping Details</div>
+            <div className="shipping-card__subtitle">Where should we deliver your order?</div>
+          </div>
+          <span className="shipping-card__secure"><FiShield /> Secure</span>
+        </div>
+
+        <label className="shipping-field-label" htmlFor="shipping-name">Full name</label>
 
         <input
+          id="shipping-name"
           type="text"
           placeholder="Full Name"
           value={formData.name}
@@ -427,8 +439,9 @@ const CheckoutPage = () => {
         />
         {errors.name && <div className="error">{errors.name}</div>}
 
+        <label className="shipping-field-label" htmlFor="shipping-phone">Phone number</label>
         <input
-          type="text"
+          id="shipping-phone"
           placeholder="Phone"
           value={formData.phone}
           onChange={(e) => onChange("phone", e.target.value)}
@@ -437,34 +450,31 @@ const CheckoutPage = () => {
         />
         {errors.phone && <div className="error">{errors.phone}</div>}
 
-        {/* District */}
-        <select
-          value={formData.district}
-          onChange={(e) => {
-            const val = e.target.value;
-           setFormData((p) => ({ ...p, district: val, upazila: "" }));
-          }}
-          className={`input ${errors.district ? "input-error" : ""}`}
+        <label className="shipping-field-label">Select area</label>
+        <DistrictDropdown
+          selected={formData.district}
+          onSelect={(district) => setFormData((previous) => ({
+            ...previous,
+            district,
+            upazila: "",
+          }))}
           disabled={isSubmitting}
-        >
-          <option value="" disabled>
-            Select District
-          </option>
-          <option value="Narayanganj">Narayanganj</option>
-          <option value="Dhaka">Dhaka</option>
-          <option value="Others">Others</option>
-        </select>
+          hasError={Boolean(errors.district)}
+        />
+
         {errors.district && <div className="error">{errors.district}</div>}
 
          {/* Upazila intentionally not shown on website checkout. */}
         
 
-        <input
+        <label className="shipping-field-label" htmlFor="shipping-address">Full address</label>
+        <textarea
+          id="shipping-address"
           type="text"
           placeholder="Full Address"
           value={formData.address}
           onChange={(e) => onChange("address", e.target.value)}
-          className={`input ${errors.address ? "input-error" : ""}`}
+          className={`input shipping-address ${errors.address ? "input-error" : ""}`}
           disabled={isSubmitting}
         />
         {errors.address && <div className="error">{errors.address}</div>}
@@ -475,7 +485,7 @@ const CheckoutPage = () => {
             <div className="card-title">📦 Delivery Option</div>
 
             {/* FREE */}
-            <div
+            {formData.district === "Narayanganj" && <div
               className={`option-row ${deliveryOption === "FREE" ? "active" : ""} ${freeDisabled || isSubmitting ? "disabled" : ""}`}
               onClick={() => {
                 if (isSubmitting || freeDisabled) return;
@@ -504,6 +514,7 @@ const CheckoutPage = () => {
 
               {freeDisabled && <div className="lock-badge">🔒 Locked</div>}
             </div>
+            }
 
             {/* Narayanganj Standard */}
             {formData.district === "Narayanganj" && (
@@ -569,8 +580,8 @@ const CheckoutPage = () => {
               </div>
             )}
 
-            {/* Others Std */}
-           {formData.district === "Others" && (
+            {/* All districts outside Dhaka and Narayanganj */}
+           {formData.district !== "Dhaka" && formData.district !== "Narayanganj" && (
               <div
                 className={`option-row ${deliveryOption === "STD" ? "active" : ""} ${isSubmitting ? "disabled" : ""}`}
                 onClick={() => {
@@ -584,9 +595,9 @@ const CheckoutPage = () => {
                 </div>
                 <div className="opt-mid">
                   <div className="opt-title">Standard Delivery</div>
-                  <div className="opt-sub">Delivery time within 1–3 days</div>
+                  <div className="opt-sub">Delivery to {formData.district} within 1–3 days</div>
                 </div>
-                <div className="opt-price">৳{districtCharge("Others")}</div>
+                <div className="opt-price">৳{districtCharge(formData.district)}</div>
               </div>
             )}
           </div>
@@ -709,6 +720,17 @@ const CheckoutPage = () => {
             {isSubmitting ? "Placing order..." : "Submit order"}
           </button>
         </div>
+        <GuidedCoachmark
+          enabled={
+            selectedItems.length > 0 && !isSubmitting
+          }
+          message="সব তথ্য ঠিক থাকলে এখানে চাপ দিয়ে অর্ডারটি সম্পূর্ণ করুন।"
+          bottom={140}
+          right={25}
+          width={284}
+          targetRight={-14}
+          delay={800}
+        />
       </form>
 
       <SuccessModal

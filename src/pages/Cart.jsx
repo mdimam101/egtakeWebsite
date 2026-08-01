@@ -6,6 +6,7 @@ import "../styles/CatrStyle.css";
 import { useNavigate } from "react-router";
 import {getGuestCart, savePendingCheckoutItems } from "../helpers/guestCart";
 import { useSelector } from "react-redux";
+import GuidedCoachmark from "../components/GuidedCoachmark";
 
 // ---- Helper: find live stock/price using image (+ optional size) ----
 const findStockFromLatest = (item, latestProducts) => {
@@ -47,7 +48,7 @@ const findStockFromLatest = (item, latestProducts) => {
 const Cart = () => {
   const navigate = useNavigate();
 
-   const currentUser = useSelector((state) => state?.userState?.user);
+  const currentUser = useSelector((state) => state?.userState?.user);
 
   // Server cart only
   const [cartItems, setCartItems] = useState([]);
@@ -242,18 +243,29 @@ const Cart = () => {
       )}
 
       {!isLoading && canCheckout && (
-        <div className="checkout-bar">
-          <div className="checkout-price-summary">
-            <span className="total-amount">৳{totalAmount}</span>
-            {totalSaved > 0 && (
-              <span className="saved-amount">You save ৳{totalSaved}</span>
-            )}
-          </div>
+         <>
+          <div className="checkout-bar">
+            <div className="checkout-price-summary">
+              <span className="total-amount">৳{totalAmount}</span>
+              {totalSaved > 0 && (
+                <span className="saved-amount">You save ৳{totalSaved}</span>
+              )}
+            </div>
 
-          <button onClick={handleCheckout} className="checkout-cart-btn">
-            Checkout ({selectedItems.length})
-          </button>
-        </div>
+            <button onClick={handleCheckout} className="checkout-cart-btn">
+              Checkout ({selectedItems.length})
+            </button>
+          </div>
+          <GuidedCoachmark
+            enabled={cartItems.length > 0 && canCheckout}
+            message="অর্ডারের ঠিকানা দিতে ‘Checkout’ বাটনে চাপ দিন।"
+            bottom={140}
+            right={8}
+            width={268}
+            targetRight={0}
+            delay={650}
+          />
+        </>
       )}
 
       {/* bottom spacer so content never hides behind fixed bars */}

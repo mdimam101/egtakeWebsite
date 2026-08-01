@@ -29,6 +29,8 @@ import ProductDetailsSkeleton from "../components/skeletonAnime/ProductDetailsSk
 import { Helmet } from "react-helmet-async";
 import { cleanShortDescription, getPrimaryProductImage, productSeoKey, SITE_URL, toAbsoluteImageUrl } from "../helpers/productSeo";
 import trackBasic from "../helpers/trackBasic";
+import GuidedCoachmark from "../components/GuidedCoachmark";
+
 
 /* =========================
    ✅ Web FullscreenImageModal (React)
@@ -275,6 +277,16 @@ const ProductDetailsPage = () => {
   const [aiSizeResult, setAiSizeResult] = useState(null);
   // ✅ Reviews state
   const [reviews, setReviews] = useState([]);
+
+  const [hasScrolledForCoach, setHasScrolledForCoach] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY >= 120) setHasScrolledForCoach(true);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const [loading, setloading] = useState();
 
@@ -1391,6 +1403,15 @@ const ProductDetailsPage = () => {
           </button>
         </div>
       </div>
+
+        <GuidedCoachmark
+        enabled={hasScrolledForCoach && !loading}
+        message="পছন্দের পণ্যটি কিনতে ‘Add to Cart’ বাটনে চাপ দিন।"
+        bottom={88}
+        right={8}
+        width={270}
+        targetRight={0}
+      />
 
       {/* ✅ Reviews area */}
       <div className="review-preview">
