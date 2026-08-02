@@ -4,6 +4,7 @@ import SummaryApi from "../common";
 import "../styles/OrderList.css";
 import OrderDetailsModal from "../components/OrderDetailsModal";
 import updateProductStock from "../helpers/updateProductStock";
+import { trackMetaOrderCancellation } from "../helpers/metaPixel";
 
 const ORDER_STATUS_OPTIONS = [
   "Pending",
@@ -298,6 +299,10 @@ const OrderList = () => {
       }
 
       if (isCancelledStatus(newStatus) && !isCancelledStatus(previousStatus)) {
+        trackMetaOrderCancellation(
+          { ...previousOrder, ...(result?.data || {}) },
+          "admin"
+        );
         const cancelledOrderItems = previousOrder?.items || [];
         const stockUpdateResults = await Promise.all(
           cancelledOrderItems.map((item) =>

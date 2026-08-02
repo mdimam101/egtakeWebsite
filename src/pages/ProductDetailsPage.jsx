@@ -30,6 +30,7 @@ import { Helmet } from "react-helmet-async";
 import { cleanShortDescription, getPrimaryProductImage, productSeoKey, SITE_URL, toAbsoluteImageUrl } from "../helpers/productSeo";
 import trackBasic from "../helpers/trackBasic";
 import GuidedCoachmark from "../components/GuidedCoachmark";
+import { trackMetaCommerceEvent } from "../helpers/metaPixel";
 
 
 /* =========================
@@ -395,6 +396,14 @@ const ProductDetailsPage = () => {
       // const d = result.data || {};
       setData(d);
       trackBasic("product_view", { subCategory: d?.subCategory || d?.category });
+
+      trackMetaCommerceEvent("ViewContent", {
+        content_ids: [d._id],
+        content_name: d.productName,
+        content_category: d.category,
+        value: Number(d.selling ?? d.price) || 0,
+      });
+      
       setloading(false);
 
       const images = (d.variants || []).flatMap((v) => v.images || []);

@@ -3,6 +3,7 @@ import SummaryApi from '../common';
 import { toast } from "react-toastify";
 import trackBasic from "./trackBasic";
 import { pushGuestCartUnique } from "./guestCart";
+import { trackMetaCommerceEvent } from './metaPixel';
 
 // const buildAuthHeaders = () => {
 //   const headers = { 'content-type': 'application/json' };
@@ -31,6 +32,11 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
     if (result.success) {
       toast.success(result.message || "Added to cart");
       trackBasic("add_to_cart", { subCategory, count: 1 });
+       trackMetaCommerceEvent("AddToCart", {
+        content_ids: [productId],
+        content_name: productName,
+        value: Number(selling ?? price) || 0,
+      });
       return true;
     }
 
@@ -62,6 +68,11 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
 
   toast.success("Added to cart");
   trackBasic("add_to_cart", { subCategory, count: 1, guest: true });
+  trackMetaCommerceEvent("AddToCart", {
+    content_ids: [productId],
+    content_name: productName,
+    value: Number(selling ?? price) || 0,
+  });
   return true;
 };
 

@@ -4,6 +4,7 @@ import SummaryApi from "../common";
 import UserProductCart from "../components/UserProductCart";
 import { generateOptimizedVariants } from "../helpers/variantUtils";
 import trackBasic from "../helpers/trackBasic";
+import { trackMetaEvent } from "../helpers/metaPixel";
 
 const SearchPage = () => {
   const { query } = useParams();
@@ -34,6 +35,9 @@ const SearchPage = () => {
         if (data.success) {
           const optimized = generateOptimizedVariants(data.data);
           setProducts(optimized);
+          if (query) {
+            trackMetaEvent("Search", { search_string: query });
+          }
         }
       } catch (err) {
         console.error("Search failed", err);

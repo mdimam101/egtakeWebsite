@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { setUserDetails } from "../store/userSlice";
 import updateProductStock from "../helpers/updateProductStock";
+import { trackMetaOrderCancellation } from "../helpers/metaPixel";
 
 // ---------- Status constants ----------
 const ORDER_STATUS = {
@@ -335,7 +336,9 @@ const UserProfile = () => {
   //   setCancelAskId(orderId); // confirm first
   // };
 
-  const doCancelOrder = async (orderId, item) => {
+    const doCancelOrder = async (order) => {
+    const orderId = order?._id;
+    const item = order?.items || [];
     
     try {
       const response = await fetch(`${SummaryApi.cancel_user_order.url}/${orderId}`, {
@@ -345,6 +348,10 @@ const UserProfile = () => {
       });
       const data = await response.json();
       if (data.success) {
+        trackMetaOrderCancellation(
+          { ...order, ...(data?.data || {}) },
+          "customer"
+        );
         setOrders((prev) => prev.filter((o) => o._id !== orderId));
         toast.success("Order cancelled");
         // product stock update
@@ -502,7 +509,7 @@ const UserProfile = () => {
         {/* Order-level actions (bottom) */}
         <div className="order-actions">
            {isPending ? (
-            <button className="btn btn--danger" onClick={() => setCancelAskId({orderId:order._id, orderItems:order.items})}>
+            <button className="btn btn--danger" onClick={() => setCancelAskId(order)}>
               Cancel
             </button>
            ) : (
@@ -658,14 +665,14 @@ const UserProfile = () => {
       />
 
       <ConfirmModal
-        open={!!cancelAskId?.orderId}
+        open={!!cancelAskId?._id}
         title="Are you sure you want to cancel this order?"
         okText="Yes, cancel"
         cancelText="No"
         onOk={() => {
-          const id = cancelAskId?.orderId;
+          const order = cancelAskId;
           setCancelAskId(null);
-          doCancelOrder(id, cancelAskId?.orderItems);
+          doCancelOrder(order);
         }}
         onClose={() => setCancelAskId(null)}
       />

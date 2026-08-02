@@ -30,6 +30,7 @@ import { clearGuestCart, consumePendingCheckoutItems } from "../helpers/guestCar
 import GuidedCoachmark from "../components/GuidedCoachmark";
 import DistrictDropdown from "../components/DistrictDropdown";
 import { FiMapPin, FiShield } from "react-icons/fi";
+import { trackMetaCommerceEvent, trackMetaPurchaseOnce } from "../helpers/metaPixel";
 
 const PROCESSING_FEE = 5;
 
@@ -59,6 +60,9 @@ const CheckoutPage = () => {
   // ⏳ submit locking (same as RN)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submitLockRef = useRef(false);
+
+  const checkoutTrackedRef = useRef(false);
+  const purchaseTrackedRef = useRef(false);
 
   // ✅ Thresholds & charges from common info, with app fallback defaults.
   const MIN_FREE_NAR = commonInfo[0]?.nrGanjMiniOrdr
@@ -190,6 +194,21 @@ const CheckoutPage = () => {
   );
 
  const subtotal = baseTotal + deliveryCharge + handlingCharge + PROCESSING_FEE - discount;
+
+ const totalItems = useMemo(
+    () => selectedItems.reduce((total, item) => total + (item?.quantity ?? 1), 0),
+    [selectedItems]
+  );
+
+  useEffect(() => {
+    if (!selectedItems.length || checkoutTrackedRef.current) return;
+
+    checkoutTrackedRef.current = true;
+    trackMetaCommerceEvent("InitiateCheckout", {
+      value: baseTotal,
+      num_items: totalItems,
+    });
+  }, [baseTotal, selectedItems.length, totalItems]);
 
   const deliveryLabelValue = deliveryCharge === 0 ? "FREE" : `৳${deliveryCharge}`;
 
@@ -336,6 +355,26 @@ const CheckoutPage = () => {
       if (!data?.success) {
         toast.error(data?.message || "Order failed");
         return;
+      }
+
+      const confirmedOrder = data?.data || data?.order || {};
+      const confirmedOrderId =
+        confirmedOrder?._id ||
+        confirmedOrder?.orderId ||
+        data?.orderId ||
+        data?._id ||
+        `checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+      if (!purchaseTrackedRef.current) {
+        purchaseTrackedRef.current = true;
+        trackMetaPurchaseOnce(confirmedOrderId, {
+          value: Number(confirmedOrder?.totalAmount ?? orderPayload.totalAmount) || 0,
+          content_ids: orderPayload.items.map((item) => item.productId).filter(Boolean),
+          num_items: orderPayload.items.reduce(
+            (total, item) => total + (item.quantity ?? 1),
+            0
+          ),
+        });
       }
 
       trackBasic("order_confirm", { count: selectedItems.length });
