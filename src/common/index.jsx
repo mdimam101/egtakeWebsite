@@ -33,6 +33,14 @@ const SummaryApi = {
     url: `${backendDomain}/api/get-product`,
     method: "get",
   },
+  product_cards: {
+    url: `${backendDomain}/api/product-cards`,
+    method: "get",
+  },
+   trending_product_cards: {
+    url: `${backendDomain}/api/trending-product-cards`,
+    method: "get",
+  },
   update_product: {
     url: `${backendDomain}/api/update-product`,
     method: "post",

@@ -5,6 +5,7 @@ import banarReducer from "../store/banarSlice";
 import commonReducer from "./commonInfoSlice";
 import productImgReducer from "./productImgSlice";
 import categoryReducer from "./categorySlice";
+import trendingProductReducer from "./trendingProductSlice";
 
 
 export const store = configureStore({
@@ -15,6 +16,7 @@ export const store = configureStore({
     commonState: commonReducer,
     productImgUrlState: productImgReducer,
     categoryState: categoryReducer,
+    trendingProductState: trendingProductReducer,
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import SummaryApi from "../common";
 import { toast } from "react-toastify";
 import UserProductCart from "../components/UserProductCart";
@@ -6,11 +6,16 @@ import "../styles/HomePage.css";
 import CategoryList from "../components/CategoryList";
 import UserSlideProductCart from "../components/UserSlideProductCart";
 import { useDispatch, useSelector } from "react-redux";
-import { setAllProductList } from "../store/allProductSlice";
-import { generateOptimizedVariants } from "../helpers/variantUtils";
+import { appendAllProductList, setAllProductList } from "../store/allProductSlice";
 import { setBanarList } from "../store/banarSlice";
 import TrendingGlassSlideCard from "../components/TrendingGlassSlideCard";
 import { MdOutlineArrowBackIos } from "react-icons/md";
+import {
+  getFirstVariantCards,
+  normalizeProductCards,
+} from "../helpers/homeProductCards";
+import { setTrendingProductList } from "../store/trendingProductSlice";
+
 
 const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.emamexp2.testeasupload";
@@ -23,10 +28,24 @@ const HomePage = () => {
 
   // ✅ skeleton loading state
   const [productLoading, setProductLoading] = useState(false);
+  const [loadingMoreProducts, setLoadingMoreProducts] = useState(false);
+  const [productPagination, setProductPagination] = useState({
+    hasMore: true,
+    nextPage: 1,
+  });
   const [bannerLoading, setBannerLoading] = useState(false);
   const bannerRef = useRef(null);
+  const productLoadMoreRef = useRef(null);
+  const productRequestInFlightRef = useRef(false);
+  const productRequestControllersRef = useRef(new Set());
 
   const allProducts = useSelector((s) => s.allProductState.productList);
+  const trandingProducts = useSelector(
+    (s) => s.trendingProductState.productList,
+  );
+  const hasLoadedTrendingProducts = useSelector(
+    (s) => s.trendingProductState.hasLoaded,
+  );
   const banners = useSelector((s) => s.banarState.banarList);
   const dispatch = useDispatch();
 
@@ -57,53 +76,148 @@ const HomePage = () => {
     console.error("VITE_PUBLIC_CLIENT_KEY is missing");
   }
 
-  const fetchAllProducts = useCallback(async () => {
+  const fetchProductPage = useCallback(async (page) => {
+    if (productRequestInFlightRef.current) return;
+
+    const controller = new AbortController();
+    productRequestControllersRef.current.add(controller);
+    productRequestInFlightRef.current = true;
+
     try {
-      setProductLoading(true);
+      if (page === 1) {
+        setProductLoading(true);
+      } else {
+        setLoadingMoreProducts(true);
+      }
 
-      // const response1 = await fetch(SummaryApi.current_user.url, {
-      //   method: SummaryApi.current_user.method,
-      // });
-      // const result1 = await response1.json();
-      // console.log("fetchUserDetails999999", result1);
-
-      const response = await fetch(SummaryApi.get_product.url, {
-        credentials: "include",
+      const params = new URLSearchParams({ page: String(page) });
+      const response = await fetch(`${SummaryApi.product_cards.url}?${params}`, {
         headers: {
           "x-client-key": clientKey,
         },
+        signal: controller.signal,
       });
+
+      if (!response.ok) {
+        throw new Error(`Product request failed with status ${response.status}`);
+      }
+
       const data = await response.json();
 
-      if (data.success) {
-        const optimized = generateOptimizedVariants(data.data);
-        dispatch(setAllProductList(optimized));
+      if (data.success && Array.isArray(data.data)) {
+        const cards = normalizeProductCards(data.data);
+
+        if (page === 1) {
+          dispatch(setAllProductList(cards));
+        } else {
+          dispatch(appendAllProductList(cards));
+        }
+
+        setProductPagination({
+          hasMore: Boolean(data.pagination?.hasMore),
+          nextPage: data.pagination?.nextPage ?? null,
+        });
       } else {
-        toast.error(data.message);
+        throw new Error(data.message || "Invalid product response");
       }
-    } catch  {
-      console.log();
-      toast.error("Failed to fetch products");
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Failed to fetch homepage products:", error);
+        toast.error("Failed to fetch products");
+      }
     } finally {
-      setProductLoading(false);
+      productRequestControllersRef.current.delete(controller);
+      productRequestInFlightRef.current = false;
+
+      if (!controller.signal.aborted) {
+        setProductLoading(false);
+        setLoadingMoreProducts(false);
+      }
     }
-  }, [dispatch]);
+  }, [clientKey, dispatch]);
 
   useEffect(() => {
-    if (allProducts.length === 0) {
-      fetchAllProducts();
-    }
-  }, [allProducts.length, fetchAllProducts]);
+    const requestControllers = productRequestControllersRef.current;
+    fetchProductPage(1);
 
-  // 🔥 ট্রেন্ডিং প্রডাক্ট
-  const trandingProducts = allProducts.filter(
-    (product) => product?.trandingProduct === true,
+    return () => {
+      requestControllers.forEach((controller) => controller.abort());
+      requestControllers.clear();
+      productRequestInFlightRef.current = false;
+    };
+  }, [fetchProductPage]);
+
+  useEffect(() => {
+    const target = productLoadMoreRef.current;
+    if (!target || !productPagination.hasMore || !productPagination.nextPage) {
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !productRequestInFlightRef.current) {
+          fetchProductPage(productPagination.nextPage);
+        }
+      },
+      { rootMargin: "400px 0px" },
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [fetchProductPage, productPagination]);
+
+  const fetchTrendingProducts = useCallback(async (signal) => {
+    try {
+      const response = await fetch(SummaryApi.trending_product_cards.url, {
+        headers: {
+          "x-client-key": clientKey,
+        },
+        signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Trending product request failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json();
+      if (!data.success || !Array.isArray(data.data)) {
+        throw new Error(data.message || "Invalid trending product response");
+      }
+
+      dispatch(setTrendingProductList(normalizeProductCards(data.data)));
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Failed to fetch trending products:", error);
+      }
+    }
+  }, [clientKey, dispatch]);
+
+  useEffect(() => {
+    if (hasLoadedTrendingProducts) return undefined;
+
+    const controller = new AbortController();
+    fetchTrendingProducts(controller.signal);
+    return () => controller.abort();
+  }, [fetchTrendingProducts, hasLoadedTrendingProducts]);
+
+  const trandingSlideProducts = useMemo(
+    () => getFirstVariantCards(trandingProducts),
+    [trandingProducts],
   );
 
    // 💰 ০~১৯৯ টাকার লিস্ট
-  const productsBelow199 = allProducts.filter(
-    (product) => Number(product?.selling) <= 199,
+  const productsBelow199 = useMemo(
+    () =>
+      allProducts.filter((product) => Number(product?.selling) <= 199),
+    [allProducts],
   );
+  const lowPriceSlideProducts = useMemo(
+    () => getFirstVariantCards(productsBelow199),
+    [productsBelow199],
+  );
+
 
   const fetchBanners = useCallback(async () => {
     try {
@@ -325,14 +439,15 @@ const HomePage = () => {
                     </h2>
 
                     <div className="tranding-slider">
-                      {trandingProducts.slice(0, 6).map((product, idx) => (
+                      {trandingSlideProducts.slice(0, 6).map((product) => (
                         <TrendingGlassSlideCard
                           productData={product}
-                          key={idx}
+                          key={product.cardKey}
                         />
                       ))}
 
-                      {trandingProducts.length > 5 && (
+                       {trandingProducts.length >
+                        Math.min(6, trandingSlideProducts.length) && (
                         <div
                           className="view-more-card"
                           onClick={() => {
@@ -354,11 +469,15 @@ const HomePage = () => {
                       💰 ০~১৯৯ টাকা
                     </h2>
                     <div className="tranding-slider">
-                      {productsBelow199.slice(0, 6).map((product, idx) => (
-                        <UserSlideProductCart productData={product} key={idx} />
+                       {lowPriceSlideProducts.slice(0, 6).map((product) => (
+                        <UserSlideProductCart
+                          productData={product}
+                          key={product.cardKey}
+                        />
                       ))}
 
-                      {productsBelow199.length > 6 && (
+                      {productsBelow199.length >
+                        Math.min(6, lowPriceSlideProducts.length) && (
                         <div
                           className="view-more-card"
                           onClick={() => {
@@ -386,10 +505,27 @@ const HomePage = () => {
                 {/* ✅ Products Grid */}
                 <div className="home-product-grid">
                   {allProducts.length > 0 &&
-                    allProducts.map((product, idx) => (
-                      <UserProductCart productData={product} key={idx} />
+                    allProducts.map((product) => (
+                      <UserProductCart
+                        productData={product}
+                        key={product.cardKey}
+                      />
                     ))}
                 </div>
+                {productPagination.hasMore && (
+                  <div ref={productLoadMoreRef} aria-hidden="true">
+                    {loadingMoreProducts && (
+                      <div className="home-horizontal-skeleton">
+                        {Array.from({ length: 2 }).map((_, idx) => (
+                          <div className="slide-card-skeleton" key={idx}>
+                            <div className="slide-card-img shimmer"></div>
+                            <div className="slide-card-line shimmer"></div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </div>

@@ -11,8 +11,21 @@ const allProductSlice = createSlice({
     setAllProductList: (state, action) => {
       state.productList = action.payload;
     },
+    appendAllProductList: (state, action) => {
+      const existingKeys = new Set(
+        state.productList.map((product) => product.cardKey),
+      );
+
+      action.payload.forEach((product) => {
+        if (!existingKeys.has(product.cardKey)) {
+          state.productList.push(product);
+          existingKeys.add(product.cardKey);
+        }
+      });
+    },
   },
 });
 
-export const { setAllProductList } = allProductSlice.actions;
+export const { appendAllProductList, setAllProductList } =
+  allProductSlice.actions;
 export default allProductSlice.reducer;
