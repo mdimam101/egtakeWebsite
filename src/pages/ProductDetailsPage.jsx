@@ -27,7 +27,15 @@ import {
 } from "react-icons/io5";
 import ProductDetailsSkeleton from "../components/skeletonAnime/ProductDetailsSkeleton";
 import { Helmet } from "react-helmet-async";
-import { cleanShortDescription, getPrimaryProductImage, productSeoKey, SITE_URL, toAbsoluteImageUrl } from "../helpers/productSeo";
+import {
+  cleanShortDescription,
+  getPrimaryProductImage,
+  getProductIdFromRouteKey,
+  productSeoKey,
+  SITE_URL,
+  slugifyProduct,
+  toAbsoluteImageUrl,
+} from "../helpers/productSeo";
 import trackBasic from "../helpers/trackBasic";
 import GuidedCoachmark from "../components/GuidedCoachmark";
 import { trackMetaCommerceEvent } from "../helpers/metaPixel";
@@ -367,16 +375,23 @@ const ProductDetailsPage = () => {
     setloading(true);
     (async () => {
       let d = {};
-      const response = await fetch(SummaryApi.product_details.url, {
-        method: SummaryApi.product_details.method,
-        headers: { "x-client-key": clientKey,
-           "content-type": "application/json" },
-         body: JSON.stringify({ productId: routeKey }),
-      });
-      const result = await response.json();
-            if (result?.success) {
-        d = result.data || {};
+      const productId = getProductIdFromRouteKey(routeKey);
+
+      if (productId) {
+        const response = await fetch(SummaryApi.product_details.url, {
+          method: SummaryApi.product_details.method,
+          headers: {
+            "x-client-key": clientKey,
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({ productId }),
+        });
+        const result = await response.json();
+
+        if (result?.success) d = result.data || {};
       } else {
+         // Backward compatibility for old name-only URLs. Do not send a slug to
+        // the ObjectId-only endpoint because the backend correctly rejects it.
         const allRes = await fetch(SummaryApi.get_product.url, {
           credentials: "include",
           headers: {
@@ -387,10 +402,13 @@ const ProductDetailsPage = () => {
         const allProducts = Array.isArray(allJson?.data) ? allJson.data : [];
         d =
           allProducts.find((p) =>
-            [p?._id, p?.slug, productSeoKey(p)].includes(routeKey),
+           [p?.slug, slugifyProduct(p?.productName)].includes(routeKey),
           ) || {};
       }
-      if (!d?._id) return;
+      if (!d?._id) {
+        setloading(false);
+        return;
+      }
       // if (!result?.success) return;
 
       // const d = result.data || {};
@@ -440,7 +458,7 @@ const ProductDetailsPage = () => {
       const optimized = generateOptimizedVariants(reco.data);
       setShowRelatedProduct(optimized || []);
     })();
-  }, [location?.state?.selectedImage, routeKey]);
+  }, [clientKey, location?.state?.selectedImage, routeKey]);
 
   // ✅ Fetch product reviews (after product loaded)
   useEffect(() => {

@@ -8,8 +8,26 @@ export const slugifyProduct = (value = "") =>
     .replace(/[^a-z0-9\u0980-\u09ff]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-export const productSeoKey = (product = {}) =>
-  product?.slug || slugifyProduct(product?.productName) || product?._id || "";
+const MONGO_OBJECT_ID_PATTERN = /^[a-f\d]{24}$/i;
+
+export const getProductIdFromRouteKey = (routeKey = "") => {
+  const key = String(routeKey || "").trim();
+  if (MONGO_OBJECT_ID_PATTERN.test(key)) return key;
+
+  const idSuffix = key.match(/-([a-f\d]{24})$/i);
+  return idSuffix?.[1] || "";
+};
+
+export const productSeoKey = (product = {}) => {
+  const productId = String(product?._id || "").trim();
+  const readableSlug = product?.slug || slugifyProduct(product?.productName);
+
+  if (productId && readableSlug) {
+    if (getProductIdFromRouteKey(readableSlug) === productId) return readableSlug;
+    return `${readableSlug}-${productId}`;
+  }
+  return productId || readableSlug || "";
+};
 
 export const getProductUrlPath = (product = {}) =>
   `/product/${productSeoKey(product)}`;

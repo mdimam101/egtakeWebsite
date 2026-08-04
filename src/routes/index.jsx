@@ -1,126 +1,112 @@
-import React from 'react'
-import { createBrowserRouter } from 'react-router'
-import App from '../App'
-import HomePage from '../pages/HomePage'
-import Login from '../pages/Login'
-import ForgotPassword from '../pages/ForgotPassword'
-import SignupPage from '../pages/SignupPage'
-import AdminPanel from '../pages/AdminPanel'
-import AllUsers from '../pages/AllUsers'
-import AllProducts from '../pages/AllProducts'
-import CategoryWiseProductListPage from '../pages/CategoryWiseProductListPage'
-import ProductDetailsPage from '../pages/ProductDetailsPage'
-import Cart from '../pages/Cart'
-import CategoryPage from '../pages/CategoryPage'
-import SearchPage from '../pages/SearchPage'
-import SearchResultsPage from '../pages/SearchResultsPage'
-import AllBanners from '../pages/AllBanners'
-import CheckoutPage from '../pages/CheckoutPage'
-import OrderList from '../pages/AllOrderList'
-import UserProfile from '../pages/UserProfile'
-import SubCategoryWiseProduct from '../pages/SubCategoryWiseProduct'
-import AdminCoupons from '../pages/AdminCoupons'
-import AdminTracking from '../pages/AdminTracking'
+import React from "react";
+import { createBrowserRouter } from "react-router";
+import App from "../App";
+
+// React Router resolves matched lazy routes in parallel. This keeps page-specific
+// JavaScript out of the initial bundle and only downloads it when it is needed.
+const lazyPage = (loadPage) => async () => {
+  const module = await loadPage();
+
+  return { Component: module.default };
+};
+
+const initialPageLoader = (
+  <div className="initial-page-loader" role="status" aria-live="polite">
+    <span className="initial-page-loader__spinner" aria-hidden="true" />
+    <span className="initial-page-loader__label">Loading…</span>
+  </div>
+);
 
 const router = createBrowserRouter([
-    {
-        path : '/',
-        element : <App/>,
-        children : [
-            {
-                path : '/',
-                element: <HomePage/>
-            },
-            {
-                path : '/home',
-                element: <HomePage/>
-            },
-            {
-                path: '/search/:query',
-                element: <SearchPage/>
-              },
-              {
-                path: '/search/:query',
-                element: <SearchResultsPage />
-              },
-            {
-                path : '/category',
-                element: <CategoryPage/>
-            },
-            {
-                path : '/category-wish/:categoryName',
-                element: <CategoryWiseProductListPage/>
-            },
-            {
-                path : '/sub-category-wish/:categoryName',
-                element: <SubCategoryWiseProduct/>
-            },
-            {
-                path : '/product/:id',
-                element: <ProductDetailsPage/>
+  {
+    path: "/",
+    element: <App />,
+    hydrateFallbackElement: initialPageLoader,
+    children: [
+      {
+        index: true,
+        lazy: lazyPage(() => import("../pages/HomePage")),
+      },
+      {
+        path: "home",
+        lazy: lazyPage(() => import("../pages/HomePage")),
+      },
+      {
+        path: "search/:query",
+        lazy: lazyPage(() => import("../pages/SearchPage")),
+      },
+      {
+        path: "category",
+        lazy: lazyPage(() => import("../pages/CategoryPage")),
+      },
+      {
+        path: "category-wish/:categoryName",
+        lazy: lazyPage(() => import("../pages/CategoryWiseProductListPage")),
+      },
+      {
+        path: "sub-category-wish/:categoryName",
+        lazy: lazyPage(() => import("../pages/SubCategoryWiseProduct")),
+      },
+      {
+        path: "product/:id",
+        lazy: lazyPage(() => import("../pages/ProductDetailsPage")),
+      },
+      {
+        path: "cart",
+        lazy: lazyPage(() => import("../pages/Cart")),
+      },
+      {
+        path: "checkout",
+        lazy: lazyPage(() => import("../pages/CheckoutPage")),
+      },
+      {
+        path: "login",
+        lazy: lazyPage(() => import("../pages/Login")),
+      },
+      {
+        path: "forgot-password",
+        lazy: lazyPage(() => import("../pages/ForgotPassword")),
+      },
+      {
+        path: "sign-up",
+        lazy: lazyPage(() => import("../pages/SignupPage")),
+      },
+      {
+        path: "profile",
+        lazy: lazyPage(() => import("../pages/UserProfile")),
+      },
+      {
+        path: "admin-panel",
+        lazy: lazyPage(() => import("../pages/AdminPanel")),
+        children: [
+          {
+            path: "all-users",
+            lazy: lazyPage(() => import("../pages/AllUsers")),
+          },
+          {
+            path: "all-products",
+            lazy: lazyPage(() => import("../pages/AllProducts")),
+          },
+          {
+            path: "all-banners",
+            lazy: lazyPage(() => import("../pages/AllBanners")),
+          },
+          {
+            path: "orders",
+            lazy: lazyPage(() => import("../pages/AllOrderList")),
+          },
+          {
+            path: "coupons",
+            lazy: lazyPage(() => import("../pages/AdminCoupons")),
+          },
+          {
+            path: "tracking",
+            lazy: lazyPage(() => import("../pages/AdminTracking")),
+          },
+        ],
+      },
+    ],
+  },
+]);
 
-            },{
-                path : '/cart',
-                element : <Cart/>
-
-            },
-            {
-                path : '/checkout',
-                element : <CheckoutPage/>
-
-            },
-            {
-                path : '/login',
-                element : <Login/>
-            },
-            {
-                path : '/forgot-password',
-                element : <ForgotPassword/>
-            },
-            {
-                path : '/sign-up',
-                element : <SignupPage/>
-            },
-            {
-                path : '/profile',
-                element : <UserProfile/>
-            },
-            {
-                path : 'admin-panel',
-                element : <AdminPanel/>,
-                children:[
-                    {
-                        path : 'all-users',
-                        element : <AllUsers/>
-                    },
-                    {
-                        path : 'all-products',
-                        element : <AllProducts/>
-                    },
-                    {
-                        path : 'all-banners',
-                        element : <AllBanners/>
-                    },
-                    {
-                        path : 'orders',
-                        element : <OrderList/>
-        
-                    },
-                    {
-                     path:"coupons" ,
-                     element:<AdminCoupons/>
-
-                     },
-                    {
-                     path:"tracking" ,
-                     element:<AdminTracking/>
-
-                     }
-                ]
-            }
-
-        ]
-    },
-])
-
-export default router
+export default router;
