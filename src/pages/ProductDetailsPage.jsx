@@ -18,6 +18,7 @@ import { generateOptimizedVariants } from "../helpers/variantUtils";
 import ProductQualityViz from "../components/ProductQualityViz";
 import { EGtakeCommitment } from "../components/EGtakeCommitment";
 import { MdOutlineArrowBackIos } from "react-icons/md";
+import { FaArrowLeft } from "react-icons/fa6";
 import { FaCartArrowDown } from "react-icons/fa";
 import {
   IoChevronDown,
@@ -887,8 +888,10 @@ const ProductDetailsPage = () => {
         type="button"
         className="p-back-button"
         onClick={() => navigate(-1)}
+        aria-label="Go back"
+        title="Go back"
       >
-        <MdOutlineArrowBackIos className="backIcon" />
+        <FaArrowLeft className="p-back-icon" aria-hidden="true" />
       </button>
       {/* Image gallery */}
       <div className="product-image-wrapper">
