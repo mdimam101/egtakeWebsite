@@ -231,10 +231,24 @@ const Stars = ({ value = 0 }) => {
 const ProductDetailsPage = () => {
   const param = useParams();
   const location = useLocation();
-   const routeKey = param?.id;
+  const navigate = useNavigate();
+  const routeKey = param?.id;
 
-   const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
+  const handleBackNavigation = () => {
+    const historyIndex = Number(window.history.state?.idx ?? 0);
+    const openedInsideApp = location.key !== "default" && historyIndex > 0;
 
+    if (openedInsideApp) {
+      navigate(-1);
+      return;
+    }
+
+    // A product link opened directly from Facebook/another app has no useful
+    // in-app history entry. Keep the user in Pyzara instead of closing the tab.
+    navigate("/", { replace: true });
+  };
+
+  const clientKey = import.meta.env.VITE_PUBLIC_CLIENT_KEY;
   if (!clientKey) {
     console.error("VITE_PUBLIC_CLIENT_KEY is missing");
   }
@@ -644,8 +658,6 @@ const ProductDetailsPage = () => {
     }
   };
 
-  const navigate = useNavigate();
-
   const { cartCountProduct } = useContext(Context);
 
   // skin care info
@@ -887,8 +899,8 @@ const ProductDetailsPage = () => {
       <button
         type="button"
         className="p-back-button"
-        onClick={() => navigate(-1)}
-        aria-label="Go back"
+         onClick={handleBackNavigation}
+        aria-label="Go back or return to home"
         title="Go back"
       >
         <FaArrowLeft className="p-back-icon" aria-hidden="true" />
