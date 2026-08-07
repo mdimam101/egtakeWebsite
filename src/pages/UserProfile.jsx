@@ -67,6 +67,58 @@ const getItemStatusLabel = (status) => {
   }
 };
 
+const getOrdersForTab = (orders, tab) => {
+  const base = [...orders].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  if (tab === "Pending") {
+    return base.filter((o) => o.status === ORDER_STATUS.PENDING);
+  }
+
+  if (tab === "Shipped") {
+    return base.filter((o) =>
+      [ORDER_STATUS.CONFIRMED, ORDER_STATUS.SHIPPED].includes(o.status)
+    );
+  }
+
+  if (tab === "Delivered") {
+    return base
+      .filter((o) => o.status === ORDER_STATUS.DELIVERED)
+      .map((o) => ({
+        ...o,
+        items: (o.items || []).filter((it) => {
+          const itemStatus = normalizeItemStatus(it.itemStatus);
+          return !isReturnResolvedStatus(itemStatus) && itemStatus !== ITEM_STATUS.REVIEWED;
+        }),
+      }))
+      .filter((o) => (o.items || []).length > 0);
+  }
+
+  if (tab === "Return") {
+    return base
+      .map((o) => ({
+        ...o,
+        items: (o.items || []).filter((it) => isReturnResolvedStatus(it.itemStatus)),
+      }))
+      .filter((o) => (o.items || []).length > 0);
+  }
+
+  if (tab === "Review") {
+    return base
+      .map((o) => ({
+        ...o,
+        items: (o.items || []).filter(
+          (it) => normalizeItemStatus(it.itemStatus) === ITEM_STATUS.REVIEWED
+        ),
+      }))
+      .filter((o) => (o.items || []).length > 0);
+  }
+
+  return [];
+};
+
+
 const isReturnResolvedStatus = (status) =>
   [ITEM_STATUS.R_CONFIRMED, ITEM_STATUS.RETURN_COMPLETE, ITEM_STATUS.CANCELED].includes(
     normalizeItemStatus(status)
@@ -219,57 +271,22 @@ const UserProfile = () => {
 
 
 
-  // Filters per tab. No "All" bucket; item status decides Delivered/Return/Review placement.
-  const filteredOrders = useMemo(() => {
-    const base = [...orders].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  useEffect(() => {
+    if (orders.length === 0) return;
+
+    const firstAvailableTab = PROFILE_TABS.find(
+      (tab) => getOrdersForTab(orders, tab).length > 0
     );
 
-    if (selectedTab === "Pending") {
-      return base.filter((o) => o.status === ORDER_STATUS.PENDING);
-    }
+    if (firstAvailableTab) setSelectedTab(firstAvailableTab);
+  }, [orders]);
 
-    if (selectedTab === "Shipped") {
-      return base.filter((o) =>
-        [ORDER_STATUS.CONFIRMED, ORDER_STATUS.SHIPPED].includes(o.status)
-      );
-    }
+  // Filters per tab. No "All" bucket; item status decides Delivered/Return/Review placement.
+  const filteredOrders = useMemo(
+    () => getOrdersForTab(orders, selectedTab),
+    [orders, selectedTab]
+  );
 
-    if (selectedTab === "Delivered") {
-      return base
-        .filter((o) => o.status === ORDER_STATUS.DELIVERED)
-        .map((o) => ({
-          ...o,
-           items: (o.items || []).filter((it) => {
-            const itemStatus = normalizeItemStatus(it.itemStatus);
-            return !isReturnResolvedStatus(itemStatus) && itemStatus !== ITEM_STATUS.REVIEWED;
-          }),
-        }))
-        .filter((o) => (o.items || []).length > 0);
-    }
-
-    if (selectedTab === "Return") {
-       return base
-        .map((o) => ({
-          ...o,
-          items: (o.items || []).filter((it) => isReturnResolvedStatus(it.itemStatus)),
-        }))
-        .filter((o) => (o.items || []).length > 0);
-    }
-
-    if (selectedTab === "Review") {
-      return base
-        .map((o) => ({
-          ...o,
-          items: (o.items || []).filter(
-             (it) => normalizeItemStatus(it.itemStatus) === ITEM_STATUS.REVIEWED
-          ),
-        }))
-        .filter((o) => (o.items || []).length > 0);
-    }
-
-     return [];
-  }, [orders, selectedTab]);
 
   // Stats
   const stats = useMemo(() => {

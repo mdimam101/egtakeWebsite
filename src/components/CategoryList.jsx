@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCategoryList } from "../store/categorySlice";
 import "../styles/CategoryListStyle.css";
 import trackBasic from "../helpers/trackBasic";
+import { sortCategoriesByConfiguredOrder } from "../helpers/productCategory";
 
 const CategoryList = () => {
   const subCategory = "ALL";
@@ -46,7 +47,7 @@ const CategoryList = () => {
 
       const finalCategories = [
         { category: subCategory },
-        ...(json?.data || []),
+        ...sortCategoriesByConfiguredOrder(json?.data),
       ];
 
       dispatch(setCategoryList(finalCategories));

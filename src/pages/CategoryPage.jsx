@@ -7,6 +7,7 @@ import {
   setCategoryList,
   setCategoryPageProductList,
 } from "../store/categorySlice";
+import { sortCategoriesByConfiguredOrder } from "../helpers/productCategory";
 
 // Helper: get a safe thumbnail from new product structure
 const getProductThumb = (product) => {
@@ -68,7 +69,7 @@ const CategoryPage = () => {
       const dataResponse = await response.json();
 
       const finalCategoryList = Array.isArray(dataResponse?.data)
-        ? dataResponse.data
+        ? sortCategoriesByConfiguredOrder(dataResponse.data)
         : [];
 
       dispatch(setCategoryList(finalCategoryList));
