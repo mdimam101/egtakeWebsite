@@ -23,8 +23,15 @@ import { FaCartArrowDown } from "react-icons/fa";
 import {
   IoChevronDown,
   IoChevronUp,
+  IoAlertCircleOutline,
+  IoCheckmarkCircle,
+  IoFlaskOutline,
+  IoLeafOutline,
+  IoShieldCheckmarkOutline,
   IoSparkles,
   IoSparklesOutline,
+  IoSunnyOutline,
+  IoWaterOutline,
 } from "react-icons/io5";
 import ProductDetailsSkeleton from "../components/skeletonAnime/ProductDetailsSkeleton";
 import { Helmet } from "react-helmet-async";
@@ -58,6 +65,11 @@ const ensureHttps = (u = "") =>
   String(u || "")
     .replace(/^http:\/\//i, "https://")
     .replace(/ /g, "%20");
+
+const formatSkinCareLabel = (value = "") =>
+  String(value)
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
 const FullscreenImageModal = ({
   visible,
@@ -1322,54 +1334,91 @@ const ProductDetailsPage = () => {
        {/* Skin care info: only render for products that actually have this data */}
       {hasSkinCareInfo && (
         <div className="skin-care-info-card">
-          <h3 className="skin-care-info-title">Skin Care Information</h3>
+          <div className="skin-care-header">
+            <span className="skin-care-header-icon" aria-hidden="true">
+              <IoLeafOutline />
+            </span>
+            <div className="skin-care-header-copy">
+              <h3 className="skin-care-info-title">Skin Care Information</h3>
+              <p className="skin-care-subtitle">Know what works for your skin</p>
+            </div>
+            <span className="skin-care-details-badge">
+              <IoCheckmarkCircle aria-hidden="true" /> Details
+            </span>
+          </div>
 
-          {!!skinCareInfo?.productType && (
-            <p className="skin-care-info-row">
-              <strong>Product Type:</strong> {skinCareInfo.productType}
-            </p>
-          )}
+          <div className="skin-care-body">
+            {!!skinCareInfo?.productType && (
+              <div className="skin-care-product-type">
+                <span className="skin-care-product-label">Product type</span>
+                <p>{skinCareInfo.productType}</p>
+              </div>
+            )}
 
-          {skinIngredients.length > 0 && (
-            <p className="skin-care-info-row">
-              <strong>Ingredients:</strong> {skinIngredients.join(", ")}
-            </p>
-          )}
+            {skinIngredients.length > 0 && (
+              <section className="skin-care-section">
+                <h4><IoFlaskOutline aria-hidden="true" /> Ingredients</h4>
+                <p className="skin-care-ingredients">{skinIngredients.join(", ")}</p>
+              </section>
+            )}
 
-          {skinTypes.length > 0 && (
-            <p className="skin-care-info-row">
-              <strong>Suitable Skin Types:</strong> {skinTypes.join(", ")}
-            </p>
-          )}
+            {skinTypes.length > 0 && (
+              <section className="skin-care-section">
+                <h4>Suitable Skin Types</h4>
+                <div className="skin-care-chip-row">
+                  {skinTypes.map((skinType) => (
+                    <span className="skin-care-chip skin-care-chip--suitable" key={skinType}>
+                      <IoWaterOutline aria-hidden="true" />
+                      {formatSkinCareLabel(skinType)}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
 
-          {targetConcerns.length > 0 && (
-            <p className="skin-care-info-row">
-              <strong>Target Concerns:</strong> {targetConcerns.join(", ")}
-            </p>
-          )}
+            {targetConcerns.length > 0 && (
+              <section className="skin-care-section">
+                <h4>Targets &amp; Benefits</h4>
+                <div className="skin-care-chip-row">
+                  {targetConcerns.map((concern) => (
+                    <span className="skin-care-chip" key={concern}>
+                      {formatSkinCareLabel(concern)}
+                    </span>
+                  ))}
+                </div>
+              </section>
+            )}
 
-          {avoidFor.length > 0 && (
-            <p className="skin-care-info-row">
-              <strong>Avoid For:</strong> {avoidFor.join(", ")}
-            </p>
-          )}
+            {avoidFor.length > 0 && (
+              <div className="skin-care-caution">
+                <IoAlertCircleOutline aria-hidden="true" />
+                <div>
+                  <strong>Use with care</strong>
+                  <p>Avoid for: {avoidFor.map(formatSkinCareLabel).join(", ")}</p>
+                </div>
+              </div>
+            )}
 
-          {!!skinCareInfo?.usageTime && (
-            <p className="skin-care-info-row">
-              <strong>Usage Time:</strong> {skinCareInfo.usageTime}
-            </p>
-          )}
-
-          {!!skinCareInfo?.texture && (
-            <p className="skin-care-info-row">
-              <strong>Texture:</strong> {skinCareInfo.texture}
-            </p>
-          )}
-
-          <p className="skin-care-info-row">
-            <strong>Non-Comedogenic:</strong>{" "}
-            {skinCareInfo?.isNonComedogenic ? "Yes" : "No"}
-          </p>
+            <div className="skin-care-facts">
+              {!!skinCareInfo?.usageTime && (
+                <div className="skin-care-fact">
+                  <IoSunnyOutline className="skin-care-fact-icon skin-care-fact-icon--usage" aria-hidden="true" />
+                  <span>Usage</span><strong>{skinCareInfo.usageTime}</strong>
+                </div>
+              )}
+              {!!skinCareInfo?.texture && (
+                <div className="skin-care-fact skin-care-fact--texture">
+                  <IoSparklesOutline className="skin-care-fact-icon skin-care-fact-icon--texture" aria-hidden="true" />
+                  <span>Texture</span><strong>{skinCareInfo.texture}</strong>
+                </div>
+              )}
+              <div className="skin-care-fact">
+                <IoShieldCheckmarkOutline className="skin-care-fact-icon skin-care-fact-icon--shield" aria-hidden="true" />
+                <span>Non-Comedogenic</span>
+                <strong>{skinCareInfo?.isNonComedogenic ? "Yes" : "No"}</strong>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

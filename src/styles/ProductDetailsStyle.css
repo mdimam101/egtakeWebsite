@@ -1165,24 +1165,81 @@
 
 .skin-care-info-card {
   margin-top: 14px;
-  padding: 12px;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  background: #fffdf8;
+  overflow: hidden;
+  border: 1px solid #dbe7e2;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 5px 12px rgba(15, 81, 50, 0.08);
 }
+
+.skin-care-header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 15px 16px;
+  border-bottom: 1px solid #d1fae5;
+  background: linear-gradient(135deg, #ecfdf5, #f8fafc);
+}
+
+.skin-care-header-icon {
+  display: grid;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 13px;
+  color: #047857;
+  background: #d1fae5;
+  font-size: 20px;
+}
+
+.skin-care-header-copy { flex: 1; min-width: 0; }
 
 .skin-care-info-title {
-  margin: 0 0 8px 0;
-  font-size: 16px;
-  color: #222;
+  margin: 0;
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 700;
 }
 
-.skin-care-info-row {
-  margin: 6px 0;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #333;
+.skin-care-subtitle { margin: 2px 0 0; color: #64748b; font-size: 11.5px; }
+.skin-care-details-badge { display: inline-flex; align-items: center; gap: 4px; padding: 5px 8px; border-radius: 20px; color: #047857; background: rgba(209, 250, 229, 0.8); font-size: 10.5px; font-weight: 700; }
+.skin-care-details-badge svg { font-size: 14px; }
+.skin-care-body { padding: 16px; }
+.skin-care-product-type { padding: 13px; border-left: 3px solid #10b981; border-radius: 14px; background: #f8fafc; }
+.skin-care-product-label { color: #059669; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+.skin-care-product-type p { margin: 4px 0 0; color: #1e293b; font-size: 14.5px; font-weight: 600; line-height: 21px; }
+.skin-care-section { margin-top: 17px; }
+.skin-care-section h4 { display: flex; align-items: center; gap: 6px; margin: 0; color: #334155; font-size: 13.5px; font-weight: 700; }
+.skin-care-section h4 svg { color: #475569; font-size: 16px; }
+.skin-care-ingredients { margin: 8px 0 0; color: #475569; font-size: 13px; line-height: 21px; }
+.skin-care-chip-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+.skin-care-chip { display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 20px; color: #475569; background: #f1f5f9; font-size: 11.5px; font-weight: 600; }
+.skin-care-chip--suitable { border-color: #a7f3d0; color: #047857; background: #ecfdf5; font-weight: 700; }
+.skin-care-chip--suitable svg { font-size: 13px; }
+.skin-care-caution { display: flex; align-items: flex-start; gap: 9px; margin-top: 17px; padding: 12px; border: 1px solid #fde68a; border-radius: 14px; color: #b45309; background: #fffbeb; }
+.skin-care-caution > svg { flex: 0 0 auto; font-size: 18px; }
+.skin-care-caution strong { display: block; color: #92400e; font-size: 12.5px; }
+.skin-care-caution p { margin: 2px 0 0; color: #a16207; font-size: 11.5px; line-height: 17px; }
+.skin-care-facts { display: flex; gap: 7px; margin-top: 17px; }
+.skin-care-fact { display: flex; flex: 1; min-width: 0; min-height: 88px; flex-direction: column; align-items: center; justify-content: center; padding: 9px 5px; border: 1px solid #e2e8f0; border-radius: 13px; background: #f8fafc; text-align: center; }
+.skin-care-fact--texture { flex: 1.35; }
+.skin-care-fact-icon { font-size: 18px; }
+.skin-care-fact-icon--usage { color: #d97706; }
+.skin-care-fact-icon--texture { color: #7c3aed; }
+.skin-care-fact-icon--shield { color: #0284c7; }
+.skin-care-fact span { margin-top: 5px; color: #64748b; font-size: 9.5px; font-weight: 600; }
+.skin-care-fact strong { margin-top: 2px; color: #1e293b; font-size: 11px; line-height: 14px; overflow-wrap: anywhere; }
+
+@media (max-width: 420px) {
+  .skin-care-header { padding: 13px; }
+  .skin-care-header-icon { flex-basis: 36px; width: 36px; height: 36px; }
+  .skin-care-info-title { font-size: 15px; }
+  .skin-care-details-badge { padding-inline: 7px; }
+  .skin-care-body { padding: 13px; }
+  .skin-care-facts { gap: 5px; }
 }
+
 
 /* mobile tweak */
 @media (max-width: 480px) {
