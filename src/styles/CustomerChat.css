@@ -3,185 +3,1023 @@
   z-index: 10002;
 }
 
+/* =========================
+   CHAT TRIGGER
+========================= */
+
 .customer-chat-trigger {
   position: relative;
+
   width: 38px;
   height: 44px;
+
   bottom: 12px;
+
   padding: 0;
-  /* border: 0; */
-  /* border-radius: 13px; */
-  background: white;
+
+  background: #ffffff;
   color: #000000;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   cursor: pointer;
-  /* box-shadow: 0 5px 16px rgba(225, 29, 72, 0.15), inset 0 0 0 1px rgba(225, 29, 72, 0.1); */
-  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
 }
 
 .customer-chat-trigger:hover {
   transform: translateY(-2px);
-  background: linear-gradient(145deg, #fff, #ffe4e9);
-  box-shadow: 0 8px 22px rgba(225, 29, 72, 0.22), inset 0 0 0 1px rgba(225, 29, 72, 0.14);
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #ffe4e9
+    );
+
+  box-shadow:
+    0 8px 22px rgba(225, 29, 72, 0.22),
+    inset 0 0 0 1px rgba(225, 29, 72, 0.14);
 }
 
-.customer-chat-trigger:active { transform: scale(0.95); }
-.customer-chat-trigger svg { font-size: 27px; }
-.customer-chat-trigger > span { display: none; }
+.customer-chat-trigger:active {
+  transform: scale(0.95);
+}
+
+.customer-chat-trigger svg {
+  font-size: 27px;
+}
+
+.customer-chat-trigger > span {
+  display: none;
+}
 
 .customer-chat-unread {
   position: absolute;
+
   top: -8px;
   right: -7px;
+
   min-width: 20px;
   height: 20px;
+
   padding: 0 5px;
+
   display: grid;
   place-items: center;
+
   border-radius: 999px;
-  background: linear-gradient(135deg, #fb7185, #e11d48);
-  color: #fff;
-  border: 2px solid #fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fb7185,
+      #e11d48
+    );
+
+  color: #ffffff;
+
+  border: 2px solid #ffffff;
+
   font-size: 10px;
-  box-shadow: 0 3px 9px rgba(225, 29, 72, 0.3);
+
+  box-shadow:
+    0 3px 9px rgba(225, 29, 72, 0.3);
 }
+
+/* =========================
+   CHAT PANEL
+========================= */
 
 .customer-chat-panel {
   position: fixed;
+
   right: 18px;
   bottom: 108px;
-  width: min(390px, calc(100vw - 24px));
-  height: min(590px, calc(100vh - 145px));
+
+  width: min(
+    390px,
+    calc(100vw - 24px)
+  );
+
+  /* Old browser fallback */
+  height: min(
+    590px,
+    calc(100vh - 145px)
+  );
+
+  max-height: calc(
+    100vh - 145px
+  );
+
   display: grid;
-  grid-template-rows: auto auto 1fr auto auto;
+
+  grid-template-rows:
+    auto
+    auto
+    minmax(0, 1fr)
+    auto
+    auto;
+
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.7);
+
   border-radius: 26px;
-  background: #fff;
-  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28), 0 8px 24px rgba(225, 29, 72, 0.1);
-  animation: customer-chat-enter 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  background: #ffffff;
+
+  box-shadow:
+    0 30px 80px rgba(15, 23, 42, 0.28),
+    0 8px 24px rgba(225, 29, 72, 0.1);
+
+  animation:
+    customer-chat-enter
+    220ms
+    cubic-bezier(0.2, 0.8, 0.2, 1);
+
   transform-origin: bottom right;
+
+  box-sizing: border-box;
+
+  isolation: isolate;
+
+  overscroll-behavior: contain;
+}
+
+/*
+  Modern mobile browsers:
+  keyboard / browser toolbar open হলে
+  dynamic viewport follow করবে।
+*/
+@supports (height: 100dvh) {
+  .customer-chat-panel {
+    height: min(
+      590px,
+      calc(100dvh - 145px)
+    );
+
+    max-height:
+      calc(100dvh - 145px);
+  }
 }
 
 @keyframes customer-chat-enter {
-  from { opacity: 0; transform: translateY(14px) scale(0.96); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform:
+      translateY(14px)
+      scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0)
+      scale(1);
+  }
 }
+
+/* =========================
+   HEADER
+========================= */
 
 .customer-chat-panel header {
   min-height: 78px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   padding: 15px 18px;
+
   background:
-    radial-gradient(circle at 90% 10%, rgba(251, 113, 133, 0.3), transparent 38%),
-    linear-gradient(135deg, #0f172a 0%, #1e293b 58%, #4c1d3d 100%);
-  color: #fff;
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(251, 113, 133, 0.3),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      #0f172a 0%,
+      #1e293b 58%,
+      #4c1d3d 100%
+    );
+
+  color: #ffffff;
+
+  box-sizing: border-box;
 }
 
-.customer-chat-agent { display: flex; align-items: center; gap: 11px; }
-.customer-chat-agent > div { display: grid; gap: 3px; }
-.customer-chat-agent strong { font-size: 15px; letter-spacing: 0.01em; }
-.customer-chat-agent small { display: flex; align-items: center; gap: 5px; color: #dbeafe; font-size: 11px; }
-.customer-chat-agent small i { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15); }
+.customer-chat-agent {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  min-width: 0;
+}
+
+.customer-chat-agent > div {
+  display: grid;
+  gap: 3px;
+
+  min-width: 0;
+}
+
+.customer-chat-agent strong {
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.customer-chat-agent small {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  color: #dbeafe;
+
+  font-size: 11px;
+}
+
+.customer-chat-agent small i {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #4ade80;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(74, 222, 128, 0.15);
+}
 
 .customer-chat-agent-avatar {
   position: relative;
+
   width: 44px;
   height: 44px;
+
+  flex: 0 0 44px;
+
   display: grid;
   place-items: center;
+
   border-radius: 15px;
-  background: linear-gradient(145deg, #fff, #ffe4e9);
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #ffe4e9
+    );
+
   color: #be123c;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.2);
 }
-.customer-chat-agent-avatar svg { font-size: 24px; }
-.customer-chat-agent-avatar > i { position: absolute; right: -2px; bottom: -2px; width: 12px; height: 12px; border: 2px solid #172033; border-radius: 50%; background: #22c55e; }
+
+.customer-chat-agent-avatar svg {
+  font-size: 24px;
+}
+
+.customer-chat-agent-avatar > i {
+  position: absolute;
+
+  right: -2px;
+  bottom: -2px;
+
+  width: 12px;
+  height: 12px;
+
+  border:
+    2px solid #172033;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+}
 
 .customer-chat-panel header > button {
   width: 34px;
   height: 34px;
+
+  flex: 0 0 34px;
+
   display: grid;
   place-items: center;
+
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.12);
+
   border-radius: 11px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+
+  background:
+    rgba(255, 255, 255, 0.08);
+
+  color: #ffffff;
+
   font-size: 20px;
+
   cursor: pointer;
-  transition: background 160ms ease, transform 160ms ease;
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  -webkit-tap-highlight-color:
+    transparent;
+
+  touch-action: manipulation;
+
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
 }
-.customer-chat-panel header > button:hover { background: rgba(255, 255, 255, 0.18); transform: rotate(4deg); }
+
+.customer-chat-panel
+header > button:hover {
+  background:
+    rgba(255, 255, 255, 0.18);
+
+  transform: rotate(4deg);
+}
+
+/* =========================
+   PRODUCT NAME
+========================= */
 
 .customer-chat-product {
   padding: 10px 16px;
+
   overflow: hidden;
+
   color: #475569;
-  background: linear-gradient(90deg, #fff7f9, #fff);
-  border-bottom: 1px solid #f1f5f9;
+
+  background:
+    linear-gradient(
+      90deg,
+      #fff7f9,
+      #ffffff
+    );
+
+  border-bottom:
+    1px solid #f1f5f9;
+
   font-size: 11px;
   font-weight: 750;
+
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  box-sizing: border-box;
 }
 
+/* =========================
+   MESSAGES AREA
+========================= */
+
 .customer-chat-messages {
+  /*
+    IMPORTANT:
+    grid child overflow issue prevent করে।
+  */
+  min-height: 0;
+  min-width: 0;
+
   padding: 18px 14px;
+
   overflow-y: auto;
+  overflow-x: hidden;
+
   display: flex;
   flex-direction: column;
+
   gap: 11px;
+
   background:
-    radial-gradient(circle at 100% 0, rgba(251, 113, 133, 0.06), transparent 34%),
-    linear-gradient(180deg, #f8fafc, #fdfdfd);
+    radial-gradient(
+      circle at 100% 0,
+      rgba(251, 113, 133, 0.06),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      #f8fafc,
+      #fdfdfd
+    );
+
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+
+  scrollbar-color:
+    #cbd5e1 transparent;
+
+  overscroll-behavior-y: contain;
+
+  -webkit-overflow-scrolling:
+    touch;
+
+  box-sizing: border-box;
 }
 
 .customer-chat-message {
   max-width: 82%;
-  padding: 10px 12px 7px;
-  border-radius: 17px;
-  animation: customer-message-enter 180ms ease-out;
-}
-@keyframes customer-message-enter { from { opacity: 0; transform: translateY(5px); } }
-.customer-chat-message p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13.5px; line-height: 1.5; }
-.customer-chat-message small { display: block; margin-top: 5px; opacity: 0.67; font-size: 9.5px; text-align: right; }
-.customer-chat-message.customer { align-self: flex-end; border-bottom-right-radius: 5px; background: linear-gradient(135deg, #fb4165, #e11d48); color: #fff; box-shadow: 0 7px 16px rgba(225, 29, 72, 0.16); }
-.customer-chat-message.support { align-self: flex-start; border: 1px solid #e8edf3; border-bottom-left-radius: 5px; background: rgba(255, 255, 255, 0.96); color: #172033; box-shadow: 0 5px 15px rgba(15, 23, 42, 0.06); }
 
-.customer-chat-state { margin: auto; padding: 18px; color: #64748b; text-align: center; font-size: 13px; line-height: 1.6; }
-.customer-chat-error, .customer-chat-closed { padding: 8px 13px; background: #fff1f2; color: #b42318; border-top: 1px solid #ffe4e6; font-size: 11px; font-weight: 700; }
+  padding: 10px 12px 7px;
+
+  border-radius: 17px;
+
+  animation:
+    customer-message-enter
+    180ms ease-out;
+}
+
+@keyframes customer-message-enter {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+}
+
+.customer-chat-message p {
+  margin: 0;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.customer-chat-message small {
+  display: block;
+
+  margin-top: 5px;
+
+  opacity: 0.67;
+
+  font-size: 9.5px;
+
+  text-align: right;
+}
+
+.customer-chat-message.customer {
+  align-self: flex-end;
+
+  border-bottom-right-radius:
+    5px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fb4165,
+      #e11d48
+    );
+
+  color: #ffffff;
+
+  box-shadow:
+    0 7px 16px
+    rgba(225, 29, 72, 0.16);
+}
+
+.customer-chat-message.support {
+  align-self: flex-start;
+
+  border:
+    1px solid #e8edf3;
+
+  border-bottom-left-radius:
+    5px;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  color: #172033;
+
+  box-shadow:
+    0 5px 15px
+    rgba(15, 23, 42, 0.06);
+}
+
+.customer-chat-state {
+  margin: auto;
+
+  padding: 18px;
+
+  color: #64748b;
+
+  text-align: center;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================
+   ERROR / CLOSED
+========================= */
+
+.customer-chat-error,
+.customer-chat-closed {
+  padding: 8px 13px;
+
+  background: #fff1f2;
+
+  color: #b42318;
+
+  border-top:
+    1px solid #ffe4e6;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  box-sizing: border-box;
+}
+
+/* =========================
+   INPUT AREA
+========================= */
 
 .customer-chat-panel form {
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+
   display: grid;
-  grid-template-columns: 1fr 44px;
-  align-items: end;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    44px;
+
+  align-items: center;
+
   gap: 9px;
+
   padding: 11px 12px;
-  border-top: 1px solid #edf0f4;
-  background: rgba(255, 255, 255, 0.96);
+
+  border-top:
+    1px solid #edf0f4;
+
+  background: #ffffff;
+
+  box-sizing: border-box;
 }
-.customer-chat-panel textarea { min-height: 44px; max-height: 100px; resize: none; padding: 11px 13px; border: 1px solid #d9dee7; border-radius: 15px; background: #f8fafc; color: #172033; outline: none; font: inherit; font-size: 13px; line-height: 1.5; transition: border 160ms ease, box-shadow 160ms ease, background 160ms ease; }
-.customer-chat-panel textarea::placeholder { color: #98a2b3; }
-.customer-chat-panel textarea:focus { border-color: #fb7185; background: #fff; box-shadow: 0 0 0 4px rgba(251, 113, 133, 0.1); }
-.customer-chat-panel form button { height: 44px; border: 0; border-radius: 14px; background: linear-gradient(135deg, #fb4165, #d91445); color: #fff; font-size: 19px; cursor: pointer; box-shadow: 0 7px 17px rgba(225, 29, 72, 0.25); transition: transform 160ms ease, box-shadow 160ms ease; }
-.customer-chat-panel form button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 9px 20px rgba(225, 29, 72, 0.32); }
-.customer-chat-panel form button:disabled { opacity: 0.42; cursor: not-allowed; box-shadow: none; }
+
+/*
+  IMPORTANT:
+  Mobile Safari / iPhone 16px এর নিচে input
+  font-size হলে automatic zoom করতে পারে।
+
+  তাই এখানে 16px রাখা হয়েছে।
+*/
+
+.customer-chat-panel textarea {
+  display: block;
+
+  width: 100%;
+
+  /*
+    Input touch করার পরে height change হবে না।
+  */
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+
+  min-width: 0;
+
+  margin: 0;
+
+  padding: 10px 13px;
+
+  box-sizing: border-box;
+
+  resize: none;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  border:
+    1px solid #d9dee7;
+
+  border-radius: 15px;
+
+  background: #f8fafc;
+
+  color: #172033;
+
+  outline: none;
+
+  font-family:
+    inherit;
+
+  /*
+    DO NOT reduce below 16px.
+    iPhone/iOS auto zoom prevent করে।
+  */
+  font-size: 16px;
+
+  line-height: 22px;
+
+  font-weight: 400;
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  -webkit-border-radius: 15px;
+
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  -webkit-tap-highlight-color:
+    transparent;
+
+  /*
+    Browser যেন touch input-এ weird scaling না করে।
+  */
+  touch-action: manipulation;
+
+  overscroll-behavior: contain;
+
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.customer-chat-panel
+textarea::placeholder {
+  color: #98a2b3;
+
+  opacity: 1;
+}
+
+.customer-chat-panel
+textarea:focus {
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+
+  border-color: #fb7185;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(251, 113, 133, 0.1);
+
+  outline: none;
+}
+
+/*
+  Autofill / browser special state-এও
+  dimensions change হতে দেবে না।
+*/
+.customer-chat-panel
+textarea:active,
+.customer-chat-panel
+textarea:hover {
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+}
+
+/* =========================
+   SEND BUTTON
+========================= */
+
+.customer-chat-panel form button {
+  width: 44px;
+  height: 44px;
+
+  min-width: 44px;
+  min-height: 44px;
+
+  padding: 0;
+
+  display: grid;
+  place-items: center;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fb4165,
+      #d91445
+    );
+
+  color: #ffffff;
+
+  font-size: 19px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 7px 17px
+    rgba(225, 29, 72, 0.25);
+
+  -webkit-appearance: none;
+  appearance: none;
+
+  -webkit-tap-highlight-color:
+    transparent;
+
+  touch-action: manipulation;
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.customer-chat-panel
+form button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 9px 20px
+    rgba(225, 29, 72, 0.32);
+}
+
+.customer-chat-panel
+form button:disabled {
+  opacity: 0.42;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 480px) {
-  .customer-chat-trigger { width: 36px; height: 42px; }
-  .customer-chat-panel { right: 6px; bottom: 76px; width: calc(100vw - 12px); height: min(560px, calc(100vh - 92px)); border-radius: 22px; }
-  .customer-chat-panel header { min-height: 72px; padding: 13px 15px; }
-  .customer-chat-messages { padding: 15px 11px; }
+  .customer-chat-trigger {
+    width: 36px;
+    height: 42px;
+  }
+
+  .customer-chat-panel {
+    /*
+      safe-area support:
+      iPhone bottom bar / notch devices
+    */
+    right: 6px;
+
+    bottom:
+      calc(
+        76px +
+        env(
+          safe-area-inset-bottom,
+          0px
+        )
+      );
+
+    width:
+      calc(100vw - 12px);
+
+    /*
+      Old mobile browser fallback
+    */
+    height:
+      min(
+        560px,
+        calc(100vh - 92px)
+      );
+
+    max-height:
+      calc(100vh - 92px);
+
+    border-radius: 22px;
+  }
+
+  @supports (height: 100dvh) {
+    .customer-chat-panel {
+      height:
+        min(
+          560px,
+          calc(100dvh - 92px)
+        );
+
+      max-height:
+        calc(100dvh - 92px);
+    }
+  }
+
+  .customer-chat-panel header {
+    min-height: 72px;
+
+    padding: 13px 15px;
+  }
+
+  .customer-chat-messages {
+    min-height: 0;
+
+    padding: 15px 11px;
+  }
+
+  .customer-chat-panel form {
+    padding:
+      10px
+      10px
+      calc(
+        10px +
+        env(
+          safe-area-inset-bottom,
+          0px
+        )
+      );
+
+    gap: 8px;
+  }
+
+  .customer-chat-panel textarea,
+  .customer-chat-panel textarea:focus,
+  .customer-chat-panel textarea:active {
+    width: 100%;
+
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+
+    /*
+      VERY IMPORTANT:
+      iOS Safari auto zoom prevent
+    */
+    font-size: 16px;
+
+    line-height: 22px;
+
+    padding: 10px 12px;
+  }
+
+  .customer-chat-panel form button {
+    width: 44px;
+    height: 44px;
+
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
+/* =========================
+   VERY SMALL / LOW-END MOBILE
+========================= */
+
+@media (max-width: 360px) {
+  .customer-chat-panel {
+    right: 4px;
+
+    width:
+      calc(100vw - 8px);
+
+    border-radius: 18px;
+  }
+
+  .customer-chat-panel header {
+    min-height: 66px;
+
+    padding: 10px 12px;
+  }
+
+  .customer-chat-agent-avatar {
+    width: 38px;
+    height: 38px;
+
+    flex-basis: 38px;
+
+    border-radius: 12px;
+  }
+
+  .customer-chat-agent-avatar svg {
+    font-size: 21px;
+  }
+
+  .customer-chat-agent strong {
+    font-size: 13px;
+  }
+
+  .customer-chat-agent small {
+    font-size: 10px;
+  }
+
+  .customer-chat-product {
+    padding: 8px 11px;
+  }
+
+  .customer-chat-messages {
+    padding: 10px 8px;
+
+    gap: 8px;
+  }
+
+  .customer-chat-message {
+    max-width: 87%;
+
+    padding: 8px 10px 6px;
+  }
+
+  .customer-chat-message p {
+    font-size: 13px;
+  }
+
+  /*
+    360px screen হলেও input 16px-ই থাকবে।
+    এটা কমাবে না।
+  */
+  .customer-chat-panel textarea {
+    font-size: 16px;
+  }
+}
+
+/* =========================
+   SHORT HEIGHT MOBILE
+   landscape / keyboard cases
+========================= */
+
+@media (max-height: 600px) {
+  .customer-chat-panel {
+    bottom:
+      calc(
+        60px +
+        env(
+          safe-area-inset-bottom,
+          0px
+        )
+      );
+
+    height:
+      calc(100vh - 72px);
+
+    max-height:
+      calc(100vh - 72px);
+
+    border-radius: 18px;
+  }
+
+  @supports (height: 100dvh) {
+    .customer-chat-panel {
+      height:
+        calc(100dvh - 72px);
+
+      max-height:
+        calc(100dvh - 72px);
+    }
+  }
+
+  .customer-chat-panel header {
+    min-height: 60px;
+
+    padding: 9px 12px;
+  }
+
+  .customer-chat-product {
+    padding: 7px 11px;
+  }
+
+  .customer-chat-messages {
+    padding: 9px;
+  }
+
+  .customer-chat-panel form {
+    padding: 8px;
+  }
+}
+
+/* =========================
+   REDUCED MOTION /
+   LOW PERFORMANCE DEVICES
+========================= */
+
 @media (prefers-reduced-motion: reduce) {
-  .customer-chat-panel, .customer-chat-message { animation: none; }
-  .customer-chat-trigger, .customer-chat-panel button { transition: none; }
+  .customer-chat-panel,
+  .customer-chat-message {
+    animation: none;
+  }
+
+  .customer-chat-trigger,
+  .customer-chat-panel button,
+  .customer-chat-panel textarea {
+    transition: none;
+  }
 }
