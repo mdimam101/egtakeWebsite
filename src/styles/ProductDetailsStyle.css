@@ -528,7 +528,12 @@
 
 /* ✅ Fixed Add-to-Cart Button (RN-like) */
 .p-add-name-btn {
-  margin-right: 140px;
+  margin-right: 120px;
+}
+
+.p-chat-name-btn {
+  margin-right: 100px;
+  /* bottom: 30px; */
 }
 .add-to-cart-fixed {
   position: fixed;
@@ -619,10 +624,11 @@
 /* ✅ Mobile adjust */
 @media (max-width: 480px) {
   .add-to-cart-fixed {
-    width: 70%;
-    max-width: 360px;
+    width: 50%;
+    max-width: 260px;
     height: 46px;
     bottom: 20px;
+    display: start;
   }
 }
 
@@ -1735,7 +1741,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 999;
   text-decoration: none;
   box-shadow: 0 8px 24px rgba(17, 24, 39, 0.22);
   border: 1px solid rgba(59, 175, 78, 0.28);

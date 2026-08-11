@@ -127,6 +127,16 @@
   background: linear-gradient(180deg, #ecfeff, #ffffff);
 }
 
+.tracking-kpi-card.checkout-visit {
+  border-color: #fbcfe8;
+  background: linear-gradient(180deg, #fdf2f8, #ffffff);
+}
+
+.tracking-kpi-card.checkout-items {
+  border-color: #f9a8d4;
+  background: linear-gradient(180deg, #fce7f3, #ffffff);
+}
+
 .tracking-kpi-card span,
 .tracking-kpi-card small {
   color: #64748b;

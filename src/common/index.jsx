@@ -1,4 +1,4 @@
-const backendDomain ="https://api.pyzara.com" //"https://e4imbebbpb.execute-api.ap-southeast-1.amazonaws.com";//"http://192.168.1.4:8080"//import.meta.env.VITE_APP_BACKEND_URL;
+export const backendDomain ="https://api.pyzara.com" //"https://e4imbebbpb.execute-api.ap-southeast-1.amazonaws.com";//"http://192.168.1.4:8080"//import.meta.env.VITE_APP_BACKEND_URL;
 //"http://localhost:8080"//
 const SummaryApi = {
   signUp: {
@@ -216,6 +216,44 @@ ai_size_recommend: {
     url: `${backendDomain}/api/analytics-basic/timeseries`,
     method: "get",
   },
+
+  chat_message: {
+    url: `${backendDomain}/api/chat/message`,
+    method: "post",
+  },
+  chat_conversation: {
+    url: `${backendDomain}/api/chat/conversation`,
+    method: "get",
+  },
+  chat_messages: {
+    url: (conversationId) => `${backendDomain}/api/chat/messages/${conversationId}`,
+    method: "get",
+  },
+  chat_read: {
+    url: (conversationId) => `${backendDomain}/api/chat/read/${conversationId}`,
+    method: "PATCH",
+  },
+  admin_chat_conversations: {
+    url: `${backendDomain}/api/admin/chat/conversations`,
+    method: "get",
+  },
+  admin_chat_messages: {
+    url: (conversationId) => `${backendDomain}/api/admin/chat/messages/${conversationId}`,
+    method: "get",
+  },
+  admin_chat_reply: {
+    url: `${backendDomain}/api/admin/chat/message`,
+    method: "post",
+  },
+  admin_chat_read: {
+    url: (conversationId) => `${backendDomain}/api/admin/chat/read/${conversationId}`,
+    method: "PATCH",
+  },
+  admin_chat_status: {
+    url: (conversationId) => `${backendDomain}/api/admin/chat/conversation/${conversationId}/status`,
+    method: "PATCH",
+  },
+  
 };
 
 export default SummaryApi;

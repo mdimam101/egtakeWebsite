@@ -204,6 +204,7 @@ const CheckoutPage = () => {
     if (!selectedItems.length || checkoutTrackedRef.current) return;
 
     checkoutTrackedRef.current = true;
+    trackBasic('checkout');
     trackMetaCommerceEvent("InitiateCheckout", {
       value: baseTotal,
       num_items: totalItems,
@@ -377,7 +378,7 @@ const CheckoutPage = () => {
         });
       }
 
-      trackBasic("order_confirm", { count: selectedItems.length });
+      trackBasic("checkout", { count: selectedItems.length });
 
       // update address
       await upsertUserShipping();

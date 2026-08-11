@@ -47,6 +47,7 @@ import {
 import trackBasic from "../helpers/trackBasic";
 import GuidedCoachmark from "../components/GuidedCoachmark";
 import { trackMetaCommerceEvent } from "../helpers/metaPixel";
+import CustomerChat from "../components/CustomerChat";
 
 
 /* =========================
@@ -1477,13 +1478,18 @@ const ProductDetailsPage = () => {
       </div>
 
       {/* Add to cart & cart button */}
-      <div className="addbar">
+      <div className="addbar"> 
         <div className="p-cart-icon-container">
           <Link to={"/cart"} className="p-footer-icon">
             <FaCartArrowDown />
             <span className="p-cart-count-badge">{cartCountProduct}</span>
           </Link>
         </div>
+
+         <div className="p-chat-name-btn">
+           <CustomerChat productName={updateProductName || data.productName} />
+        </div>
+        
         <div className="p-add-name-btn">
           <button
             className="add-to-cart-fixed"

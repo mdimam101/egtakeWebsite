@@ -16,6 +16,8 @@ const TRACKED_METRICS = [
   "search",
   "product_view",
   "add_to_cart",
+  "checkout",
+  "checkout_items",
   "order_confirm",
 ];
 
@@ -26,6 +28,8 @@ const METRIC_LABELS = {
   search: "Searches",
   product_view: "Product Views",
   add_to_cart: "Add to Cart",
+  checkout: "Checkout Visits",
+  checkout_items: "Checkout Items",
   order_confirm: "Orders Confirmed",
 };
 
@@ -36,6 +40,8 @@ const METRIC_COLORS = {
   search: "#f59e0b",
   product_view: "#10b981",
   add_to_cart: "#ef4444",
+  checkout: "#ec4899",
+  checkout_items: "#db2777",
   order_confirm: "#111827",
 };
 
@@ -243,6 +249,16 @@ const AdminTracking = () => {
           <strong>{compactNumber(summaryMap.add_to_cart)}</strong>
           <small>Successful cart actions</small>
         </div>
+       <div className="tracking-kpi-card checkout-visit">
+          <span>Checkout Visits</span>
+          <strong>{compactNumber(summaryMap.checkout)}</strong>
+          <small>Customers who opened checkout</small>
+        </div>
+        <div className="tracking-kpi-card checkout-items">
+          <span>Checkout Items</span>
+          <strong>{compactNumber(summaryMap.checkout_items)}</strong>
+          <small>Total items taken to checkout</small>
+        </div>
         <div className="tracking-kpi-card">
           <span>Orders</span>
           <strong>{compactNumber(summaryMap.order_confirm)}</strong>
@@ -257,7 +273,7 @@ const AdminTracking = () => {
             <p>{activeRange.key === "365d" ? "Monthly" : "Daily"} event graph</p>
           </div>
           <div className="tracking-legend">
-            {TRACKED_METRICS.slice(0, 6).map((metric) => (
+            {TRACKED_METRICS.slice(0, 8).map((metric) => (
               <span key={metric}>
                 <i style={{ background: METRIC_COLORS[metric] }} />
                 {formatMetric(metric)}
@@ -276,7 +292,7 @@ const AdminTracking = () => {
               {chartData.map((row) => (
                 <div className="tracking-chart-day" key={row.bucket}>
                   <div className="tracking-bars">
-                    {TRACKED_METRICS.slice(0, 6).map((metric) => {
+                    {TRACKED_METRICS.slice(0, 8).map((metric) => {
                       const value = Number(row[metric] || 0);
                       return (
                         <span

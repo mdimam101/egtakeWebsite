@@ -99,6 +99,10 @@ const router = createBrowserRouter([
             path: "coupons",
             lazy: lazyPage(() => import("../pages/AdminCoupons")),
           },
+           {
+            path: "chat",
+            lazy: lazyPage(() => import("../pages/AdminChat")),
+          },
           {
             path: "tracking",
             lazy: lazyPage(() => import("../pages/AdminTracking")),

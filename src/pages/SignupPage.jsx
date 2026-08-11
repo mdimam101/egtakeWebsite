@@ -130,6 +130,14 @@ const handleGoogleSuccess = async (credentialResponse) => {
       // ✅ old guest token remove
       localStorage.removeItem("authToken");
 
+      localStorage.setItem(
+          "authToken",
+          response.data.data
+        );
+
+    console.log("tokenafter login", response.data.data)
+    
+
       toast.success("Google login successful");
 
       try {
