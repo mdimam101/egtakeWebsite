@@ -10,6 +10,10 @@ const normalizeProductVariants = (product) => {
     trandingProduct: toBoolean(
       product.trandingProduct ?? product.trendingProduct,
     ),
+     // Keep the schema spelling as the canonical field, while accepting the
+    // commonly used corrected spelling from older/newer API projections.
+    trandingPriority:
+      product.trandingPriority,
     handCraft: toBoolean(product.handCraft),
     salesOn: toBoolean(product.salesOn),
   };
@@ -72,4 +76,48 @@ export const getFirstVariantCards = (products = []) => {
     seenProductIds.add(productId);
     return true;
   });
+};
+
+
+// The trending endpoint already contains only trending products, so this helper
+// is intentionally concerned only with ordering. Explicit positive priorities
+// come first; products without one retain their original API order afterward.
+export const orderTrendingProducts = (products = []) =>
+  products
+    .map((product, index) => {
+      const rawPriority =
+        product?.trandingPriority ;
+      const numericPriority = Number(rawPriority);
+      const priority =
+        rawPriority != null &&
+        rawPriority !== "" &&
+        Number.isInteger(numericPriority) &&
+        numericPriority >= 1
+          ? numericPriority
+          : null;
+
+      return { product, index, priority };
+    })
+    .sort((a, b) => {
+      if (a.priority != null && b.priority != null) {
+        return a.priority - b.priority || a.index - b.index;
+      }
+      if (a.priority != null) return -1;
+      if (b.priority != null) return 1;
+      return a.index - b.index;
+    })
+    .map(({ product }) => product);
+
+export const chunkProducts = (products = [], size = 4) => {
+  const safeSize = Number.isInteger(size) && size > 0 ? size : 4;
+  const chunks = [];
+
+  for (let index = 0; index < products.length; index += safeSize) {
+    chunks.push(products.slice(index, index + safeSize));
+  }
+
+  console.log("chunk ", chunks);
+  
+
+  return chunks;
 };

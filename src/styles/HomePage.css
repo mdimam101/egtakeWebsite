@@ -401,6 +401,54 @@
   flex: 0 0 auto;
   scroll-snap-align: start;
 }
+.trending-group-slider {
+  gap: 12px;
+  scroll-padding-inline: 2px;
+  overscroll-behavior-inline: contain;
+}
+
+.trending-product-group {
+  flex: 0 0 min(78vw, 286px);
+  width: min(78vw, 286px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 8px;
+  border: 2px solid rgba(255, 44, 85, 0.32);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 8px 20px rgba(17, 24, 39, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  box-sizing: border-box;
+}
+
+.trending-product-group .trend-glass-card {
+  width: 100%;
+}
+
+.trending-see-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: left;
+  margin: 2px 3px 0;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: #b12704;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.trending-see-more:hover,
+.trending-see-more:focus-visible {
+  color: #e11d48;
+  text-decoration: underline;
+}
+
 
 /* cleaner scrollbar */
 .tranding-slider::-webkit-scrollbar {
@@ -495,7 +543,7 @@
   padding: 0 8px 10px;
   margin-top: 12px;
   background: #ffffff;
-  height: 250px;
+   min-height: 250px;
 }
 
 .tranding-bg::before {

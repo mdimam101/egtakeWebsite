@@ -11,10 +11,15 @@ import { setBanarList } from "../store/banarSlice";
 import TrendingGlassSlideCard from "../components/TrendingGlassSlideCard";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import {
+  chunkProducts,
   getFirstVariantCards,
   normalizeProductCards,
+  orderTrendingProducts,
 } from "../helpers/homeProductCards";
 import { setTrendingProductList } from "../store/trendingProductSlice";
+
+
+const MAX_TRENDING_SLIDE_GROUPS = 2
 
 
 const PLAY_STORE_URL =
@@ -202,9 +207,21 @@ const HomePage = () => {
     return () => controller.abort();
   }, [fetchTrendingProducts, hasLoadedTrendingProducts]);
 
-  const trandingSlideProducts = useMemo(
-    () => getFirstVariantCards(trandingProducts),
+  const orderedTrendingProducts = useMemo(
+    () => orderTrendingProducts(trandingProducts),
     [trandingProducts],
+  );
+  const trandingSlideProducts = useMemo(
+    () => getFirstVariantCards(orderedTrendingProducts),
+    [orderedTrendingProducts],
+  );
+  const trendingProductGroups = useMemo(
+    () =>
+      chunkProducts(trandingSlideProducts, 4).slice(
+        0,
+        MAX_TRENDING_SLIDE_GROUPS,
+      ),
+    [trandingSlideProducts],
   );
 
    // 💰 ০~১৯৯ টাকার লিস্ট
@@ -275,7 +292,7 @@ const HomePage = () => {
 
   // set selected slide product
   const selectedSlideProduct = showAllTranding
-    ? trandingProducts
+    ? orderedTrendingProducts
     : showAllLowPrice
       ? productsBelow199
       : [];
@@ -431,34 +448,43 @@ const HomePage = () => {
               </>
             ) : (
               <>
-                {/* 🔥 Tranding Slide Section */}
-                {trandingProducts && trandingProducts.length > 0 && (
+                 {/* 🔥 Tranding Slide Section */}
+                 {orderedTrendingProducts.length > 0 && (
                   <div className="tranding-section tranding-bg">
                     <h2 className="home-section-title section-trending">
                       🔥 Tranding
                     </h2>
 
-                    <div className="tranding-slider">
-                      {trandingSlideProducts.slice(0, 6).map((product) => (
-                        <TrendingGlassSlideCard
-                          productData={product}
-                          key={product.cardKey}
-                        />
-                      ))}
-
-                       {trandingProducts.length >
-                        Math.min(6, trandingSlideProducts.length) && (
+                    <div
+                      className="tranding-slider trending-group-slider"
+                      aria-label="Trending products"
+                    >
+                      {trendingProductGroups.map((group, groupIndex) => (
                         <div
-                          className="view-more-card"
-                          onClick={() => {
-                            (setShowAllTranding(true),
-                              setShowAllLowPrice(false));
-                          }}
+                          className="trending-product-group"
+                          key={`trending-group-${groupIndex}`}
                         >
-                          <p className="view-more-text">View All ➜</p>
+                          {group.map((product) => (
+                            <TrendingGlassSlideCard
+                              productData={product}
+                              key={product.cardKey}
+                            />
+                          ))}
                         </div>
-                      )}
+                      ))}
                     </div>
+
+                    <button
+                      type="button"
+                      className="trending-see-more"
+                      onClick={() => {
+                        setShowAllTranding(true);
+                        setShowAllLowPrice(false);
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }}
+                    >
+                      See more
+                    </button>
                   </div>
                 )}
 

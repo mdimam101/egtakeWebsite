@@ -20,6 +20,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     selling: "",
     buyingPrice: "",
     trandingProduct: false,
+    trandingPriority: "",
     handCraft: false,
     salesOn: false,
     isPublished: true,
@@ -120,6 +121,10 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
       paramData.buyingPrice === 0 || paramData.buyingPrice
         ? String(paramData.buyingPrice)
         : "",
+        trandingPriority:
+    paramData.trandingPriority == null
+        ? ""
+        : String(paramData.trandingPriority),
   };
 
   const [data, setData] = useState(initial);
@@ -178,6 +183,9 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     setData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
+      ...(name === "trandingProduct" && !checked
+        ? { trandingPriority: "" }
+        : {}),
     }));
   };
 
@@ -555,6 +563,10 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
 
     const payload = {
       ...data,
+      trandingPriority:
+        data.trandingProduct && data.trandingPriority !== ""
+          ? Number(data.trandingPriority)
+          : null,
       subCategory: data.subCategory?.trim() || data.category,
       totalStock,
       productCodeNumber:
@@ -771,6 +783,28 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
               />
               <span className="slider round"></span>
             </label>
+          </div>
+
+           <div className="trending-priority-field">
+            <label htmlFor="trandingPriority">Trending Priority:</label>
+            <select
+              id="trandingPriority"
+              name="trandingPriority"
+              value={data.trandingPriority}
+              onChange={handleOnChange}
+              disabled={!data.trandingProduct}
+            >
+              <option value="">Default (no priority)</option>
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((priority) => (
+                <option value={priority} key={priority}>
+                  {priority}
+                </option>
+              ))}
+            </select>
+            <small>
+              Lower numbers appear first. Each priority can be used by only one
+              trending product.
+            </small>
           </div>
 
           <div className="switch-wrapper">
