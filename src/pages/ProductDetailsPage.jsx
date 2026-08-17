@@ -48,6 +48,7 @@ import trackBasic from "../helpers/trackBasic";
 import GuidedCoachmark from "../components/GuidedCoachmark";
 import { trackMetaCommerceEvent } from "../helpers/metaPixel";
 import CustomerChat from "../components/CustomerChat";
+import ActionFeedbackModal from "../components/ActionFeedbackModal";
 
 
 /* =========================
@@ -296,6 +297,7 @@ const ProductDetailsPage = () => {
 
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [hasSelectedVariant, setHasSelectedVariant] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [allImages, setAllImages] = useState([]);
   // const [showDetails, setShowDetails] = useState(false);
@@ -316,6 +318,14 @@ const ProductDetailsPage = () => {
   const [reviews, setReviews] = useState([]);
 
   const [hasScrolledForCoach, setHasScrolledForCoach] = useState(false);
+
+   const [cartModal, setCartModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    tone: "success",
+    showCartLink: false,
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -475,6 +485,7 @@ const ProductDetailsPage = () => {
         preferredVariantIndex >= 0 ? preferredVariantIndex : 0,
       );
       setSelectedSize(null);
+      setHasSelectedVariant(false);
 
       const res = await fetch(SummaryApi.category_wish_product.url, {
         method: SummaryApi.category_wish_product.method,
@@ -565,13 +576,28 @@ const ProductDetailsPage = () => {
       : 0;
 
   const addToCartHandle = async () => {
-    // if sizes exist, user must select a size
-    if (hasSizes && !selectedSize) {
-      alert("Please select a size.");
+   const hasVariantChoices = (data.variants || []).length > 1;
+    const missingSelections = [];
+
+    if (hasSizes && !selectedSize) missingSelections.push("সাইজ");
+    if (hasVariantChoices && !hasSelectedVariant) {
+      const variantLabel = (data.variants || []).some((variant) => variant.color)
+        ? "কালার"
+        : "টাইপ";
+      missingSelections.push(variantLabel);
+    }
+
+    if (missingSelections.length > 0) {
+      setCartModal({
+        isOpen: true,
+        title: "পছন্দ নির্বাচন করুন",
+        message: `দয়া করে পণ্যের পছন্দের ${missingSelections.join(" ও ")} নির্বাচন করুন।`,
+        tone: "warning",
+        showCartLink: false,
+      });
       return;
     }
-    // if no sizes, proceed directly
-    await addToCart({
+    const added = await addToCart({
       productId: data._id,
       productName: updateProductName,
       size: hasSizes ? selectedSize : undefined,
@@ -580,8 +606,27 @@ const ProductDetailsPage = () => {
       price: UpdatePrice,
       selling: updateSelling,
       subCategory: data?.subCategory || data?.category,
+     showToast: false,
     });
-    fetchUserAddToCart();
+    if (added) {
+      await fetchUserAddToCart();
+      setCartModal({
+        isOpen: true,
+        title: "Add to cart",
+        message: "পণ্যটি সফলভাবে কার্টে যোগ হয়েছে।",
+        tone: "success",
+        showCartLink: true,
+      });
+      return;
+    }
+
+    setCartModal({
+      isOpen: true,
+      title: "কার্টে যোগ করা যায়নি",
+      message: "পণ্যটি আগে থেকেই কার্টে থাকতে পারে। অনুগ্রহ করে কার্ট পেজ দেখুন অথবা আবার চেষ্টা করুন।",
+      tone: "warning",
+      showCartLink: true,
+    });
   };
 
   // -------- Button label & disabled (matches your rule) --------
@@ -590,7 +635,9 @@ const ProductDetailsPage = () => {
       // has sizeDetails ⇒ must select size first
       if (!selectedSize) return { label: "Select Size", disabled: false };
       const stk = getStockBySize(selectedSize);
-      if (stk <= 0) return { label: "Out of Stock", disabled: true };
+       if (selectedSize && stk <= 0)
+        return { label: "Out of Stock", disabled: true };
+      // if (stk <= 0) return { label: "Out of Stock", disabled: true };
       return { label: "Add to cart", disabled: false };
     }
     // no sizeDetails ⇒ direct Add to cart
@@ -939,6 +986,7 @@ const ProductDetailsPage = () => {
                   variantIndex !== selectedVariantIndex
                 ) {
                   setSelectedVariantIndex(variantIndex);
+                  setHasSelectedVariant(true);
                   setSelectedSize(null);
                 }
               }}
@@ -977,6 +1025,7 @@ const ProductDetailsPage = () => {
             );
             if (variantIndex !== -1 && variantIndex !== selectedVariantIndex) {
               setSelectedVariantIndex(variantIndex);
+              setHasSelectedVariant(true);
               setSelectedSize(null);
             }
           }}
@@ -1029,10 +1078,11 @@ const ProductDetailsPage = () => {
             <div
               key={idx}
               className={`thumbnail-color-box ${
-                idx === selectedVariantIndex ? "active" : ""
+                 hasSelectedVariant && idx === selectedVariantIndex ? "active" : ""
               }`}
               onClick={() => {
                 setSelectedVariantIndex(idx);
+                setHasSelectedVariant(true);
                 setSelectedSize(null);
 
                 const newImages = data.variants[idx]?.images || [];
@@ -1500,6 +1550,17 @@ const ProductDetailsPage = () => {
           </button>
         </div>
       </div>
+
+      <ActionFeedbackModal
+        isOpen={cartModal.isOpen}
+        title={cartModal.title}
+        message={cartModal.message}
+        tone={cartModal.tone}
+        showCartLink={cartModal.showCartLink}
+        onClose={() =>
+          setCartModal((previous) => ({ ...previous, isOpen: false }))
+        }
+      />
 
         <GuidedCoachmark
         enabled={hasScrolledForCoach && !loading}

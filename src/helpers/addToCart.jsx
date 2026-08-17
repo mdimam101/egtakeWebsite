@@ -13,7 +13,7 @@ import { trackMetaCommerceEvent } from './metaPixel';
 //   return headers;
 // };
 
-const addToCart = async ({ productId,productName, size, color, image, price, selling, subCategory }) => {
+const addToCart = async ({ productId,productName, size, color, image, price, selling, subCategory, showToast = true }) => {
   const t = localStorage.getItem('authToken');
 
   try {
@@ -30,7 +30,7 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
     const result = await response.json();
 
     if (result.success) {
-      toast.success(result.message || "Added to cart");
+      if (showToast) toast.success(result.message || "Added to cart");
       trackBasic("add_to_cart", { subCategory, count: 1 });
        trackMetaCommerceEvent("AddToCart", {
         content_ids: [productId],
@@ -41,12 +41,12 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
     }
 
     if (t) {
-      toast.error(result.message || "Failed to add to cart");
+       if (showToast) toast.error(result.message || "Failed to add to cart");
       return false;
     }
   } catch  {
     if (t) {
-      toast.error("Something went wrong!");
+      if (showToast) toast.error("Something went wrong!");
       return false;
     }
   }
@@ -62,11 +62,11 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
   });
 
   if (!result.added && result.reason === "duplicate") {
-    toast.info("This product variant is already in your cart");
+     if (showToast) toast.info("This product variant is already in your cart");
     return false;
   }
 
-  toast.success("Added to cart");
+  if (showToast) toast.success("Added to cart");
   trackBasic("add_to_cart", { subCategory, count: 1, guest: true });
   trackMetaCommerceEvent("AddToCart", {
     content_ids: [productId],

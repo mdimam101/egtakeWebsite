@@ -19,7 +19,7 @@ import {
 import { setTrendingProductList } from "../store/trendingProductSlice";
 
 
-const MAX_TRENDING_SLIDE_GROUPS = 2
+const MAX_TRENDING_SLIDE_GROUPS = 4
 
 
 const PLAY_STORE_URL =

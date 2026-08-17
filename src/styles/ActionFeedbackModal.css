@@ -1,0 +1,363 @@
+/* =========================
+   Overlay
+========================= */
+.action-feedback-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px;
+
+  background: rgba(15, 23, 42, 0.52);
+
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+
+/* =========================
+   Modal
+========================= */
+.action-feedback-modal {
+  position: relative;
+
+  width: min(100%, 370px);
+
+  padding: 30px 18px 18px;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  text-align: center;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.2),
+    0 4px 12px rgba(15, 23, 42, 0.08);
+
+  animation: actionFeedbackModalIn 180ms ease-out;
+}
+
+
+/* =========================
+   Close Button
+========================= */
+.action-feedback-modal__close {
+  position: absolute;
+
+  top: 12px;
+  right: 12px;
+
+  width: 34px;
+  height: 34px;
+
+  min-width: 34px;
+  min-height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  margin: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #f3f5f7;
+
+  color: #64748b;
+
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.15s ease;
+}
+
+
+.action-feedback-modal__close:hover {
+  background: #e9edf2;
+  color: #111827;
+}
+
+
+.action-feedback-modal__close:active {
+  transform: scale(0.94);
+}
+
+
+/* =========================
+   Success / Warning Icon
+========================= */
+.action-feedback-modal__icon {
+  width: 58px;
+  height: 58px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #2fac4b;
+
+  color: #ffffff;
+
+  font-size: 33px;
+  font-weight: 800;
+  line-height: 1;
+
+  box-shadow: 0 8px 20px rgba(47, 172, 75, 0.18);
+
+  box-sizing: border-box;
+}
+
+
+/* Warning */
+.action-feedback-modal--warning .action-feedback-modal__icon {
+  background: #f59e0b;
+
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.18);
+}
+
+
+/* =========================
+   Hide Title
+   "সফল হয়েছে" দেখাবে না
+========================= */
+.action-feedback-modal h2 {
+  display: none;
+}
+
+
+/* =========================
+   Message
+========================= */
+.action-feedback-modal p {
+  width: 100%;
+  max-width: 320px;
+
+  margin: 0 auto;
+
+  color: #151c2c;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  line-height: 1.55;
+
+  text-align: center;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================
+   Buttons Container
+========================= */
+.action-feedback-modal__actions {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 24px;
+
+  box-sizing: border-box;
+}
+
+
+/* যদি শুধু একটি button থাকে */
+.action-feedback-modal__actions > :only-child {
+  grid-column: 1 / -1;
+}
+
+
+/* =========================
+   Same Size Buttons
+========================= */
+.action-feedback-modal__actions button,
+.action-feedback-modal__actions a {
+  width: 100%;
+  height: 48px;
+
+  min-width: 0;
+  min-height: 48px;
+  max-height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 12px;
+  margin: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  box-sizing: border-box;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+}
+
+
+/* =========================
+   OK Button
+========================= */
+.action-feedback-modal__actions button {
+  background: #e63253;
+}
+
+
+/* =========================
+   Cart Page Button
+========================= */
+.action-feedback-modal__actions a {
+  background: #111827;
+}
+
+
+/* Hover */
+.action-feedback-modal__actions button:hover,
+.action-feedback-modal__actions a:hover {
+  opacity: 0.94;
+}
+
+
+/* Click */
+.action-feedback-modal__actions button:active,
+.action-feedback-modal__actions a:active {
+  transform: scale(0.97);
+}
+
+
+/* =========================
+   Animation
+========================= */
+@keyframes actionFeedbackModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* =========================
+   Mobile
+========================= */
+@media (max-width: 480px) {
+  .action-feedback-modal__overlay {
+    padding: 14px;
+  }
+
+  .action-feedback-modal {
+    width: 100%;
+    max-width: 360px;
+
+    padding: 30px 17px 18px;
+
+    border-radius: 18px;
+  }
+
+  .action-feedback-modal__icon {
+    width: 56px;
+    height: 56px;
+
+    margin-bottom: 19px;
+
+    font-size: 32px;
+  }
+
+  .action-feedback-modal p {
+    max-width: 310px;
+
+    font-size: 15px;
+
+    line-height: 1.55;
+  }
+
+  .action-feedback-modal__actions {
+    gap: 10px;
+
+    margin-top: 23px;
+  }
+
+  .action-feedback-modal__actions button,
+  .action-feedback-modal__actions a {
+    height: 48px;
+    min-height: 48px;
+    max-height: 48px;
+
+    font-size: 14px;
+  }
+}
+
+
+/* =========================
+   Very Small Mobile
+========================= */
+@media (max-width: 320px) {
+  .action-feedback-modal__actions {
+    gap: 8px;
+  }
+
+  .action-feedback-modal__actions button,
+  .action-feedback-modal__actions a {
+    padding: 0 8px;
+
+    font-size: 13px;
+  }
+}
+
+
+/* =========================
+   Reduced Motion
+========================= */
+@media (prefers-reduced-motion: reduce) {
+  .action-feedback-modal {
+    animation: none;
+  }
+}
