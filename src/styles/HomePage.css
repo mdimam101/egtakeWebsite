@@ -271,18 +271,17 @@
 .banner-container {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 150px;
   overflow: hidden;
   border-radius: 14px;
   background: var(--soft);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.07);
-  margin-bottom: 12px;
+  margin-bottom: 5px;
 }
 
 .banner-image {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: 150px;
   display: block;
   transition:
     transform 0.5s ease,
@@ -365,6 +364,19 @@
   background: var(--eg-pink);
 }
 
+.section-category-slide {
+  background: linear-gradient(
+    180deg,
+    rgba(79, 70, 229, 0.12),
+    rgba(255, 255, 255, 1)
+  );
+}
+
+.section-category-slide::before {
+  background: #4f46e5;
+}
+
+
 /* 💰 Budget */
 .section-budget {
   background: linear-gradient(
@@ -428,6 +440,16 @@
 .trending-product-group .trend-glass-card {
   width: 100%;
 }
+
+.category-slide-section {
+  margin-top: 14px;
+}
+
+.category-product-group {
+  border-color: rgba(79, 70, 229, 0.28);
+}
+
+
 
 .trending-see-more {
   display: inline-flex;
@@ -541,7 +563,6 @@
   /* border: 6px solid #bd7e7e; */
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.1);
   padding: 0 8px 10px;
-  margin-top: 12px;
   background: #ffffff;
    min-height: 250px;
 }

@@ -116,8 +116,5 @@ export const chunkProducts = (products = [], size = 4) => {
     chunks.push(products.slice(index, index + safeSize));
   }
 
-  console.log("chunk ", chunks);
-  
-
   return chunks;
 };

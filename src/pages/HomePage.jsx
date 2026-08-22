@@ -20,6 +20,7 @@ import { setTrendingProductList } from "../store/trendingProductSlice";
 
 
 const MAX_TRENDING_SLIDE_GROUPS = 4
+const MAX_CATEGORY_SLIDE_GROUPS = 3;
 
 
 const PLAY_STORE_URL =
@@ -39,6 +40,7 @@ const HomePage = () => {
     nextPage: 1,
   });
   const [bannerLoading, setBannerLoading] = useState(false);
+  const [slideCardCategories, setSlideCardCategories] = useState([]);
   const bannerRef = useRef(null);
   const productLoadMoreRef = useRef(null);
   const productRequestInFlightRef = useRef(false);
@@ -207,6 +209,59 @@ const HomePage = () => {
     return () => controller.abort();
   }, [fetchTrendingProducts, hasLoadedTrendingProducts]);
 
+  const fetchSlideCards = useCallback(async (signal) => {
+    try {
+      const response = await fetch(SummaryApi.slide_cards.url, {
+        method: SummaryApi.slide_cards.method,
+        headers: {
+          "x-client-key": clientKey,
+        },
+        signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Slide card request failed with status ${response.status}`,
+        );
+      }
+
+      const result = await response.json();
+      if (!result.success || !Array.isArray(result.data)) {
+        throw new Error(result.message || "Invalid slide card response");
+      }
+
+      const categories = result.data
+        .map((item) => ({
+          category: String(item?.category || "").trim(),
+          products: (Array.isArray(item?.products) ? item.products : [])
+            .map((product, index) => ({
+              ...product,
+              img: product?.image || product?.img || null,
+              selling: product?.sellingPrice ?? product?.selling ?? 0,
+              cardKey: `slide:${product?._id || index}`,
+            }))
+            .filter((product) => Number(product.priorityProduct) > 0)
+            .sort(
+              (first, second) =>
+                Number(first.priorityProduct) - Number(second.priorityProduct),
+            ),
+        }))
+        .filter((item) => item.category && item.products.length > 0);
+
+      setSlideCardCategories(categories);
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.error("Failed to fetch slide cards:", error);
+      }
+    }
+  }, [clientKey]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSlideCards(controller.signal);
+    return () => controller.abort();
+  }, [fetchSlideCards]);
+
   const orderedTrendingProducts = useMemo(
     () => orderTrendingProducts(trandingProducts),
     [trandingProducts],
@@ -230,10 +285,10 @@ const HomePage = () => {
       allProducts.filter((product) => Number(product?.selling) <= 199),
     [allProducts],
   );
-  const lowPriceSlideProducts = useMemo(
-    () => getFirstVariantCards(productsBelow199),
-    [productsBelow199],
-  );
+  // const lowPriceSlideProducts = useMemo(
+  //   () => getFirstVariantCards(productsBelow199),
+  //   [productsBelow199],
+  // );
 
 
   const fetchBanners = useCallback(async () => {
@@ -488,8 +543,45 @@ const HomePage = () => {
                   </div>
                 )}
 
+                 {slideCardCategories.map(({ category, products }) => {
+                  const productGroups = chunkProducts(products, 4).slice(
+                    0,
+                    MAX_CATEGORY_SLIDE_GROUPS,
+                  );
+
+                  return (
+                    <section
+                      className="tranding-section tranding-bg category-slide-section"
+                      key={category}
+                    >
+                      <h2 className="home-section-title section-category-slide">
+                        {category}
+                      </h2>
+                      <div
+                        className="tranding-slider trending-group-slider"
+                        aria-label={`${category} products`}
+                      >
+                        {productGroups.map((group, groupIndex) => (
+                          <div
+                            className="trending-product-group category-product-group"
+                            key={`${category}-${groupIndex}`}
+                          >
+                            {group.map((product) => (
+                              <TrendingGlassSlideCard
+                                productData={product}
+                                showPrice
+                                key={`${category}-${product.cardKey}`}
+                              />
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
+                
                 {/* 💰 0~199 টাকা Shop Section */}
-                {productsBelow199 && productsBelow199.length > 0 && (
+                {/* {productsBelow199 && productsBelow199.length > 0 && (
                   <div className="low-price-section">
                     <h2 className="home-section-title section-budget">
                       💰 ০~১৯৯ টাকা
@@ -520,7 +612,7 @@ const HomePage = () => {
                       )}
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {allProducts.length > 0 && (
                   <h2 className="home-section-title section-budget">

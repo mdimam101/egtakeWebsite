@@ -41,6 +41,10 @@ const SummaryApi = {
     url: `${backendDomain}/api/trending-product-cards`,
     method: "get",
   },
+   slide_cards: {
+    url: `${backendDomain}/api/get-slide-cards`,
+    method: "get",
+  },
   update_product: {
     url: `${backendDomain}/api/update-product`,
     method: "post",

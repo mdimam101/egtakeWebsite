@@ -21,6 +21,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     buyingPrice: "",
     trandingProduct: false,
     trandingPriority: "",
+    priorityProduct: "0",
     handCraft: false,
     salesOn: false,
     isPublished: true,
@@ -122,9 +123,13 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
         ? String(paramData.buyingPrice)
         : "",
         trandingPriority:
-    paramData.trandingPriority == null
+      paramData.trandingPriority == null
         ? ""
         : String(paramData.trandingPriority),
+    priorityProduct:
+      paramData.priorityProduct == null
+        ? "0"
+        : String(paramData.priorityProduct),
   };
 
   const [data, setData] = useState(initial);
@@ -544,6 +549,22 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
       return;
     }
 
+    const priorityProduct = Number(data.priorityProduct ?? 0);
+    if (
+      !Number.isInteger(priorityProduct) ||
+      priorityProduct < 0 ||
+      priorityProduct > 12
+    ) {
+      toast.error("Slide priority must be an integer between 0 and 12");
+      return;
+    }
+
+    if (priorityProduct > 0 && !data.category?.trim()) {
+      toast.error("Select a category before assigning a slide priority");
+      return;
+    }
+
+
     const totalStock = (data.variants || []).reduce((sum, variant) => {
       const variantStock = (variant.sizes || []).reduce((subSum, size) => {
         const stockNumber = Number(size.stock);
@@ -567,6 +588,7 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
         data.trandingProduct && data.trandingPriority !== ""
           ? Number(data.trandingPriority)
           : null,
+      priorityProduct,
       subCategory: data.subCategory?.trim() || data.category,
       totalStock,
       productCodeNumber:
@@ -703,6 +725,31 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
               </option>
             ))}
           </select>
+
+           <div className="trending-priority-field">
+            <label htmlFor="priorityProduct">Category Slide Priority:</label>
+            <select
+              id="priorityProduct"
+              name="priorityProduct"
+              value={data.priorityProduct}
+              onChange={handleOnChange}
+              aria-describedby="priorityProduct-help"
+            >
+              <option value="0">0 — Do not show in category slides</option>
+              {Array.from({ length: 12 }, (_, index) => index + 1).map(
+                (priority) => (
+                  <option value={priority} key={priority}>
+                    {priority}
+                  </option>
+                ),
+              )}
+            </select>
+            <small id="priorityProduct-help">
+              Priority 1 appears first and 12 appears last. A priority can be
+              used by only one product in the selected category.
+            </small>
+          </div>
+
 
           <label htmlFor="subCategory">Sub Category:</label>
           <input
