@@ -514,7 +514,7 @@ const UserProfile = () => {
                 itemId: item._id,
               })}
             >
-              ★ Review
+              Add Review
             </button>
           ) : null}
         </div>

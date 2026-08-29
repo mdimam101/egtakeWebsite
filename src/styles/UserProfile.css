@@ -562,9 +562,14 @@
 .order-item__actions {
   margin-top: 10px;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
 }
+
+.order-item__actions .btn {
+  flex: 1;
+}
+
 
 .tag {
   font-size: 12px;
