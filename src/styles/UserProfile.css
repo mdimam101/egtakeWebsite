@@ -225,6 +225,18 @@
   box-shadow: 0 16px 28px rgba(255, 77, 109, 0.3);
 }
 
+.btn--review {
+  background: #fff8e6;
+  color: #9a6700;
+  border: 1px solid #ffd36a;
+}
+
+.btn--review:hover {
+  background: #ffefbd;
+  box-shadow: 0 8px 18px rgba(184, 128, 0, 0.14);
+}
+
+
 .btn--danger {
   background: #ef4444;
   color: #fff;

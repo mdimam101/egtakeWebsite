@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { setUserDetails } from "../store/userSlice";
 import updateProductStock from "../helpers/updateProductStock";
 import { trackMetaOrderCancellation } from "../helpers/metaPixel";
+import ReviewModal from "../components/ReviewModal";
 
 // ---------- Status constants ----------
 const ORDER_STATUS = {
@@ -230,6 +231,8 @@ const UserProfile = () => {
   const [trackOpen, setTrackOpen] = useState(false);
   const [trackStatus, setTrackStatus] = useState(ORDER_STATUS.PENDING);
 
+  const [reviewProduct, setReviewProduct] = useState(null);
+
   // sheets
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
@@ -420,6 +423,41 @@ const UserProfile = () => {
     }
   };
 
+  const handleSubmitReview = async ({ rating, comment, images }) => {
+    if (!reviewProduct) return false;
+    try {
+      const response = await fetch(SummaryApi.create_review.url, {
+        method: SummaryApi.create_review.method.toUpperCase(),
+        credentials: "include",
+        headers: { "Content-Type": "application/json", ...(t ? { Authorization: `Bearer ${t}` } : {}) },
+        body: JSON.stringify({
+          productId: reviewProduct.productId,
+          orderId: reviewProduct.orderId,
+          itemId: reviewProduct.itemId,
+          rating,
+          comment,
+          images,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data?.success) {
+        toast.error(data?.message || "Review submission failed");
+        return false;
+      }
+      setOrders((current) => current.map((order) =>
+        order._id === reviewProduct.orderId
+          ? { ...order, items: (order.items || []).map((item) => item._id === reviewProduct.itemId ? { ...item, itemStatus: ITEM_STATUS.REVIEWED } : item) }
+          : order
+      ));
+      toast.success(data?.message || "Review submitted");
+      return true;
+    } catch {
+      toast.error("Network error while submitting review");
+      return false;
+    }
+  };
+
+
   const openTrack = (status) => {
     setTrackStatus(status || ORDER_STATUS.PENDING);
     setTrackOpen(true);
@@ -464,6 +502,19 @@ const UserProfile = () => {
               onClick={() => handleReturnItem(order._id, item._id)}
             >
               Return
+            </button>
+          ) : null}
+          {canRequestReturn ? (
+            <button
+              className="btn btn--review"
+              onClick={() => setReviewProduct({
+                productId: item?.productId?._id || item?.productId,
+                productName: item?.productName,
+                orderId: order._id,
+                itemId: item._id,
+              })}
+            >
+              ★ Review
             </button>
           ) : null}
         </div>
@@ -698,6 +749,13 @@ const UserProfile = () => {
         open={trackOpen}
         status={trackStatus}
         onClose={() => setTrackOpen(false)}
+      />
+
+       <ReviewModal
+        open={Boolean(reviewProduct)}
+        product={reviewProduct || {}}
+        onClose={() => setReviewProduct(null)}
+        onSubmit={handleSubmitReview}
       />
 
       {/* Settings Sheet (ICON-ONLY) */}

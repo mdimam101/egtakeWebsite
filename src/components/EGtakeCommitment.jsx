@@ -98,7 +98,7 @@ export const EGtakeCommitment = () => {
             onClick={() =>
               openCommitmentModal(
                 "Delivery Commitment",
-                `✓ 100円 coupon code if delayed
+                `✓ Can apply 100tk coupon if let delivery
 ✓ Refund if items damaged
 ✓ Refund if package lost
 ✓ Refund if no delivery`,

@@ -179,7 +179,12 @@ updateProductStock: {
     method: "DELETE" 
   },
   // get review data 
-    get_product_reviews: (productId) => `${backendDomain}/api/reviews/${productId}`,
+  get_product_reviews: (productId) => `${backendDomain}/api/reviews/${productId}`,
+
+  create_review: {
+    url: `${backendDomain}/api/reviews`,
+    method: "post",
+  },
 
     //commitInfo
      get_common_info: {

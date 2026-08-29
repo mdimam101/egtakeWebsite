@@ -365,9 +365,12 @@ const CheckoutPage = () => {
         `checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
       if (!purchaseTrackedRef.current) {
+        const confirmedTotal = Number(
+  confirmedOrder?.totalAmount ?? orderPayload.totalAmount
+);
         purchaseTrackedRef.current = true;
         trackMetaPurchaseOnce(confirmedOrderId, {
-          value: Number(confirmedOrder?.totalAmount - deliveryCharge) || 0,
+          value: Math.max(0, confirmedTotal - Number(deliveryCharge || 0)),
           content_ids: orderPayload.items.map((item) => item.productId).filter(Boolean),
           num_items: orderPayload.items.reduce(
             (total, item) => total + (item.quantity ?? 1),
