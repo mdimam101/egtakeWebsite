@@ -12,6 +12,7 @@ const ReviewModal = ({ open, product, onClose, onSubmit }) => {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
 
   useEffect(() => {
     if (!open) return;
@@ -25,22 +26,28 @@ const ReviewModal = ({ open, product, onClose, onSubmit }) => {
   if (!open) return null;
 
   const addImages = async (event) => {
-    const files = Array.from(event.target.files || []).slice(0, MAX_IMAGES - images.length);
-    event.target.value = "";
+    const input = event.currentTarget;
+    const files = Array.from(input.files || []).slice(0, MAX_IMAGES - images.length);
     if (!files.length) return;
 
     setUploading(true);
     const uploadedUrls = [];
-    for (const file of files) {
-      const result = await uploadImage(file, {
-        mediaType: "product-image",
-        productId: product.productId,
-      });
-      if (result?.url) uploadedUrls.push(result.url);
-      else toast.error(result?.message || `Could not upload ${file.name}`);
+    try {
+      for (const file of files) {
+        const result = await uploadImage(file, {
+          mediaType: "product-image",
+          productId: product.productId,
+        });
+        if (result?.url) uploadedUrls.push(result.url);
+        else toast.error(result?.message || `Could not upload ${file.name}`);
+      }
+      setImages((current) => [...current, ...uploadedUrls].slice(0, MAX_IMAGES));
+    } finally {
+      // Keep Android photo-picker files attached until every asynchronous read is done.
+      // Clearing the input earlier can revoke access to its content URI in some browsers.
+      input.value = "";
+      setUploading(false);
     }
-    setImages((current) => [...current, ...uploadedUrls].slice(0, MAX_IMAGES));
-    setUploading(false);
   };
 
   const submitReview = async (event) => {
@@ -96,9 +103,15 @@ const ReviewModal = ({ open, product, onClose, onSubmit }) => {
 
         <div className="review-modal__upload-row">
           <div><strong>Add photos</strong><span>Optional · up to {MAX_IMAGES}</span></div>
-          <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading || images.length >= MAX_IMAGES}>
-            {uploading ? "Uploading…" : "+ Add photos"}
-          </button>
+          <div className="review-modal__upload-buttons">
+            <button type="button" onClick={() => cameraInputRef.current?.click()} disabled={uploading || images.length >= MAX_IMAGES}>
+              {uploading ? "Uploading…" : "Take photo"}
+            </button>
+            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading || images.length >= MAX_IMAGES}>
+              Choose photos
+            </button>
+          </div>
+          <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" hidden onChange={addImages} />
           <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple hidden onChange={addImages} />
         </div>
 

@@ -419,6 +419,12 @@
   font-weight: 500;
 }
 
+.review-modal__upload-row .review-modal__upload-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
 .review-modal__upload-row button {
   flex-shrink: 0;
 
@@ -755,6 +761,9 @@
   }
 
   .review-modal__upload-row button {
+    width: 100%;
+  }
+  .review-modal__upload-row .review-modal__upload-buttons {
     width: 100%;
   }
 }
