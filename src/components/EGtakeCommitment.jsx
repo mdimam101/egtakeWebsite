@@ -29,16 +29,15 @@ export const EGtakeCommitment = () => {
           <div className="egc-header">
             <div className="egc-headerText">Pyzara Commitment</div>
           </div>
-
+{/* ✓ AI-Powered Skincare Suggestions
+  আপনার skin type ও concern অনুযায়ী উপযুক্ত skincare product recommendation পান। */}
           <button
             type="button"
             className="egc-item"
                         onClick={() =>
                           openCommitmentModal(
                             "Everything You Need, All in One App",
-                            `✓ AI-Powered Skincare Suggestions
-  আপনার skin type ও concern অনুযায়ী উপযুক্ত skincare product recommendation পান।
-✓ Free Delivery Opportunities
+                            `✓ Free Delivery Opportunities
   নির্দিষ্ট offer বা order amount-এর ওপর free delivery সুবিধা উপভোগ করুন।
 ✓ Apply Coupons & Save More
   Coupon ব্যবহার করে আপনার order-এ additional discount পান।
@@ -53,15 +52,15 @@ export const EGtakeCommitment = () => {
                         }
           >
             <div className="egc-rowJustify">
-              <div className="egc-title">✨ App Exclusive Features</div>
+              <div className="egc-title">✨ Apps Exclusive Features</div>
               <div className="egc-arrow">›</div>
             </div>
 
-            <div className="egc-row">
+            {/* <div className="egc-row">
               <div className="egc-check">
                 <span className="egc-green">✓</span> AI-Powered Skincare Product Suggestions
               </div>
-            </div>
+            </div> */}
 
             <div className="egc-row">
               <div className="egc-check">
@@ -113,8 +112,9 @@ export const EGtakeCommitment = () => {
 
             <div className="egc-row">
               <div className="egc-check">
-                <span className="egc-green">✓</span> ৳100 coupon if late
+                <span className="egc-green">✓</span> Can apply coupon if let delivery
               </div>
+              {/*৳100 coupon if late */}
               <div className="egc-check">
                 <span className="egc-green">✓</span> Refund if items damaged
               </div>
@@ -125,7 +125,7 @@ export const EGtakeCommitment = () => {
                 <span className="egc-green">✓</span> Refund if wrong items
               </div>
               <div className="egc-check">
-                <span className="egc-green">✓</span> Refund if no delivery
+                <span className="egc-green">✓</span> Refund if no delivery items
               </div>
             </div>
           </button>

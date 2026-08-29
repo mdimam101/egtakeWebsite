@@ -357,7 +357,7 @@ const CheckoutPage = () => {
       }
 
       const confirmedOrder = data?.data || data?.order || {};
-      const confirmedOrderId =
+      const confirmedOrderId = 
         confirmedOrder?._id ||
         confirmedOrder?.orderId ||
         data?.orderId ||
@@ -367,7 +367,7 @@ const CheckoutPage = () => {
       if (!purchaseTrackedRef.current) {
         purchaseTrackedRef.current = true;
         trackMetaPurchaseOnce(confirmedOrderId, {
-          value: Number(confirmedOrder?.totalAmount ?? orderPayload.totalAmount) || 0,
+          value: Number(confirmedOrder?.totalAmount - deliveryCharge) || 0,
           content_ids: orderPayload.items.map((item) => item.productId).filter(Boolean),
           num_items: orderPayload.items.reduce(
             (total, item) => total + (item.quantity ?? 1),

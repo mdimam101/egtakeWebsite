@@ -941,17 +941,17 @@ const ProductDetailsPage = () => {
   return (
     <div className="product-details-container">
       <Helmet>
-        <title>{`${productTitle} | Pyzara Bangladesh`}</title>
+        <title>{`${productTitle}`}</title>
         <link rel="canonical" href={canonicalUrl} />
         <meta name="robots" content="index,follow" />
         <meta name="description" content={shortDescription} />
         <meta property="og:type" content="product" />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:title" content={`${productTitle} | Pyzara Bangladesh`} />
+        <meta property="og:title" content={`${productTitle}`} />
         <meta property="og:description" content={shortDescription} />
         <meta property="og:image" content={productImage} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${productTitle} | Pyzara Bangladesh`} />
+        <meta name="twitter:title" content={`${productTitle}`} />
         <meta name="twitter:description" content={shortDescription} />
         <meta name="twitter:image" content={productImage} />
       </Helmet>
