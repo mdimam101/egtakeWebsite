@@ -32,7 +32,7 @@ import DistrictDropdown from "../components/DistrictDropdown";
 import { FiMapPin, FiShield } from "react-icons/fi";
 import { trackMetaCommerceEvent, trackMetaPurchaseOnce } from "../helpers/metaPixel";
 
-const PROCESSING_FEE = 5;
+const PROCESSING_FEE = 0;
 
 const CheckoutPage = () => {
   const { state } = useLocation();
@@ -69,9 +69,7 @@ const CheckoutPage = () => {
     ? Number(commonInfo[0].nrGanjMiniOrdr)
     : 999;
 
-  const handlingCharge = commonInfo[0]?.handlingCharge
-    ? Number(commonInfo[0].handlingCharge)
-    : 15;
+  const handlingCharge = 0//commonInfo[0]?.handlingCharge ? Number(commonInfo[0].handlingCharge) : 15;
 
   // ✅ shipping form 
   const [formData, setFormData] = useState({
@@ -723,7 +721,7 @@ const CheckoutPage = () => {
             </div>
           </div>
 
-          <div className="sum-row">
+          {/* <div className="sum-row">
             <div className="sum-label">Handling Charge(Internal cost±)</div>
             <div className="sum-amount">
               <span className="old-price">৳25</span> ৳{handlingCharge}
@@ -735,7 +733,7 @@ const CheckoutPage = () => {
             <div className="sum-amount">
               <span className="old-price">৳9</span> ৳{PROCESSING_FEE}
             </div>
-          </div>
+          </div> */}
 
           {/* {discount > 0 && (
             <div className="sum-row">
