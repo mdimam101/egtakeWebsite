@@ -1788,3 +1788,126 @@
   border: 1px solid rgba(15, 118, 110, 0.22);
   white-space: nowrap;
 }
+
+/* discount urgenty */
+
+.free-delivery-offer {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin: 10px 0 0px;
+  padding: 3px 16px;
+  max-height: 100px;
+  box-sizing: border-box;
+  overflow: hidden;
+  color: #ffffff;
+  background: linear-gradient(120deg, #e11d48 0%, #f97316 52%, #e11d48 100%);
+  background-size: 200% 100%;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 16px;
+  box-shadow: 0 10px 26px rgba(225, 29, 72, 0.28);
+  animation: free-delivery-gradient 3.5s ease-in-out infinite;
+}
+
+.free-delivery-offer::after {
+  position: absolute;
+  z-index: -1;
+  inset: -70% auto -70% -30%;
+  width: 32%;
+  content: "";
+  background: rgba(255, 255, 255, 0.22);
+  transform: rotate(18deg);
+  animation: free-delivery-shine 3s ease-in-out infinite;
+}
+
+.free-delivery-offer__icon {
+  display: grid;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  color: #be123c;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 5px 14px rgba(136, 19, 55, 0.25);
+  animation: free-delivery-truck 1.8s ease-in-out infinite;
+}
+
+.free-delivery-offer__icon svg {
+  width: 34px;
+  height: 34px;
+  stroke-width: 1.2;
+}
+
+.free-delivery-offer__content {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.free-delivery-offer__title {
+  font-size: clamp(15px, 4.3vw, 18px);
+  line-height: 1.3;
+}
+
+.free-delivery-offer__title span {
+  color: #fff7a8;
+  white-space: nowrap;
+}
+
+.free-delivery-offer__timer {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.free-delivery-offer__timer b {
+  display: inline-block;
+  margin-left: 3px;
+  padding: 2px 7px;
+  color: #9f1239;
+  background: #ffffff;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+@keyframes free-delivery-gradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes free-delivery-shine {
+  0%,
+  35% {
+    left: -35%;
+  }
+  65%,
+  100% {
+    left: 125%;
+  }
+}
+
+@keyframes free-delivery-truck {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  45% {
+    transform: translateX(3px) rotate(-3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .free-delivery-offer,
+  .free-delivery-offer::after,
+  .free-delivery-offer__icon {
+    animation: none;
+  }
+}

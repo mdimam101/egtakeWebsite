@@ -49,6 +49,7 @@ import GuidedCoachmark from "../components/GuidedCoachmark";
 import { trackMetaCommerceEvent } from "../helpers/metaPixel";
 import CustomerChat from "../components/CustomerChat";
 import ActionFeedbackModal from "../components/ActionFeedbackModal";
+import { useSelector } from "react-redux";
 
 
 /* =========================
@@ -72,6 +73,79 @@ const formatSkinCareLabel = (value = "") =>
   String(value)
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+const formatOfferTime = (milliseconds) => {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${hours}h : ${String(minutes).padStart(2, "0")}m : ${String(seconds).padStart(2, "0")}s`;
+};
+
+const FreeDeliveryCountdown = ({ endTime }) => {
+  const parsedEndTime = new Date(endTime).getTime();
+  const hasValidEndTime = Boolean(endTime) && Number.isFinite(parsedEndTime);
+  const [effectiveEndTime, setEffectiveEndTime] = useState(() =>
+    hasValidEndTime && parsedEndTime > Date.now()
+      ? parsedEndTime
+      : Date.now() + 6 * 60 * 60 * 1000,
+  );
+  const [remainingTime, setRemainingTime] = useState(() =>
+    effectiveEndTime - Date.now(),
+  );
+
+  useEffect(() => {
+    if (!hasValidEndTime) return;
+    setEffectiveEndTime(
+      parsedEndTime > Date.now()
+        ? parsedEndTime
+        : Date.now() + 6 * 60 * 60 * 1000,
+    );
+  }, [hasValidEndTime, parsedEndTime]);
+
+  useEffect(() => {
+    if (!hasValidEndTime) return;
+
+    const updateRemainingTime = () => {
+      const nextRemainingTime = effectiveEndTime - Date.now();
+
+      if (nextRemainingTime <= 0) {
+        const extendedEndTime = Date.now() + 6 * 60 * 60 * 1000;
+        setEffectiveEndTime(extendedEndTime);
+        setRemainingTime(extendedEndTime - Date.now());
+        return;
+      }
+
+      setRemainingTime(nextRemainingTime);
+    };
+
+    updateRemainingTime();
+    const intervalId = window.setInterval(updateRemainingTime, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [effectiveEndTime, hasValidEndTime]);
+
+  if (!hasValidEndTime) {
+    return null;
+  }
+
+  return (
+    <section className="free-delivery-offer" aria-live="polite">
+      <span className="free-delivery-offer__icon" aria-hidden="true">
+        <CiDeliveryTruck />
+      </span>
+      <div className="free-delivery-offer__content">
+        <strong className="free-delivery-offer__title">
+          1599 টাকার অর্ডার করলেই <span>Free delivery</span>
+        </strong>
+        <span className="free-delivery-offer__timer">
+          অফার শেষ হতে বাকি <b>{formatOfferTime(remainingTime)}</b>
+        </span>
+      </div>
+    </section>
+  );
+};
+
 
 const FullscreenImageModal = ({
   visible,
@@ -247,6 +321,9 @@ const ProductDetailsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const routeKey = param?.id;
+  const commonInfo = useSelector(
+    (state) => state?.commonState?.commonInfoList || [],
+  );
 
   const handleBackNavigation = () => {
     const historyIndex = Number(window.history.state?.idx ?? 0);
@@ -1361,6 +1438,8 @@ const ProductDetailsPage = () => {
           )}
         </div>
       )}
+
+      <FreeDeliveryCountdown endTime={commonInfo[0]?.DiscountTime} />
 
       {/* // Suppose API returns PQualityType in data.qualityType  (normal|good|premium|luxury) */}
       {data?.qualityType && (

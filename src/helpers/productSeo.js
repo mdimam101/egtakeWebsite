@@ -53,5 +53,5 @@ export const cleanShortDescription = (product = {}) => {
   const raw = String(product?.description || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
   const fallback = `${product?.productName || "এই পণ্য"} কিনুন Pyzara থেকে। দ্রুত ডেলিভারি ও সহজ অনলাইন শপিং।`;
   const desc = raw || fallback;
-  return desc.length > 160 ? `${desc.slice(0, 157)}...` : desc;
+  return desc.length > 150 ? `${desc.slice(0, 157)}...` : desc;
 };

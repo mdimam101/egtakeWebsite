@@ -68,6 +68,10 @@ const CheckoutPage = () => {
   const MIN_FREE_NAR = commonInfo[0]?.nrGanjMiniOrdr
     ? Number(commonInfo[0].nrGanjMiniOrdr)
     : 999;
+  
+    const OthersAreaMiniOrdr = commonInfo[0]?.OthersAreaMiniOrdr
+    ? Number(commonInfo[0].OthersAreaMiniOrdr)
+    : 1599;
 
   const handlingCharge = 0//commonInfo[0]?.handlingCharge ? Number(commonInfo[0].handlingCharge) : 15;
 
@@ -121,14 +125,6 @@ const CheckoutPage = () => {
     [selectedItems]
   );
 
-    // ✅ district base charges (same as app)
-  const districtCharge = (district) => {
-    if (district === "Narayanganj") return 70;
-    if (district === "Dhaka") return 80;
-    return district ? 130 : 0;
-  };
-
-
   const baseTotal = useMemo(() => {
     return selectedItems.reduce((acc, item) => {
       const price = item?.selling || item?.productId?.selling || 0;
@@ -136,6 +132,16 @@ const CheckoutPage = () => {
       return acc + price * qty;
     }, 0);
   }, [selectedItems]);
+
+  let changeText = baseTotal > OthersAreaMiniOrdr
+
+      // ✅ district base charges (same as app)
+  const districtCharge = (district) => {
+    if (baseTotal > OthersAreaMiniOrdr) return 0
+    if (district === "Narayanganj") return 70;
+    if (district === "Dhaka") return 80;
+    return district ? 130 : 0;
+  };
 
   const isPremiumUser = user?.role === "PREMIUM";
 
@@ -571,15 +577,15 @@ const CheckoutPage = () => {
                   <div className={`dot ${deliveryOption === "NAR70" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">Standard Delivery</div>
-                  <div className="opt-sub">Delivery time 3–24 hours</div>
+                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery"}</div>
+                  <div className="opt-sub">Handed over to courier within 24 hours</div>
                 </div>
-                <div className="opt-price">৳70</div>
+                <div className="opt-price">{changeText ? "Free" : "৳70"}</div>
               </div>
             )}
 
-            {/* Express */}
-             {formData.district === "Narayanganj" && (
+            {/* Express  In future implement */}
+             {/* {formData.district === "Narayanganj" && (
               <div
                 className={`option-row ${deliveryOption === "EXPRESS" ? "active" : ""} ${isSubmitting ? "disabled" : ""}`}
                 onClick={() => {
@@ -597,7 +603,7 @@ const CheckoutPage = () => {
                 </div>
                  <div className="opt-price">৳160</div>
               </div>
-            )}
+            )} */}
 
             {/* Dhaka Std */}
              {formData.district === "Dhaka" && (
@@ -614,10 +620,10 @@ const CheckoutPage = () => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">Standard Delivery</div>
-                  <div className="opt-sub">Delivery time within 48 hours</div>
+                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery"}</div>
+                  <div className="opt-sub">Handed over to courier within 24 hours</div>
                 </div>
-                <div className="opt-price">৳{districtCharge("Dhaka")}</div>
+                <div className="opt-price">{changeText ? "Free" : `৳${districtCharge("Dhaka")}`}</div>
               </div>
             )}
 
@@ -635,10 +641,10 @@ const CheckoutPage = () => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">Standard Delivery</div>
-                  <div className="opt-sub">Delivery to {formData.district} within 1–3 days</div>
+                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery"}</div>
+                  <div className="opt-sub">Handed over to courier within 24 hours</div>
                 </div>
-                <div className="opt-price">৳{districtCharge(formData.district)}</div>
+                <div className="opt-price">{changeText ? "Free" : `৳${districtCharge(formData.district)}`}</div>
               </div>
             )}
           </div>
@@ -714,13 +720,15 @@ const CheckoutPage = () => {
               Delivery Charge (
                {deliveryOption === "FREE"
                 ? "Premium Free"
+                : changeText 
+                ? "0"
                 : deliveryOption === "EXPRESS"
                 ? "Express"
                 : "Standard"}
               )
             </div>
             <div className="sum-amount">
-               <span className="old-price">৳160</span> {deliveryLabelValue}
+               <span className="old-price">৳150</span> {changeText ? "FREE" : deliveryLabelValue}
             </div>
           </div>
 
