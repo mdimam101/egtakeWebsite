@@ -161,20 +161,17 @@ const handleGoogleSuccess = async (credentialResponse) => {
 
   return (
     <div style={styles.page}>
-      <div style={styles.glowTop} aria-hidden="true" />
-      <div style={styles.glowBottom} aria-hidden="true" />
       <div style={styles.cardWrap}>
         <div style={styles.headerWrap}>
           <div style={styles.logoMark} aria-hidden="true">P</div>
           <div style={styles.brand}>PYZARA</div>
-          <div style={styles.tagline}>SHOP WITH CONFIDENCE</div>
         </div>
 
         <div style={styles.card}>
-          <div style={styles.eyebrow}>WELCOME TO PYZARA</div>
-          <h1 style={styles.title}>Your next find awaits.</h1>
+          <h1 style={styles.title}>অর্ডার করার আগে লগইন করুন</h1>
           <div style={styles.subText}>
-            Sign in for a personalised experience
+            Google দিয়ে লগইন করার অনুরোধ করছি। Google অ্যাকাউন্ট না থাকলে
+            নিচের বাটনে এক ক্লিকেই লগইন করুন।
           </div>
 
           {/* Google Login */}
@@ -194,13 +191,13 @@ const handleGoogleSuccess = async (credentialResponse) => {
             </div>
           ) : (
             <div style={styles.googleError}>
-              Google Client ID not found in environment
+              Google দিয়ে লগইন এখন পাওয়া যাচ্ছে না
             </div>
           )}
 
           <div style={styles.divider}>
             <span style={styles.dividerLine} />
-            <span style={styles.orText}>OR CONTINUE AS</span>
+            <span style={styles.orText}>অথবা</span>
             <span style={styles.dividerLine} />
           </div>
 
@@ -221,10 +218,10 @@ const handleGoogleSuccess = async (credentialResponse) => {
               </div>
               <div style={styles.guestCopy}>
                 <div style={styles.guestBtnText}>
-                  {isGuestSubmitting ? "Logging in..." : "Continue as Guest"}
+                  {isGuestSubmitting ? "লগইন হচ্ছে..." : "এক ক্লিকে লগইন করুন"}
                 </div>
                 <div style={styles.guestHint}>
-                  No account or password required
+                  কোনো অ্যাকাউন্ট বা পাসওয়ার্ড লাগবে না
                 </div>
               </div>
               <span style={styles.arrow} aria-hidden="true">→</span>
@@ -235,11 +232,9 @@ const handleGoogleSuccess = async (credentialResponse) => {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M7 10V8a5 5 0 0 1 10 0v2M6 10h12v10H6V10Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Secure sign-in · Your information stays protected
+            আপনার তথ্য নিরাপদ থাকবে
           </div>
         </div>
-
-        <div style={styles.footerText}>By continuing, you agree to Pyzara’s Terms &amp; Privacy Policy.</div>
       </div>
 
       <ToastContainer position="top-center" />
