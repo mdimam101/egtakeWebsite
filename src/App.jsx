@@ -4,7 +4,7 @@ import Footer from "./components/Footer";
 import CategoryList from "./components/CategoryList";
 import { ToastContainer } from "react-toastify";
 import "../src/styles/App.css";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import SummaryApi from "./common";
 import Context from "../src/context/index";
 import { useDispatch } from "react-redux";
@@ -12,6 +12,7 @@ import { setUserDetails } from "./store/userSlice";
 import { setCommonGetInfoList } from "./store/commonInfoSlice";
 import { Helmet } from "react-helmet-async";
 import trackBasic from "./helpers/trackBasic";
+import { trackMetaEvent } from "./helpers/metaPixel";
 
 function App() {
   // const t = localStorage.getItem("authToken");
@@ -20,6 +21,7 @@ function App() {
   const [cartCountProduct, setCartCountProduct] = useState(0);
   // its for one product count list
   const [cartListData, setCartListData] = useState([]);
+  const isInitialPageView = useRef(true);
 
   const getAuthHeaders = useCallback(() => {
     const token = localStorage.getItem("authToken");
@@ -78,6 +80,15 @@ function App() {
    useEffect(() => {
     trackBasic("visit_website");
   }, []);
+
+  useEffect(() => {
+    if (isInitialPageView.current) {
+      isInitialPageView.current = false;
+      return;
+    }
+
+    trackMetaEvent("PageView");
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     const getCommonInfo = async () => {

@@ -2,7 +2,7 @@ const META_CURRENCY = "BDT";
 const PURCHASE_STORAGE_PREFIX = "meta_purchase_tracked:";
 const trackedCancellationOrderIds = new Set();
 
-export const trackMetaEvent = (eventName, params = {}) => {
+export const trackMetaEvent = (eventName, params = {}, eventId) => {
   if (
     typeof window === "undefined" ||
     typeof window.fbq !== "function" ||
@@ -11,12 +11,17 @@ export const trackMetaEvent = (eventName, params = {}) => {
     return false;
   }
 
-  window.fbq("track", eventName, params);
+  if (eventId) {
+    window.fbq("track", eventName, params, { eventID: eventId });
+  } else {
+    window.fbq("track", eventName, params);
+  }
   return true;
 };
 
-export const trackMetaCommerceEvent = (eventName, params = {}) =>
-  trackMetaEvent(eventName, { ...params, currency: META_CURRENCY });
+export const trackMetaCommerceEvent = (eventName, params = {}, eventId) =>
+  trackMetaEvent(eventName, { ...params, currency: META_CURRENCY }, eventId);
+
 
 export const trackMetaCustomEvent = (eventName, params = {}) => {
   if (
@@ -78,7 +83,7 @@ export const trackMetaOrderCancellation = (
 
 // Keep the successful order identifier in localStorage so a refresh or remount
 // cannot report the same conversion to Meta more than once.
-export const trackMetaPurchaseOnce = (orderId, params) => {
+export const trackMetaPurchaseOnce = (orderId, params, metaEventId) => {
   if (!orderId || typeof window === "undefined") return false;
 
   const storageKey = `${PURCHASE_STORAGE_PREFIX}${orderId}`;
@@ -86,12 +91,12 @@ export const trackMetaPurchaseOnce = (orderId, params) => {
   try {
     if (window.localStorage.getItem(storageKey)) return false;
 
-    const tracked = trackMetaCommerceEvent("Purchase", params);
+    const tracked = trackMetaCommerceEvent("Purchase", params, metaEventId);
     if (tracked) window.localStorage.setItem(storageKey, "1");
     return tracked;
   } catch {
     // Tracking should remain available when browser privacy settings block storage.
-    return trackMetaCommerceEvent("Purchase", params);
+    return trackMetaCommerceEvent("Purchase", params, metaEventId);
   }
 };
 

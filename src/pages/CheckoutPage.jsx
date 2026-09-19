@@ -34,6 +34,15 @@ import { trackMetaCommerceEvent, trackMetaPurchaseOnce } from "../helpers/metaPi
 
 const PROCESSING_FEE = 0;
 
+const getCookie = (name) =>
+  document.cookie
+    .split("; ")
+    .find((entry) => entry.startsWith(`${name}=`))
+    ?.split("=")
+    .slice(1)
+    .join("=");
+
+
 const CheckoutPage = () => {
   const { state } = useLocation();
   const [pendingCheckoutItems] = useState(() => consumePendingCheckoutItems());
@@ -342,6 +351,11 @@ const CheckoutPage = () => {
         totalAmount: subtotal,
         discount,
         couponCode: couponMeta ? couponCode : "",
+        meta: {
+          fbp: getCookie("_fbp"),
+          fbc: getCookie("_fbc"),
+          eventSourceUrl: window.location.href,
+        },
       };
 
       const t = localStorage.getItem("authToken");
@@ -367,22 +381,36 @@ const CheckoutPage = () => {
         confirmedOrder?._id ||
         confirmedOrder?.orderId ||
         data?.orderId ||
-        data?._id ||
-        `checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        data?._id;
+      const metaEventId = data?.metaEventId;
 
-      if (!purchaseTrackedRef.current) {
-        const confirmedTotal = Number(
-  confirmedOrder?.totalAmount ?? orderPayload.totalAmount
-);
+      if (!purchaseTrackedRef.current && confirmedOrderId && metaEventId) {
         purchaseTrackedRef.current = true;
-        trackMetaPurchaseOnce(confirmedOrderId, {
-          value: Math.max(0, confirmedTotal - Number(deliveryCharge || 0)),
-          content_ids: orderPayload.items.map((item) => item.productId).filter(Boolean),
-          num_items: orderPayload.items.reduce(
-            (total, item) => total + (item.quantity ?? 1),
-            0
-          ),
-        });
+        trackMetaPurchaseOnce(
+          confirmedOrderId,
+          {
+            value: Math.max(0, Number(baseTotal) - Number(discount || 0)),
+            content_type: "product",
+            content_ids: orderPayload.items
+              .map((item) => item.productId)
+              .filter(Boolean),
+            contents: orderPayload.items
+              .filter((item) => item.productId)
+              .map((item) => {
+                const quantity = Number(item.quantity) || 1;
+                return {
+                  id: item.productId,
+                  quantity,
+                  item_price: Number(item.price || 0) / quantity,
+                };
+              }),
+            num_items: orderPayload.items.reduce(
+              (total, item) => total + (item.quantity ?? 1),
+              0
+            ),
+          },
+          metaEventId
+        );
       }
 
       trackBasic("checkout", { count: selectedItems.length });
