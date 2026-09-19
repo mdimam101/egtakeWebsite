@@ -11,8 +11,10 @@ export const trackMetaEvent = (eventName, params = {}, eventId) => {
     return false;
   }
 
-  if (eventId) {
-    window.fbq("track", eventName, params, { eventID: eventId });
+  const normalizedEventId = String(eventId || "").trim();
+
+  if (normalizedEventId) {
+    window.fbq("track", eventName, params, { eventID: normalizedEventId });
   } else {
     window.fbq("track", eventName, params);
   }

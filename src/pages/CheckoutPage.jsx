@@ -216,13 +216,30 @@ const CheckoutPage = () => {
   useEffect(() => {
     if (!selectedItems.length || checkoutTrackedRef.current) return;
 
+     const contents = selectedItems
+      .map((item) => {
+        const productId = item?.productId?._id || item?.productId;
+        if (!productId) return null;
+
+        return {
+          id: String(productId),
+          quantity: Number(item?.quantity) || 1,
+          item_price: Number(item?.selling ?? item?.productId?.selling ?? 0),
+        };
+      })
+      .filter(Boolean);
+
     checkoutTrackedRef.current = true;
     trackBasic('checkout');
-    trackMetaCommerceEvent("InitiateCheckout", {
+     trackMetaCommerceEvent("InitiateCheckout", {
       value: baseTotal,
       num_items: totalItems,
+      content_type: "product",
+      content_ids: contents.map((item) => item.id),
+      contents,
     });
-  }, [baseTotal, selectedItems.length, totalItems]);
+  }, [baseTotal, selectedItems, totalItems]);
+
 
   const deliveryLabelValue = deliveryCharge === 0 ? "FREE" : `৳${deliveryCharge}`;
 
@@ -384,6 +401,8 @@ const CheckoutPage = () => {
         data?._id;
       const metaEventId = data?.metaEventId;
 
+       // The backend returns its CAPI event ID (`purchase_<orderId>`). Reuse that
+      // exact value in the Pixel event so Meta can deduplicate the pair.
       if (!purchaseTrackedRef.current && confirmedOrderId && metaEventId) {
         purchaseTrackedRef.current = true;
         trackMetaPurchaseOnce(
@@ -393,13 +412,14 @@ const CheckoutPage = () => {
             content_type: "product",
             content_ids: orderPayload.items
               .map((item) => item.productId)
-              .filter(Boolean),
+              .filter(Boolean)
+              .map(String),
             contents: orderPayload.items
               .filter((item) => item.productId)
               .map((item) => {
                 const quantity = Number(item.quantity) || 1;
                 return {
-                  id: item.productId,
+                  id: String(item.productId),
                   quantity,
                   item_price: Number(item.price || 0) / quantity,
                 };

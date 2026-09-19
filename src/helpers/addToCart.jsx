@@ -33,9 +33,17 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
       if (showToast) toast.success(result.message || "Added to cart");
       trackBasic("add_to_cart", { subCategory, count: 1 });
        trackMetaCommerceEvent("AddToCart", {
-        content_ids: [productId],
+        content_type: "product",
+        content_ids: [String(productId)],
         content_name: productName,
         value: Number(selling ?? price) || 0,
+        contents: [
+          {
+            id: String(productId),
+            quantity: 1,
+            item_price: Number(selling ?? price) || 0,
+          },
+        ],
       });
       return true;
     }
@@ -69,9 +77,17 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
   if (showToast) toast.success("Added to cart");
   trackBasic("add_to_cart", { subCategory, count: 1, guest: true });
   trackMetaCommerceEvent("AddToCart", {
-    content_ids: [productId],
+    content_type: "product",
+    content_ids: [String(productId)],
     content_name: productName,
     value: Number(selling ?? price) || 0,
+    contents: [
+      {
+        id: String(productId),
+        quantity: 1,
+        item_price: Number(selling ?? price) || 0,
+      },
+    ],
   });
   return true;
 };
