@@ -135,9 +135,6 @@ const handleGoogleSuccess = async (credentialResponse) => {
           response.data.data
         );
 
-    console.log("tokenafter login", response.data.data)
-    
-
       toast.success("Google login successful");
 
       try {

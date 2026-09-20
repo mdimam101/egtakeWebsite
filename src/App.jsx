@@ -13,6 +13,7 @@ import { setCommonGetInfoList } from "./store/commonInfoSlice";
 import { Helmet } from "react-helmet-async";
 import trackBasic from "./helpers/trackBasic";
 import { trackMetaEvent } from "./helpers/metaPixel";
+import { getGuestCart, mergeCartItems } from "./helpers/guestCart";
 
 function App() {
   // const t = localStorage.getItem("authToken");
@@ -56,19 +57,32 @@ function App() {
   }, [dispatch, getAuthHeaders]);
 
   const fetchUserAddToCart = useCallback(async () => {
+   const guestItems = getGuestCart();
+
+   if (!localStorage.getItem("authToken")) {
+     setCartCountProduct(guestItems.length);
+     return;
+   }
+
    try {
-      const response = await fetch(SummaryApi.count_AddToCart_Product.url, {
-        method: SummaryApi.count_AddToCart_Product.method,
+      const response = await fetch(SummaryApi.getCartProduct.url, {
+        method: SummaryApi.getCartProduct.method,
         headers: getAuthHeaders(),
         credentials: "include",
       });
 
       const result = await response.json();
-      setCartCountProduct(result?.data?.count ?? 0);
+      if (result?.success) {
+        setCartCountProduct(mergeCartItems(result?.data || [], guestItems).length);
+      } else {
+        setCartCountProduct(guestItems.length);
+      }
     } catch (error) {
       console.error("Error fetching cart count:", error);
+      setCartCountProduct(guestItems.length);
     }
   }, [getAuthHeaders]);
+
 
   useEffect(() => {
     // user details

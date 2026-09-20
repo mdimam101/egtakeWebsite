@@ -26,7 +26,7 @@ import Context from "../context";
 import updateProductStock from "../helpers/updateProductStock";
 import { MdOutlineArrowBackIos } from "react-icons/md";
 import trackBasic from "../helpers/trackBasic";
-import { clearGuestCart, consumePendingCheckoutItems } from "../helpers/guestCart";
+import { consumePendingCheckoutItems, removeGuestCartItems } from "../helpers/guestCart";
 import GuidedCoachmark from "../components/GuidedCoachmark";
 import DistrictDropdown from "../components/DistrictDropdown";
 import { FiMapPin, FiShield } from "react-icons/fi";
@@ -129,10 +129,10 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
 
   // cart ids for delete
-  const idArray = useMemo(
-    () => selectedItems.map((item) => item._id).filter(Boolean),
-    [selectedItems]
-  );
+  // const idArray = useMemo(
+  //   () => selectedItems.map((item) => item._id).filter(Boolean),
+  //   [selectedItems]
+  // );
 
   const baseTotal = useMemo(() => {
     return selectedItems.reduce((acc, item) => {
@@ -449,13 +449,23 @@ const CheckoutPage = () => {
       }
 
       // ✅ remove from cart
-      if (selectedItems.some((item) => item?.isGuestCartItem || item?._id?.startsWith?.("guest::"))) {
-        clearGuestCart();
-      } else {
-        await handleRemove(idArray);
-      }
+      const orderedGuestItems = selectedItems.filter(
+        (item) => item?.isGuestCartItem || item?._id?.startsWith?.("guest::")
+      );
+      const orderedServerItemIds = selectedItems
+        .filter((item) => !item?.isGuestCartItem && !item?._id?.startsWith?.("guest::"))
+        .map((item) => item?._id)
+        .filter(Boolean);
 
+      if (orderedGuestItems.length) {
+        removeGuestCartItems(orderedGuestItems);
+      }
+      if (orderedServerItemIds.length) {
+        await handleRemove(orderedServerItemIds);
+      }
+      await fetchUserAddToCart();
       setIsModalOpen(true);
+
     } catch (e) {
       console.log(e);
       toast.error("Something went wrong");

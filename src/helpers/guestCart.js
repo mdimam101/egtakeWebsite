@@ -25,6 +25,22 @@ export const clearGuestCart = () => {
   localStorage.removeItem(GUEST_CART_KEY);
 };
 
+// Keep server and browser carts visible together after a guest signs in. A
+// variant that already exists on the server is only shown once.
+export const mergeCartItems = (serverItems, guestItems = getGuestCart()) => {
+  const merged = Array.isArray(serverItems) ? [...serverItems] : [];
+  const localItems = Array.isArray(guestItems) ? guestItems : [];
+
+  localItems.forEach((item) => {
+    if (!merged.some((existing) => sameGuestItem(existing, item))) {
+      merged.push(item);
+    }
+  });
+
+  return merged;
+};
+
+
 export const savePendingCheckoutItems = (items) => {
   const safeItems = Array.isArray(items) ? items : [];
   localStorage.setItem(PENDING_CHECKOUT_KEY, JSON.stringify(safeItems));
@@ -50,6 +66,9 @@ const sameGuestItem = (a, b) =>
 
 const makeGuestId = (item) =>
   `guest::${norm(getProductId(item))}::${normImg(item?.image)}::${norm(item?.size)}::${norm(item?.color)}`;
+
+export const hasGuestCartItem = (item) =>
+  getGuestCart().some((existing) => sameGuestItem(existing, item));
 
 const toGuestCartItem = (item) => {
   const productId = norm(getProductId(item));
@@ -115,4 +134,14 @@ export const guestRemove = async (match) => {
   const updatedItems = getGuestCart().filter((item) => !sameGuestItem(item, match));
   setGuestCart(updatedItems);
   return { ok: true, items: updatedItems };
+};
+
+export const removeGuestCartItems = (orderedItems) => {
+  const itemsToRemove = Array.isArray(orderedItems) ? orderedItems : [];
+  const updatedItems = getGuestCart().filter(
+    (item) => !itemsToRemove.some((orderedItem) => sameGuestItem(item, orderedItem))
+  );
+
+  setGuestCart(updatedItems);
+  return updatedItems;
 };

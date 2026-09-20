@@ -1658,7 +1658,37 @@ const ProductDetailsPage = () => {
         targetRight={0}
       />
 
+       {/* Product video is optional; products without a URL keep the existing layout. */}
+      {!!data?.productVideo?.url?.trim?.() && (
+        <section className="product-video-card" aria-labelledby="product-video-title">
+          <div className="product-video-card__header">
+            <h3 id="product-video-title" className="product-video-card__title">
+              Product Video
+            </h3>
+          </div>
+          <div className="product-video-card__player-wrap">
+            <video
+              className="product-video-card__player"
+              src={ensureHttps(data.productVideo.url.trim())}
+              poster={
+                data.productVideo.thumbnail
+                  ? ensureHttps(data.productVideo.thumbnail)
+                  : undefined
+              }
+              autoPlay={Boolean(data.productVideo.autoplay)}
+              muted={data.productVideo.muted !== false}
+              controls
+              playsInline
+              preload="metadata"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </section>
+      )}
+
       {/* ✅ Reviews area */}
+      {(reviews.length >= 1) &&
       <div className="review-preview">
         <div className="review-preview-header">
           <h3 className="review-title">Customer Reviews</h3>
@@ -1723,6 +1753,8 @@ const ProductDetailsPage = () => {
           </button>
         ) : null} */}
       </div>
+      }
+      
 
       {/* ✅ Image viewer modal (web) */}
       <FullscreenImageModal

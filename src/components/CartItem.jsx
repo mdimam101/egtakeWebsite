@@ -92,7 +92,10 @@ const CartItem = ({
 
     if (isGuestItem) {
       const res = await guestBumpQty(product, -1);
-      if (res?.ok) refreshCart?.();
+      if (res?.ok) {
+        await fetchUserAddToCart();
+        refreshCart?.();
+      }
       else toast.error("Failed to update quantity");
       return;
     }
@@ -111,7 +114,10 @@ const CartItem = ({
 
     if (isGuestItem) {
       const res = await guestRemove(product);
-      if (res?.ok) refreshCart?.();
+      if (res?.ok) {
+        await fetchUserAddToCart();
+        refreshCart?.();
+      }
       else toast.error("Failed to remove item");
       return;
     }

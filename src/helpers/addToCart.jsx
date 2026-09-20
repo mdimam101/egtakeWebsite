@@ -2,7 +2,7 @@
 import SummaryApi from '../common';
 import { toast } from "react-toastify";
 import trackBasic from "./trackBasic";
-import { pushGuestCartUnique } from "./guestCart";
+import { hasGuestCartItem, pushGuestCartUnique } from "./guestCart";
 import { trackMetaCommerceEvent } from './metaPixel';
 
 // const buildAuthHeaders = () => {
@@ -15,6 +15,53 @@ import { trackMetaCommerceEvent } from './metaPixel';
 
 const addToCart = async ({ productId,productName, size, color, image, price, selling, subCategory, showToast = true }) => {
   const t = localStorage.getItem('authToken');
+
+  const cartItem = {
+    productId,
+    productName,
+    size,
+    color,
+    image,
+    price,
+    selling,
+  };
+
+  // Guest cart is browser-owned. Writing it immediately makes the footer
+  // count update on the product page without waiting for a cart-page visit or
+  // a refresh, and avoids an unauthenticated server cart taking precedence.
+  if (!t) {
+    const guestResult = await pushGuestCartUnique(cartItem);
+
+    if (!guestResult.added && guestResult.reason === "duplicate") {
+      if (showToast) toast.info("This product variant is already in your cart");
+      return false;
+    }
+
+    if (showToast) toast.success("Added to cart");
+    trackBasic("add_to_cart", { subCategory, count: 1, guest: true });
+    trackMetaCommerceEvent("AddToCart", {
+      content_type: "product",
+      content_ids: [String(productId)],
+      content_name: productName,
+      value: Number(selling ?? price) || 0,
+      contents: [
+        {
+          id: String(productId),
+          quantity: 1,
+          item_price: Number(selling ?? price) || 0,
+        },
+      ],
+    });
+    return true;
+  }
+
+  // Signing in does not discard the browser cart. Prevent the same variant
+  // from being added to the server cart while it is already stored locally.
+  if (hasGuestCartItem(cartItem)) {
+    if (showToast) toast.info("This product variant is already in your cart");
+    return false;
+  }
+
 
   try {
     const response = await fetch(SummaryApi.addToCartProduct.url, {
@@ -59,37 +106,7 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
     }
   }
 
-  const result = await pushGuestCartUnique({
-    productId,
-    productName,
-    size,
-    color,
-    image,
-    price,
-    selling,
-  });
-
-  if (!result.added && result.reason === "duplicate") {
-     if (showToast) toast.info("This product variant is already in your cart");
-    return false;
-  }
-
-  if (showToast) toast.success("Added to cart");
-  trackBasic("add_to_cart", { subCategory, count: 1, guest: true });
-  trackMetaCommerceEvent("AddToCart", {
-    content_type: "product",
-    content_ids: [String(productId)],
-    content_name: productName,
-    value: Number(selling ?? price) || 0,
-    contents: [
-      {
-        id: String(productId),
-        quantity: 1,
-        item_price: Number(selling ?? price) || 0,
-      },
-    ],
-  });
-  return true;
+  return false;
 };
 
 export default addToCart;

@@ -4,7 +4,7 @@ import SummaryApi from "../common";
 import CartItem from "../components/CartItem";
 import "../styles/CatrStyle.css";
 import { useNavigate } from "react-router";
-import {getGuestCart, savePendingCheckoutItems } from "../helpers/guestCart";
+import {getGuestCart, mergeCartItems, savePendingCheckoutItems } from "../helpers/guestCart";
 import { useSelector } from "react-redux";
 import GuidedCoachmark from "../components/GuidedCoachmark";
 
@@ -97,7 +97,7 @@ const Cart = () => {
     }
 
 
-    try {
+     try {
       const t = localStorage.getItem('authToken');
       const res = await fetch(SummaryApi.getCartProduct.url, {
         method: SummaryApi.getCartProduct.method,
@@ -105,11 +105,11 @@ const Cart = () => {
         credentials: "include", // rely on cookies/session
       });
       const data = await res.json();
-      if (data?.success) setCartItems(data?.data || []);
-      else setCartItems([]); // NEW (safe fallback)
+      if (data?.success) setCartItems(mergeCartItems(data?.data || []));
+      else setCartItems(getGuestCart());
     } catch (err) {
       console.error("Failed to fetch cart items:", err);
-      setCartItems([]); // NEW (safe fallback)
+      setCartItems(getGuestCart());
     } finally {
       if (!silent) setIsLoading(false);
     }
