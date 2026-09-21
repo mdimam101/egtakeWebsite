@@ -1948,3 +1948,17 @@
   object-fit: contain;
   background: #0b0b0b;
 }
+
+.product-description-image-wrap {
+  width: 100%;
+  margin-top: 14px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.product-description-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}

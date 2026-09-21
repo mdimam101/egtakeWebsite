@@ -352,6 +352,7 @@ const ProductDetailsPage = () => {
     category: "",
     subCategory: "",
     description: "",
+    describedImgUrl: "",
     price: 0,
     selling: 0,
     sold: 0,
@@ -1613,6 +1614,17 @@ const ProductDetailsPage = () => {
           More specification ›
         </button>
       </div>
+
+      {!!data?.describedImgUrl?.trim?.() && (
+        <div className="product-description-image-wrap">
+          <img
+            className="product-description-image"
+            src={ensureHttps(data.describedImgUrl.trim())}
+            alt={`${data.productName || "Product"} details`}
+            loading="lazy"
+          />
+        </div>
+      )}
 
       {/* Add to cart & cart button */}
       <div className="addbar"> 

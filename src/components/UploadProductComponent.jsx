@@ -16,6 +16,7 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
     category: "",
     subCategory: "",
     description: "",
+    describedImgUrl: "",
     price: "",
     selling: "",
     buyingPrice: "",
@@ -53,21 +54,25 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
   });
 
   const variantImageInputRefs = useRef([]);
+  const describedImageInputRef = useRef(null);
   const videoFileInputRef = useRef(null);
   const videoThumbInputRef = useRef(null);
 
   const variantUploadLocksRef = useRef(new Set());
   const mediaUploadLocksRef = useRef({
+    describedImage: false,
     video: false,
     thumbnail: false,
   });
 
   const [uploadingVariants, setUploadingVariants] = useState({});
+  const [uploadingDescribedImage, setUploadingDescribedImage] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const hasActiveUpload =
+    uploadingDescribedImage ||
     uploadingVideo ||
     uploadingThumbnail ||
     Object.values(uploadingVariants).some(Boolean);
@@ -273,6 +278,48 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
           : variant
       ),
     }));
+  };
+
+  const handleUploadDescribedImage = async (e) => {
+    const input = e.target;
+    const file = input.files?.[0];
+
+    if (!file) return;
+    if (mediaUploadLocksRef.current.describedImage) {
+      toast.info("Description image upload is already running");
+      input.value = "";
+      return;
+    }
+
+    mediaUploadLocksRef.current.describedImage = true;
+    setUploadingDescribedImage(true);
+
+    try {
+      const uploaded = await uploadImage(file, {
+        mediaType: "product-image",
+        productId: data?._id,
+      });
+
+      if (uploaded?.error || !uploaded?.url) {
+        toast.error(getUploadErrorMessage(uploaded, "Description image upload failed"));
+        return;
+      }
+
+      setData((prev) => ({ ...prev, describedImgUrl: uploaded.url }));
+      toast.success("Description image uploaded");
+    } catch (error) {
+      console.error("Description image upload error:", error);
+      toast.error(error?.message || "Description image upload failed");
+    } finally {
+      mediaUploadLocksRef.current.describedImage = false;
+      setUploadingDescribedImage(false);
+      input.value = "";
+    }
+  };
+
+  const handleDeleteDescribedImage = () => {
+    setData((prev) => ({ ...prev, describedImgUrl: "" }));
+    toast.info("Description image removed");
   };
 
   // ===== Video upload handlers =====
@@ -751,6 +798,39 @@ const UploadProductComponent = ({ onClose, fatchData }) => {
               <span className="slider round"></span>
             </label>
           </div>
+
+           <h3 style={{ marginTop: 20 }}>Product Description Image</h3>
+          <div
+            className="upload-section"
+            onClick={() => !uploadingDescribedImage && describedImageInputRef.current?.click()}
+            aria-busy={uploadingDescribedImage}
+            style={{
+              opacity: uploadingDescribedImage ? 0.65 : 1,
+              cursor: uploadingDescribedImage ? "wait" : "pointer",
+            }}
+          >
+            <FaCloudDownloadAlt className="upload-icon" />
+            <p>{uploadingDescribedImage ? "Uploading description image..." : "Upload Description Image"}</p>
+            <input
+              type="file"
+              accept="image/*,.heic,.heif"
+              ref={describedImageInputRef}
+              onChange={handleUploadDescribedImage}
+              disabled={uploadingDescribedImage}
+              style={{ display: "none" }}
+            />
+          </div>
+
+          {data.describedImgUrl && (
+            <div className="image-preview-grid" style={{ marginTop: 6 }}>
+              <div className="image-preview-container">
+                <img src={data.describedImgUrl} alt="Product description" className="preview-image" />
+                <div className="delete-icon" onClick={handleDeleteDescribedImage}>
+                  <MdDelete />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Video Section */}
           <h3 style={{ marginTop: 20 }}>Product Video (Top of Details)</h3>
