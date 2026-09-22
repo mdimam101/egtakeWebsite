@@ -231,13 +231,25 @@ const CheckoutPage = () => {
 
     checkoutTrackedRef.current = true;
     trackBasic('checkout');
-     trackMetaCommerceEvent("InitiateCheckout", {
-      value: baseTotal,
-      num_items: totalItems,
-      content_type: "product",
-      content_ids: contents.map((item) => item.id),
-      contents,
-    });
+    //  trackMetaCommerceEvent("InitiateCheckout", {
+    //   value: baseTotal,
+    //   num_items: totalItems,
+    //   content_type: "product",
+    //   content_ids: contents.map((item) => item.id),
+    //   contents,
+    // });
+
+    trackMetaCommerceEvent("InitiateCheckout", {
+  value: Number(baseTotal || 0) * 0.5,
+  num_items: totalItems,
+  content_type: "product",
+  content_ids: contents.map((item) => item.id),
+
+  contents: contents.map((item) => ({
+    ...item,
+    item_price: Number(item.item_price || 0) * 0.5,
+  })),
+});
   }, [baseTotal, selectedItems, totalItems]);
 
 
@@ -405,32 +417,71 @@ const CheckoutPage = () => {
       // exact value in the Pixel event so Meta can deduplicate the pair.
       if (!purchaseTrackedRef.current && confirmedOrderId && metaEventId) {
         purchaseTrackedRef.current = true;
+        // trackMetaPurchaseOnce(
+        //   confirmedOrderId,
+        //   {
+        //     value: Math.max(0, Number(baseTotal) - Number(discount || 0)),
+        //     content_type: "product",
+        //     content_ids: orderPayload.items
+        //       .map((item) => item.productId)
+        //       .filter(Boolean)
+        //       .map(String),
+        //     contents: orderPayload.items
+        //       .filter((item) => item.productId)
+        //       .map((item) => {
+        //         const quantity = Number(item.quantity) || 1;
+        //         return {
+        //           id: String(item.productId),
+        //           quantity,
+        //           item_price: Number(item.price || 0) / quantity,
+        //         };
+        //       }),
+        //     num_items: orderPayload.items.reduce(
+        //       (total, item) => total + (item.quantity ?? 1),
+        //       0
+        //     ),
+        //   },
+        //   metaEventId
+        // );
+
         trackMetaPurchaseOnce(
-          confirmedOrderId,
-          {
-            value: Math.max(0, Number(baseTotal) - Number(discount || 0)),
-            content_type: "product",
-            content_ids: orderPayload.items
-              .map((item) => item.productId)
-              .filter(Boolean)
-              .map(String),
-            contents: orderPayload.items
-              .filter((item) => item.productId)
-              .map((item) => {
-                const quantity = Number(item.quantity) || 1;
-                return {
-                  id: String(item.productId),
-                  quantity,
-                  item_price: Number(item.price || 0) / quantity,
-                };
-              }),
-            num_items: orderPayload.items.reduce(
-              (total, item) => total + (item.quantity ?? 1),
-              0
-            ),
-          },
-          metaEventId
-        );
+  confirmedOrderId,
+  {
+    value:
+      Math.max(
+        0,
+        Number(baseTotal) - Number(discount || 0)
+      ) * 0.5,
+
+    content_type: "product",
+
+    content_ids: orderPayload.items
+      .map((item) => item.productId)
+      .filter(Boolean)
+      .map(String),
+
+    contents: orderPayload.items
+      .filter((item) => item.productId)
+      .map((item) => {
+        const quantity = Number(item.quantity) || 1;
+
+        return {
+          id: String(item.productId),
+          quantity,
+
+          // Meta-কে 50% unit price
+          item_price:
+            (Number(item.price || 0) / quantity) * 0.5,
+        };
+      }),
+
+    num_items: orderPayload.items.reduce(
+      (total, item) => total + (item.quantity ?? 1),
+      0
+    ),
+  },
+  metaEventId
+);
       }
 
       trackBasic("checkout", { count: selectedItems.length });

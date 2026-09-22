@@ -531,21 +531,39 @@ const ProductDetailsPage = () => {
       setData(d);
       trackBasic("product_view", { subCategory: d?.subCategory || d?.category });
 
-      trackMetaCommerceEvent("ViewContent", {
-        content_type: "product",
-        content_ids: [String(d._id)],
-        content_name: d.productName,
-        content_category: d.category,
-        value: Number(d.selling ?? d.price) || 0,
-        contents: [
-          {
-            id: String(d._id),
-            quantity: 1,
-            item_price: Number(d.selling ?? d.price) || 0,
-          },
-        ],
-      });
-      
+      // trackMetaCommerceEvent("ViewContent", {
+      //   content_type: "product",
+      //   content_ids: [String(d._id)],
+      //   content_name: d.productName,
+      //   content_category: d.category,
+      //   value: Number(d.selling ?? d.price) || 0,
+      //   contents: [
+      //     {
+      //       id: String(d._id),
+      //       quantity: 1,
+      //       item_price: Number(d.selling ?? d.price) || 0,
+      //     },
+      //   ],
+      // });
+      const META_VALUE_RATIO = 0.5;
+
+trackMetaCommerceEvent("ViewContent", {
+  content_type: "product",
+  content_ids: [String(d._id)],
+  content_name: d.productName,
+  content_category: d.category,
+
+  value: (Number(d.selling ?? d.price) || 0) * META_VALUE_RATIO,
+
+  contents: [
+    {
+      id: String(d._id),
+      quantity: 1,
+      item_price:
+        (Number(d.selling ?? d.price) || 0) * META_VALUE_RATIO,
+    },
+  ],
+});
       setloading(false);
 
       const images = (d.variants || []).flatMap((v) => v.images || []);

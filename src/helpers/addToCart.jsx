@@ -13,6 +13,8 @@ import { trackMetaCommerceEvent } from './metaPixel';
 //   return headers;
 // };
 
+const META_VALUE_RATIO = 0.5;
+
 const addToCart = async ({ productId,productName, size, color, image, price, selling, subCategory, showToast = true }) => {
   const t = localStorage.getItem('authToken');
 
@@ -39,19 +41,35 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
 
     if (showToast) toast.success("Added to cart");
     trackBasic("add_to_cart", { subCategory, count: 1, guest: true });
-    trackMetaCommerceEvent("AddToCart", {
-      content_type: "product",
-      content_ids: [String(productId)],
-      content_name: productName,
-      value: Number(selling ?? price) || 0,
-      contents: [
-        {
-          id: String(productId),
-          quantity: 1,
-          item_price: Number(selling ?? price) || 0,
-        },
-      ],
-    });
+    // trackMetaCommerceEvent("AddToCart", {
+    //   content_type: "product",
+    //   content_ids: [String(productId)],
+    //   content_name: productName,
+    //   value: Number(selling ?? price) || 0,
+    //   contents: [
+    //     {
+    //       id: String(productId),
+    //       quantity: 1,
+    //       item_price: Number(selling ?? price) || 0,
+    //     },
+    //   ],
+    // });
+
+trackMetaCommerceEvent("AddToCart", {
+  content_type: "product",
+  content_ids: [String(productId)],
+  content_name: productName,
+
+  value: (Number(selling ?? price) || 0) * META_VALUE_RATIO,
+
+  contents: [
+    {
+      id: String(productId),
+      quantity: 1,
+      item_price: (Number(selling ?? price) || 0) * META_VALUE_RATIO,
+    },
+  ],
+});
     return true;
   }
 
@@ -79,19 +97,34 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
     if (result.success) {
       if (showToast) toast.success(result.message || "Added to cart");
       trackBasic("add_to_cart", { subCategory, count: 1 });
-       trackMetaCommerceEvent("AddToCart", {
-        content_type: "product",
-        content_ids: [String(productId)],
-        content_name: productName,
-        value: Number(selling ?? price) || 0,
-        contents: [
-          {
-            id: String(productId),
-            quantity: 1,
-            item_price: Number(selling ?? price) || 0,
-          },
-        ],
-      });
+      //  trackMetaCommerceEvent("AddToCart", {
+      //   content_type: "product",
+      //   content_ids: [String(productId)],
+      //   content_name: productName,
+      //   value: Number(selling ?? price) || 0,
+      //   contents: [
+      //     {
+      //       id: String(productId),
+      //       quantity: 1,
+      //       item_price: Number(selling ?? price) || 0,
+      //     },
+      //   ],
+      // });
+      trackMetaCommerceEvent("AddToCart", {
+  content_type: "product",
+  content_ids: [String(productId)],
+  content_name: productName,
+
+  value: (Number(selling ?? price) || 0) * META_VALUE_RATIO,
+
+  contents: [
+    {
+      id: String(productId),
+      quantity: 1,
+      item_price: (Number(selling ?? price) || 0) * META_VALUE_RATIO,
+    },
+  ],
+});
       return true;
     }
 
