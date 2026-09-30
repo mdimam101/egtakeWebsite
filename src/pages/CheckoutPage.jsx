@@ -826,15 +826,16 @@ const CheckoutPage = () => {
           <div className="sum-row">
             <div className="sum-label">Item(s) Total</div>
             <div className="sum-amount">
-              ৳{selectedItems.reduce((acc, item) => {
+              {subtotal}
+              {/* ৳{selectedItems.reduce((acc, item) => {
                 const original = item?.price || item?.productId?.price || 0;
                 const qty = item?.quantity ?? 1;
                 return acc + original * qty;
-              }, 0)}
+              }, 0)} */}
             </div>
           </div>
 
-          <div className="sum-row">
+          {/* <div className="sum-row">
             <div className="sum-label">Item(s) Discount</div>
             <div className="sum-amount">
               -৳{selectedItems.reduce((acc, item) => {
@@ -844,7 +845,7 @@ const CheckoutPage = () => {
                 return acc + Math.max(original - selling, 0) * qty;
               }, 0)}
             </div>
-          </div>
+          </div> */}
 
           <div className="sum-row">
             <div className="sum-label">
