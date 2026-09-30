@@ -136,7 +136,8 @@ const FreeDeliveryCountdown = ({ endTime }) => {
       </span>
       <div className="free-delivery-offer__content">
         <strong className="free-delivery-offer__title">
-          1599 টাকার অর্ডার করলেই <span>Free delivery</span>
+           <span>Free delivery</span>
+           {/* //1599 টাকার অর্ডার করলেই */}
         </strong>
         <span className="free-delivery-offer__timer">
           অফার শেষ হতে বাকি <b>{formatOfferTime(remainingTime)}</b>

@@ -34,6 +34,13 @@ import { trackMetaCommerceEvent, trackMetaPurchaseOnce } from "../helpers/metaPi
 
 const PROCESSING_FEE = 0;
 
+const getConfiguredNumber = (value, fallback) => {
+  if (value === null || value === undefined || value === "") return fallback;
+
+  const parsedValue = Number(value);
+  return Number.isFinite(parsedValue) ? parsedValue : fallback;
+};
+
 const getCookie = (name) =>
   document.cookie
     .split("; ")
@@ -74,13 +81,19 @@ const CheckoutPage = () => {
   const purchaseTrackedRef = useRef(false);
 
   // ✅ Thresholds & charges from common info, with app fallback defaults.
-  const MIN_FREE_NAR = commonInfo[0]?.nrGanjMiniOrdr
-    ? Number(commonInfo[0].nrGanjMiniOrdr)
-    : 999;
+  // const MIN_FREE_NAR = commonInfo[0]?.nrGanjMiniOrdr
+  //   ? Number(commonInfo[0].nrGanjMiniOrdr)
+  //   : 999;
   
-    const OthersAreaMiniOrdr = commonInfo[0]?.OthersAreaMiniOrdr
-    ? Number(commonInfo[0].OthersAreaMiniOrdr)
-    : 1599;
+  //   const OthersAreaMiniOrdr = commonInfo[0]?.OthersAreaMiniOrdr
+  //   ? Number(commonInfo[0].OthersAreaMiniOrdr)
+  //   : 1599;
+
+  const MIN_FREE_NAR = getConfiguredNumber(commonInfo[0]?.nrGanjMiniOrdr, 999);
+  const OthersAreaMiniOrdr = getConfiguredNumber(
+    commonInfo[0]?.OthersAreaMiniOrdr,
+    1599
+  );
 
   const handlingCharge = 0//commonInfo[0]?.handlingCharge ? Number(commonInfo[0].handlingCharge) : 15;
 
@@ -142,15 +155,23 @@ const CheckoutPage = () => {
     }, 0);
   }, [selectedItems]);
 
-  let changeText = baseTotal > OthersAreaMiniOrdr
+  // let changeText = baseTotal > OthersAreaMiniOrdr
+  const changeText = baseTotal >= OthersAreaMiniOrdr;
 
       // ✅ district base charges (same as app)
-  const districtCharge = (district) => {
-    if (baseTotal > OthersAreaMiniOrdr) return 0
+  // const districtCharge = (district) => {
+  //   if (baseTotal > OthersAreaMiniOrdr) return 0
+  //   if (district === "Narayanganj") return 70;
+  //   if (district === "Dhaka") return 80;
+  //   return district ? 130 : 0;
+  // };
+
+    const districtCharge = useCallback((district) => {
+    if (changeText) return 0;
     if (district === "Narayanganj") return 70;
     if (district === "Dhaka") return 80;
     return district ? 130 : 0;
-  };
+  }, [changeText]);
 
   const isPremiumUser = user?.role === "PREMIUM";
 
@@ -197,7 +218,8 @@ const CheckoutPage = () => {
 
       return districtCharge(district);
     },
-    [premiumMinimumEligible]
+    // [premiumMinimumEligible]
+     [districtCharge, premiumMinimumEligible]
   );
 
 
