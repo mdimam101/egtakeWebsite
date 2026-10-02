@@ -402,6 +402,7 @@ const ProductDetailsPage = () => {
     isOpen: false,
     title: "",
     message: "",
+    highlightMessage: "",
     tone: "success",
     showCartLink: false,
   });
@@ -435,7 +436,7 @@ const ProductDetailsPage = () => {
   };
 
   const imageSliderRef = useRef();
-  const { fetchUserAddToCart } = useContext(Context);
+  const { cartCountProduct, fetchUserAddToCart } = useContext(Context);
 
   // description block
   // ✅ Product Details preview state (RN style)
@@ -714,11 +715,16 @@ trackMetaCommerceEvent("ViewContent", {
      showToast: false,
     });
     if (added) {
+       const nextCartCount = cartCountProduct + 1;
+      const qualifiesForFreeDelivery = nextCartCount >= 2;
       await fetchUserAddToCart();
       setCartModal({
         isOpen: true,
         title: "Add to cart",
         message: "পণ্যটি সফলভাবে কার্টে যোগ হয়েছে।",
+        highlightMessage: qualifiesForFreeDelivery
+          ? "🎉 অভিনন্দন! আপনার কার্টে ২টি বা তার বেশি পণ্য থাকায় আপনি এখন সারা দেশে ফ্রি ডেলিভারি পাবেন। ক্যাশ অন ডেলিভারিতে অর্ডার করুন। অফারটি সীমিত সময়ের জন্য—মিস না করতে দ্রুত অর্ডার কনফার্ম করুন।"
+          : "🚚 ফ্রি ডেলিভারি পেতে কার্টে আরও যেকোনো ১টি পণ্য যোগ করুন। কার্টে ২টি পণ্য হলেই সারা দেশে ফ্রি ডেলিভারি পাবেন!",
         tone: "success",
         showCartLink: true,
       });
@@ -822,8 +828,6 @@ trackMetaCommerceEvent("ViewContent", {
       setAiSizeLoading(false);
     }
   };
-
-  const { cartCountProduct } = useContext(Context);
 
   // skin care info
   const skinCareInfo = data?.skinCareInfo
@@ -1673,6 +1677,7 @@ trackMetaCommerceEvent("ViewContent", {
         isOpen={cartModal.isOpen}
         title={cartModal.title}
         message={cartModal.message}
+        highlightMessage={cartModal.highlightMessage}
         tone={cartModal.tone}
         showCartLink={cartModal.showCartLink}
         onClose={() =>

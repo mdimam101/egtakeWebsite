@@ -156,7 +156,8 @@ const CheckoutPage = () => {
   }, [selectedItems]);
 
   // let changeText = baseTotal > OthersAreaMiniOrdr
-  const changeText = baseTotal >= OthersAreaMiniOrdr;
+  // const changeText = baseTotal >= OthersAreaMiniOrdr; //mini order er somuy aita use 
+   const changeText = selectedItems.length >= 2; //mini item er somuy aita use 
 
       // ✅ district base charges (same as app)
   // const districtCharge = (district) => {

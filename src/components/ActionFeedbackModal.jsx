@@ -6,6 +6,7 @@ const ActionFeedbackModal = ({
   isOpen,
   title,
   message,
+  highlightMessage = "",
   tone = "success",
   onClose,
   showCartLink = false,
@@ -63,6 +64,12 @@ const ActionFeedbackModal = ({
         </div>
         <h2 id="action-feedback-modal-title">{title}</h2>
         <p id="action-feedback-modal-message">{message}</p>
+
+         {highlightMessage && (
+          <p className="action-feedback-modal__highlight">
+            {highlightMessage}
+          </p>
+        )}
 
         <div className="action-feedback-modal__actions">
           <button type="button" onClick={onClose}>
