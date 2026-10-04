@@ -291,6 +291,34 @@ const CheckoutPage = () => {
     setFormData((p) => ({ ...p, [field]: value }));
   };
 
+  const handlePhoneChange = (value) => {
+  // শুধু number রাখবে
+  const numbersOnly = value.replace(/\D/g, "");
+
+  // সর্বোচ্চ 11 digit
+  const phone = numbersOnly.slice(0, 11);
+
+  setFormData((prev) => ({
+    ...prev,
+    phone,
+  }));
+
+  let phoneError = "";
+
+  if (phone.length === 0) {
+    phoneError = "";
+  } else if (phone.length < 11) {
+    phoneError = "মোবাইল নম্বরটি ১১ সংখ্যার হতে হবে।";
+  } else if (!/^01\d{9}$/.test(phone)) {
+    phoneError = "সঠিক বাংলাদেশি মোবাইল নম্বর দিন (01XXXXXXXXX)।";
+  }
+
+  setErrors((prev) => ({
+    ...prev,
+    phone: phoneError,
+  }));
+};
+
   // ✅ Coupon apply (server optional)
   // const handleApplyCoupon = async () => {
     // const code = couponCode.trim().toUpperCase();
@@ -339,7 +367,11 @@ const CheckoutPage = () => {
     const { name, phone, address, district } = formData;
     const newErrors = {};
     if (!name) newErrors.name = "Full name is required";
-    if (!phone) newErrors.phone = "Phone number is required";
+    if (!phone) {
+      newErrors.phone = "মোবাইল নম্বর দিন।";
+    } else if (!/^01\d{9}$/.test(phone)) {
+      newErrors.phone = "সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন (01XXXXXXXXX)।";
+    }
     if (!district) newErrors.district = "Please select your district";
     if (!address) newErrors.address = "Full address is required";
     setErrors(newErrors);
@@ -625,13 +657,21 @@ const CheckoutPage = () => {
         <label className="shipping-field-label" htmlFor="shipping-phone">Phone number</label>
         <input
           id="shipping-phone"
-          placeholder="Phone"
+          type="tel"
+          inputMode="numeric"
+          placeholder="01XXXXXXXXX"
           value={formData.phone}
-          onChange={(e) => onChange("phone", e.target.value)}
+          onChange={(e) => handlePhoneChange(e.target.value)}
+          maxLength={11}
           className={`input ${errors.phone ? "input-error" : ""}`}
           disabled={isSubmitting}
         />
-        {errors.phone && <div className="error">{errors.phone}</div>}
+
+        {errors.phone && (
+          <div className="error">
+            {errors.phone}
+          </div>
+        )}
 
         <label className="shipping-field-label">Select area</label>
         <DistrictDropdown
