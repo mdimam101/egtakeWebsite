@@ -64,6 +64,10 @@ const ActionFeedbackModal = ({
         </div>
         <h2 id="action-feedback-modal-title">{title}</h2>
         <p id="action-feedback-modal-message">{message}</p>
+       {/* <p className="action-feedback-modal__highlight">
+  {`ঢাকার ভিতরে ২টি বা তার বেশি পণ্য অর্ডার করলে ফ্রি ডেলিভারি।
+ঢাকার বাইরে ৩টি বা তার বেশি পণ্য অর্ডার করলে ফ্রি ডেলিভারি।`}
+</p> */}
 
          {highlightMessage && (
           <p className="action-feedback-modal__highlight">

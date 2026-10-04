@@ -157,7 +157,11 @@ const CheckoutPage = () => {
 
   // let changeText = baseTotal > OthersAreaMiniOrdr
   // const changeText = baseTotal >= OthersAreaMiniOrdr; //mini order er somuy aita use 
-   const changeText = selectedItems.length >= 2; //mini item er somuy aita use 
+  const changeText = formData.district
+  ? formData.district === "Dhaka"
+    ? selectedItems.length >= 2
+    : selectedItems.length >= 3
+  : false; //mini item er somuy aita use 
 
       // ✅ district base charges (same as app)
   // const districtCharge = (district) => {
@@ -710,7 +714,8 @@ const CheckoutPage = () => {
                 </div>
                 <div className="opt-mid">
                   <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery"}</div>
-                  <div className="opt-sub">Handed over to courier within 24 hours</div>
+                  <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
+ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div>
                 </div>
                 <div className="opt-price">{changeText ? "Free" : "৳70"}</div>
               </div>
@@ -774,13 +779,16 @@ const CheckoutPage = () => {
                 </div>
                 <div className="opt-mid">
                   <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery"}</div>
-                  <div className="opt-sub">Handed over to courier within 24 hours</div>
+                  {/* <div className="opt-sub">Handed over to courier within 24 hours</div> */}
+                  <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
+ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div>
                 </div>
                 <div className="opt-price">{changeText ? "Free" : `৳${districtCharge(formData.district)}`}</div>
               </div>
             )}
           </div>
         )}
+
 
         {/* Payment */}
         <div className="option-card">

@@ -179,6 +179,7 @@
   font-weight: 700;
   line-height: 1.65;
   box-shadow: 0 8px 20px rgba(22, 101, 52, 0.1);
+  white-space: pre-line;
 }
 
 

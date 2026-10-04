@@ -136,11 +136,12 @@ const FreeDeliveryCountdown = ({ endTime }) => {
       </span>
       <div className="free-delivery-offer__content">
         <strong className="free-delivery-offer__title">
-           <span>Free delivery</span>
+           <span>💥💥Free delivery💥💥 </span> <br />
+           <span>Opportunity don't miss ⚠️</span>
            {/* //1599 টাকার অর্ডার করলেই */}
         </strong>
         <span className="free-delivery-offer__timer">
-          অফার শেষ হতে বাকি <b>{formatOfferTime(remainingTime)}</b>
+          অফার শেষ হবে যেকোনো মুহূর্তে<b>{formatOfferTime(remainingTime)}</b>
         </span>
       </div>
     </section>
@@ -568,6 +569,8 @@ trackMetaCommerceEvent("ViewContent", {
 });
       setloading(false);
 
+      
+      
       const images = (d.variants || []).flatMap((v) => v.images || []);
       const clickedImage = location?.state?.selectedImage;
       const preferredImage = images.includes(clickedImage)
@@ -591,7 +594,10 @@ trackMetaCommerceEvent("ViewContent", {
         preferredVariantIndex >= 0 ? preferredVariantIndex : 0,
       );
       setSelectedSize(null);
-      setHasSelectedVariant(false);
+      // setHasSelectedVariant(false);
+      setHasSelectedVariant(
+          Boolean(clickedImage) && preferredVariantIndex >= 0
+        );
 
       const res = await fetch(SummaryApi.category_wish_product.url, {
         method: SummaryApi.category_wish_product.method,
@@ -715,16 +721,25 @@ trackMetaCommerceEvent("ViewContent", {
      showToast: false,
     });
     if (added) {
-       const nextCartCount = cartCountProduct + 1;
-      const qualifiesForFreeDelivery = nextCartCount >= 2;
+      const nextCartCount = cartCountProduct + 1;
+      const qualifiesForDhakaFreeDelivery = nextCartCount >= 2;
+      const qualifiesForBDFreeDelivery = nextCartCount >= 3;
+
       await fetchUserAddToCart();
       setCartModal({
         isOpen: true,
         title: "Add to cart",
         message: "পণ্যটি সফলভাবে কার্টে যোগ হয়েছে।",
-        highlightMessage: qualifiesForFreeDelivery
-          ? "🎉 অভিনন্দন! আপনার কার্টে ২টি বা তার বেশি পণ্য থাকায় আপনি এখন সারা দেশে ফ্রি ডেলিভারি পাবেন। ক্যাশ অন ডেলিভারিতে অর্ডার করুন। অফারটি সীমিত সময়ের জন্য—মিস না করতে দ্রুত অর্ডার কনফার্ম করুন।"
-          : "🚚 ফ্রি ডেলিভারি পেতে কার্টে আরও যেকোনো ১টি পণ্য যোগ করুন। কার্টে ২টি পণ্য হলেই সারা দেশে ফ্রি ডেলিভারি পাবেন!",
+        highlightMessage: qualifiesForBDFreeDelivery
+          ? `🎉 অভিনন্দন! এখন সারা বাংলাদেশে ফ্রি হোম ডেলিভারি পাবেন।
+      অফারটি সীমিত সময়ের জন্য—মিস করবেন না!`
+          : qualifiesForDhakaFreeDelivery
+            ? `🎉 অভিনন্দন! ঢাকায় ফ্রি ডেলিভারি পাবেন।
+      ঢাকার বাইরে ফ্রি ডেলিভারি পেতে আরও ১টি পণ্য যোগ করুন।`
+            : `ঢাকার ভিতরে ২টি বা তার বেশি পণ্য অর্ডার করলে ফ্রি ডেলিভারি।
+
+      ঢাকার বাইরে ৩টি বা তার বেশি পণ্য অর্ডার করলে ফ্রি ডেলিভারি।`,
+
         tone: "success",
         showCartLink: true,
       });
@@ -1139,10 +1154,18 @@ trackMetaCommerceEvent("ViewContent", {
             }
           }}
         >
-          {allImages.map((img, index) => (
+          {/* {allImages.map((img, index) => (
             <div key={index} className="product-image-slide">
               <img
                 src={selectedImg}
+                alt={`${updateProductName || data.productName || "Pyzara product"} thumbnail ${index + 1}`}
+              />
+            </div>
+          ))} */}
+          {allImages.map((img, index) => (
+            <div key={index} className="product-image-slide">
+              <img
+                src={img}
                 alt={`${updateProductName || data.productName || "Pyzara product"} thumbnail ${index + 1}`}
               />
             </div>
@@ -1164,8 +1187,9 @@ trackMetaCommerceEvent("ViewContent", {
       {/* Price */}
       <div className="product-price-info">
         <span className="selling-price">
-          <span>৳</span>
+          <span style={{paddingLeft:"10px", fontSize:"20px", paddingRight:"4px", color: "red"}}>৳</span>
           {updateSelling}
+          {/* <span>TK</span> */}
         </span>
         {discount > 0 && <span className="discount">Save {discount}%</span>}
         {UpdatePrice ? (
