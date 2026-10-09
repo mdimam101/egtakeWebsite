@@ -136,7 +136,7 @@ const CheckoutPage = () => {
   }, []);
 
   // ✅ delivery option: "FREE" | "EXPRESS" | "NAR70" | "STD"
-  const [deliveryOption, setDeliveryOption] = useState("FREE");
+  const [deliveryOption, setDeliveryOption] = useState("STD");
 
   // ✅ payment option (only COD)
   const [paymentMethod, setPaymentMethod] = useState("COD");
@@ -159,8 +159,8 @@ const CheckoutPage = () => {
   // const changeText = baseTotal >= OthersAreaMiniOrdr; //mini order er somuy aita use 
   const changeText = formData.district
   ? formData.district === "Dhaka"
-    ? selectedItems.length >= 2
-    : selectedItems.length >= 3
+    ? selectedItems.length >= 20
+    : selectedItems.length >= 30
   : false; //mini item er somuy aita use 
 
       // ✅ district base charges (same as app)
@@ -173,9 +173,9 @@ const CheckoutPage = () => {
 
     const districtCharge = useCallback((district) => {
     if (changeText) return 0;
-    if (district === "Narayanganj") return 70;
-    if (district === "Dhaka") return 80;
-    return district ? 130 : 0;
+    if (district === "Narayanganj") return 35//70;
+    if (district === "Dhaka") return 38//80;
+    return district ? 65 : 38//130 : 0;
   }, [changeText]);
 
   const isPremiumUser = user?.role === "PREMIUM";
@@ -753,11 +753,12 @@ const CheckoutPage = () => {
                   <div className={`dot ${deliveryOption === "NAR70" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery"}</div>
-                  <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
-ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div>
+                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-sub">Handed over to courier within 24 hours</div>
+                  {/* <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
+ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div> */}
                 </div>
-                <div className="opt-price">{changeText ? "Free" : "৳70"}</div>
+                <div className="opt-price">{changeText ? "Free" : "৳35"}</div>
               </div>
             )}
 
@@ -797,7 +798,7 @@ const CheckoutPage = () => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery"}</div>
+                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                 </div>
                 <div className="opt-price">{changeText ? "Free" : `৳${districtCharge("Dhaka")}`}</div>
@@ -818,10 +819,10 @@ const CheckoutPage = () => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery"}</div>
-                  {/* <div className="opt-sub">Handed over to courier within 24 hours</div> */}
-                  <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
-ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div>
+                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-sub">Handed over to courier within 24 hours</div>
+                  {/* <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
+ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div> */}
                 </div>
                 <div className="opt-price">{changeText ? "Free" : `৳${districtCharge(formData.district)}`}</div>
               </div>
@@ -875,7 +876,7 @@ const CheckoutPage = () => {
           <div className="sum-row">
             <div className="sum-label">Item(s) Total</div>
             <div className="sum-amount">
-              {subtotal}
+              {baseTotal}
               {/* ৳{selectedItems.reduce((acc, item) => {
                 const original = item?.price || item?.productId?.price || 0;
                 const qty = item?.quantity ?? 1;

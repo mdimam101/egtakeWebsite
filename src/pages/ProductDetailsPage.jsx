@@ -136,8 +136,9 @@ const FreeDeliveryCountdown = ({ endTime }) => {
       </span>
       <div className="free-delivery-offer__content">
         <strong className="free-delivery-offer__title">
-           <span>💥💥Free delivery💥💥 </span> <br />
-           <span>Opportunity don't miss ⚠️</span>
+           {/* <span>💥💥Free delivery💥💥 </span> <br /> */}
+            <span>💥Delivery fee 50%OFF💥 </span> <br />
+           <span style={{fontSize:"15px"}}>ঢাকাতে 38tk তার বাইরে 65tk Only😱</span>
            {/* //1599 টাকার অর্ডার করলেই */}
         </strong>
         <span className="free-delivery-offer__timer">
@@ -1701,7 +1702,7 @@ trackMetaCommerceEvent("ViewContent", {
         isOpen={cartModal.isOpen}
         title={cartModal.title}
         message={cartModal.message}
-        highlightMessage={cartModal.highlightMessage}
+        // highlightMessage={cartModal.highlightMessage}
         tone={cartModal.tone}
         showCartLink={cartModal.showCartLink}
         onClose={() =>
