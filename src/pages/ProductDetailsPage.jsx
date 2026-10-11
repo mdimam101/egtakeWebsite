@@ -49,7 +49,9 @@ import GuidedCoachmark from "../components/GuidedCoachmark";
 import { trackMetaCommerceEvent } from "../helpers/metaPixel";
 import CustomerChat from "../components/CustomerChat";
 import ActionFeedbackModal from "../components/ActionFeedbackModal";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setTrendingProductList } from "../store/trendingProductSlice";
+import { normalizeProductCards, orderTrendingProducts } from "../helpers/homeProductCards";
 
 
 /* =========================
@@ -346,6 +348,47 @@ const ProductDetailsPage = () => {
   if (!clientKey) {
     console.error("VITE_PUBLIC_CLIENT_KEY is missing");
   }
+
+   const dispatch = useDispatch();
+  const trendingProducts = useSelector(
+    (state) => state.trendingProductState.productList,
+  );
+  const hasLoadedTrendingProducts = useSelector(
+    (state) => state.trendingProductState.hasLoaded,
+  );
+  const orderedTrendingProducts = useMemo(
+    () => orderTrendingProducts(trendingProducts),
+    [trendingProducts],
+  );
+
+  useEffect(() => {
+    if (hasLoadedTrendingProducts || trendingProducts.length > 0) return;
+
+    const controller = new AbortController();
+    const fetchTrendingProducts = async () => {
+      try {
+        const response = await fetch(SummaryApi.trending_product_cards.url, {
+          headers: { "x-client-key": clientKey },
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error(`Trending product request failed with status ${response.status}`);
+        }
+        const result = await response.json();
+        if (!result.success || !Array.isArray(result.data)) {
+          throw new Error(result.message || "Invalid trending product response");
+        }
+        dispatch(setTrendingProductList(normalizeProductCards(result.data)));
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error("Failed to fetch trending products:", error);
+        }
+      }
+    };
+
+    fetchTrendingProducts();
+    return () => controller.abort();
+  }, [clientKey, dispatch, hasLoadedTrendingProducts, trendingProducts.length]);
 
   const [data, setData] = useState({
     _id: "",
@@ -1834,6 +1877,18 @@ trackMetaCommerceEvent("ViewContent", {
             <UserProductCart productData={product} key={idx} />
           ))}
       </div>
+
+       {orderedTrendingProducts.length > 0 && (
+        <section aria-label="Trending products">
+          <h2 className="reco-title">Trending Products</h2>
+          <div className="product-details-page-reco-grid">
+            {orderedTrendingProducts.map((product) => (
+              <UserProductCart productData={product} key={product.cardKey} />
+            ))}
+          </div>
+        </section>
+      )}
+      
       {/* ✅ Modal (web) */}
        {modalVisible && (
         <div
