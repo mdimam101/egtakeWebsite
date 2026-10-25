@@ -1,5 +1,6 @@
 import React from "react";
 import "../styles/Modal.css";
+import AdminFirstOrderReward from "./AdminFirstOrderReward";
 
 const MEMBERSHIP_ROLE_OPTIONS = ["GENERAL", "SUBPENDING", "PREMIUM"];
 
@@ -49,6 +50,7 @@ const OrderDetailsModal = ({
   onMembershipUpdate,
   updatingMembershipUserId,
   loadingMembershipUserId,
+  onRewardReviewed,
   membershipRoleLabels = DEFAULT_MEMBERSHIP_ROLE_LABELS,
 }) => {
   if (!show) return null;
@@ -153,8 +155,21 @@ const OrderDetailsModal = ({
                   <p className="od-label">Items</p>
                   <p className="od-value">{selectedOrder.items?.length || 0}</p>
                 </div>
+                {Number.isSafeInteger(selectedOrder.usedPoint) &&
+                  selectedOrder.usedPoint >= 0 && (
+                    <div className="od-box">
+                      <p className="od-label">Used points</p>
+                      <p className="od-value">{selectedOrder.usedPoint}</p>
+                    </div>
+                  )}
               </div>
- <h4 className="od-section-title">Membership</h4>
+               <AdminFirstOrderReward
+                key={selectedOrder._id}
+                order={selectedOrder}
+                orderUser={orderUser}
+                onReviewed={onRewardReviewed}
+              />
+              <h4 className="od-section-title">Membership</h4>
               <div className="od-membership-card">
                 {isGuestOrder ? (
                   <div className="od-membership-empty">

@@ -170,6 +170,7 @@ const OrderList = () => {
 
   const [updatingMembershipUserId, setUpdatingMembershipUserId] = useState("");
   const [loadingMembershipUserId, setLoadingMembershipUserId] = useState("");
+  const [userRefreshVersion, setUserRefreshVersion] = useState(0);
 
   // optional: search + filter
   const [query, setQuery] = useState("");
@@ -249,7 +250,7 @@ const OrderList = () => {
         }
 
         console.error("User membership load error:", err);
-        setError(err.message || "Could not load user membership");
+        toast.error(err.message || "Could not load user membership");
       } finally {
         if (!shouldIgnore) {
           setLoadingMembershipUserId("");
@@ -263,7 +264,25 @@ const OrderList = () => {
       shouldIgnore = true;
       controller.abort();
     };
-  }, [selectedOrderId, selectedOrderUserId]);
+  }, [selectedOrderId, selectedOrderUserId, userRefreshVersion]);
+
+  const handleRewardReviewed = (orderId, status, rewardPoints) => {
+    const updateReward = (order) =>
+      order?._id === orderId
+        ? {
+            ...order,
+            firstOrderReward: {
+              ...order.firstOrderReward,
+              rewardPoints,
+              status,
+            },
+          }
+        : order;
+
+    setOrders((previousOrders) => previousOrders.map(updateReward));
+    setSelectedOrder(updateReward);
+    setUserRefreshVersion((version) => version + 1);
+  };
 
   // update order status
   const handleStatusUpdate = async (orderId, newStatus) => {
@@ -823,6 +842,7 @@ const OrderList = () => {
         onMembershipUpdate={handleMembershipUpdate}
         updatingMembershipUserId={updatingMembershipUserId}
         loadingMembershipUserId={loadingMembershipUserId}
+        onRewardReviewed={handleRewardReviewed}
         membershipRoleLabels={MEMBERSHIP_ROLE_LABELS}
       >
         {/* {selectedOrder && (

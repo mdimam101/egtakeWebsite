@@ -134,6 +134,14 @@ updateProductStock: {
     url: (orderId) => `${backendDomain}/api/admin/orders/${orderId}/status`,
     method: "PATCH",
   },
+  admin_first_order_rewards: {
+    url: (page = 0) => `${backendDomain}/api/admin/first-order-rewards?page=${page}`,
+    method: "GET",
+  },
+  admin_review_first_order_reward: {
+    url: (orderId) => `${backendDomain}/api/admin/first-order-rewards/${orderId}`,
+    method: "PATCH",
+  },
   admin_update_user_membership: {
   url: (userId) =>
     `${backendDomain}/api/admin/users/${userId}/membership`,

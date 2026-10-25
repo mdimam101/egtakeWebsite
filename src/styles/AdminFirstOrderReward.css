@@ -1,0 +1,129 @@
+.admin-reward {
+  margin-top: 14px;
+}
+
+.admin-reward-title {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.admin-reward-card {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.admin-reward-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.admin-reward-name {
+  margin: 0;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.admin-reward-detail {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+
+.admin-reward-status {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.admin-reward-pending {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.admin-reward-approved {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.admin-reward-rejected {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.admin-reward-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 24px;
+  margin-top: 10px;
+  color: #334155;
+  font-size: 13px;
+}
+
+.admin-reward-points p {
+  margin: 0;
+}
+.admin-reward-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.admin-reward-actions button,
+.admin-reward-retry {
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.admin-reward-approve {
+  color: #fff;
+  background: #15803d;
+}
+
+.admin-reward-actions .admin-reward-reject {
+  color: #991b1b;
+  border-color: #fecaca;
+  background: #fff;
+}
+
+.admin-reward-actions button:disabled,
+.admin-reward-retry:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.admin-reward-actions button:focus-visible,
+.admin-reward-retry:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.admin-reward-error {
+  margin-top: 10px;
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.admin-reward-error p {
+  margin: 0 0 8px;
+}
+
+.admin-reward-retry {
+  color: #334155;
+  border-color: #cbd5e1;
+  background: #fff;
+}
