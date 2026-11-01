@@ -86,6 +86,9 @@ const formatOfferTime = (milliseconds) => {
 };
 
 const FreeDeliveryCountdown = ({ endTime }) => {
+  const commonInfo = useSelector((state) => state.commonState.commonInfoList);
+  const campaign = (Array.isArray(commonInfo) ? commonInfo[0] : commonInfo)?.campaingInfo;
+  const isCampaignOn = campaign?.campaingIsOn === true;
   const parsedEndTime = new Date(endTime).getTime();
   const hasValidEndTime = Boolean(endTime) && Number.isFinite(parsedEndTime);
   const [effectiveEndTime, setEffectiveEndTime] = useState(() =>
@@ -107,7 +110,7 @@ const FreeDeliveryCountdown = ({ endTime }) => {
   }, [hasValidEndTime, parsedEndTime]);
 
   useEffect(() => {
-    if (!hasValidEndTime) return;
+    if (!isCampaignOn || !hasValidEndTime) return;
 
     const updateRemainingTime = () => {
       const nextRemainingTime = effectiveEndTime - Date.now();
@@ -125,30 +128,69 @@ const FreeDeliveryCountdown = ({ endTime }) => {
     updateRemainingTime();
     const intervalId = window.setInterval(updateRemainingTime, 1000);
     return () => window.clearInterval(intervalId);
-  }, [effectiveEndTime, hasValidEndTime]);
+  }, [effectiveEndTime, hasValidEndTime, isCampaignOn]);
 
-  if (!hasValidEndTime) {
+  if (!isCampaignOn || !hasValidEndTime) {
     return null;
   }
+ return (
+  <a
+    className="free-delivery-offer"
+    href={PLAY_STORE_URL}
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {/* Logo */}
+    <div className="free-delivery-offer__logo-wrap">
+      <img
+        className="free-delivery-offer__logo"
+        src="/PyzaraWebIcone.png"
+        alt="Pyzara"
+        width="64"
+        height="64"
+      />
+    </div>
 
-  return (
-    <section className="free-delivery-offer" aria-live="polite">
-      <span className="free-delivery-offer__icon" aria-hidden="true">
-        <CiDeliveryTruck />
+    {/* Offer Content */}
+    <div className="free-delivery-offer__content">
+      <span className="free-delivery-offer__badge">
+        ✨ SPECIAL OFFER
       </span>
-      <div className="free-delivery-offer__content">
-        <strong className="free-delivery-offer__title">
-           {/* <span>💥💥Free delivery💥💥 </span> <br /> */}
-            <span>💥Delivery fee 50%OFF💥 </span> <br />
-           <span style={{fontSize:"15px"}}>ঢাকাতে 38tk তার বাইরে 65tk Only😱</span>
-           {/* //1599 টাকার অর্ডার করলেই */}
-        </strong>
-        <span className="free-delivery-offer__timer">
-          অফার শেষ হবে যেকোনো মুহূর্তে<b>{formatOfferTime(remainingTime)}</b>
+
+      <strong className="free-delivery-offer__title">
+        {campaign?.headingTitle}
+      </strong>
+
+      <p className="free-delivery-offer__description">
+        {campaign?.Ptitle}
+      </p>
+    </div>
+
+    {/* Timer & CTA */}
+    <div className="free-delivery-offer__footer">
+      <div
+        className="free-delivery-offer__timer"
+        role="timer"
+        aria-live="off"
+      >
+        <span className="free-delivery-offer__timer-label">
+          ⏳ অফার শেষ হবে যেকোনো মুহূর্তে
         </span>
+
+        <b className="free-delivery-offer__time">
+          {formatOfferTime(remainingTime)}
+        </b>
       </div>
-    </section>
-  );
+
+      <span className="free-delivery-offer__cta">
+        Install App
+        <span className="free-delivery-offer__arrow">
+          →
+        </span>
+      </span>
+    </div>
+  </a>
+);
 };
 
 

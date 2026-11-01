@@ -14,6 +14,7 @@ import { Helmet } from "react-helmet-async";
 import trackBasic from "./helpers/trackBasic";
 import { trackMetaEvent } from "./helpers/metaPixel";
 import { getGuestCart, mergeCartItems } from "./helpers/guestCart";
+import CampaignModal from "./components/CampaignModal";
 
 function App() {
   // const t = localStorage.getItem("authToken");
@@ -169,6 +170,7 @@ function App() {
           cartListData,
         }}
       >
+        <CampaignModal />
         <ToastContainer />
         {!hideHeader && <Header />}
         <main

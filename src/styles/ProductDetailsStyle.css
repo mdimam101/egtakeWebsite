@@ -1791,7 +1791,7 @@
 
 /* discount urgenty */
 
-.free-delivery-offer {
+/* .free-delivery-offer {
   position: relative;
   isolation: isolate;
   display: flex;
@@ -1910,7 +1910,7 @@
   .free-delivery-offer__icon {
     animation: none;
   }
-}
+} */
 
 /* product review section  */
 .product-video-card {
@@ -1961,4 +1961,451 @@
   width: 100%;
   height: auto;
   object-fit: contain;
+}
+
+
+/* ====================================
+   PYZARA PREMIUM OFFER BANNER
+==================================== */
+
+.free-delivery-offer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  width: 100%;
+  box-sizing: border-box;
+  padding: 18px 20px;
+  margin: 16px 0;
+
+  border-radius: 18px;
+  border: 1px solid #e6defa;
+
+  background:
+    linear-gradient(
+      115deg,
+      #ffffff 0%,
+      #f8f5ff 45%,
+      #f0f8ff 100%
+    );
+
+  box-shadow:
+    0 4px 18px rgba(91, 68, 160, 0.08);
+
+  text-decoration: none;
+  overflow: hidden;
+  isolation: isolate;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Top Gradient Border */
+
+.free-delivery-offer::before {
+  content: "";
+  position: absolute;
+
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+
+  background: linear-gradient(
+    90deg,
+    #7c3aed,
+    #a855f7,
+    #ec4899
+  );
+}
+
+/* Hover */
+
+.free-delivery-offer:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 25px rgba(91, 68, 160, 0.14);
+}
+
+/* ====================================
+   LOGO
+==================================== */
+
+.free-delivery-offer__logo-wrap {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 68px;
+  height: 68px;
+
+  border-radius: 16px;
+  background: #ffffff;
+
+  border: 1px solid #eee8ff;
+
+  box-shadow:
+    0 3px 12px rgba(124, 58, 237, 0.08);
+}
+
+.free-delivery-offer__logo {
+  width: 54px;
+  height: 54px;
+
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+/* ====================================
+   CONTENT
+==================================== */
+
+.free-delivery-offer__content {
+  flex: 1;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 5px;
+}
+
+/* Special Offer Badge */
+
+.free-delivery-offer__badge {
+  display: inline-flex;
+  align-items: center;
+
+  width: fit-content;
+
+  padding: 4px 10px;
+
+  border-radius: 30px;
+
+  background: #f0e7ff;
+  color: #7c3aed;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
+/* Main Heading */
+
+.free-delivery-offer__title {
+  display: block;
+
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.4;
+
+  color: #25134e;
+
+  overflow-wrap: anywhere;
+}
+
+/* Description */
+
+.free-delivery-offer__description {
+  margin: 0;
+
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.6;
+
+  color: #625675;
+}
+
+/* ====================================
+   FOOTER
+==================================== */
+
+.free-delivery-offer__footer {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+}
+
+/* Countdown Timer */
+
+.free-delivery-offer__timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 10px 14px;
+
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.85);
+
+  border: 1px solid #eee8fa;
+}
+
+.free-delivery-offer__timer-label {
+  font-size: 11px;
+  font-weight: 600;
+
+  color: #75658c;
+
+  white-space: nowrap;
+}
+
+.free-delivery-offer__time {
+  font-size: 22px;
+  font-weight: 800;
+
+  font-variant-numeric: tabular-nums;
+
+  letter-spacing: 1px;
+
+  color: #e11d48;
+}
+
+/* ====================================
+   INSTALL BUTTON
+==================================== */
+
+.free-delivery-offer__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  padding: 13px 20px;
+
+  border-radius: 12px;
+
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #9333ea
+  );
+
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  box-shadow:
+    0 4px 12px rgba(124, 58, 237, 0.22);
+
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.free-delivery-offer:hover .free-delivery-offer__cta {
+  background: linear-gradient(
+    135deg,
+    #6d28d9,
+    #7e22ce
+  );
+}
+
+/* Arrow */
+
+.free-delivery-offer__arrow {
+  font-size: 18px;
+  font-weight: 700;
+
+  transition: transform 0.25s ease;
+}
+
+.free-delivery-offer:hover .free-delivery-offer__arrow {
+  transform: translateX(4px);
+}
+
+/* ====================================
+   TABLET
+==================================== */
+
+@media (max-width: 900px) {
+
+  .free-delivery-offer {
+    flex-wrap: wrap;
+  }
+
+  .free-delivery-offer__footer {
+    width: 100%;
+
+    justify-content: space-between;
+  }
+
+  .free-delivery-offer__timer {
+    flex: 1;
+    align-items: flex-start;
+  }
+}
+
+/* ====================================
+   MOBILE
+==================================== */
+
+@media (max-width: 600px) {
+
+  .free-delivery-offer {
+    display: grid;
+
+    grid-template-columns: 52px minmax(0, 1fr);
+
+    align-items: center;
+
+    column-gap: 12px;
+    row-gap: 14px;
+
+    padding: 14px;
+
+    border-radius: 15px;
+  }
+
+  /* Logo */
+
+  .free-delivery-offer__logo-wrap {
+    width: 52px;
+    height: 52px;
+
+    border-radius: 12px;
+  }
+
+  .free-delivery-offer__logo {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Content */
+
+  .free-delivery-offer__content {
+    gap: 4px;
+  }
+
+  .free-delivery-offer__badge {
+    font-size: 9px;
+
+    padding: 3px 8px;
+  }
+
+  .free-delivery-offer__title {
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .free-delivery-offer__description {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Footer */
+
+  .free-delivery-offer__footer {
+    grid-column: 1 / -1;
+
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding-top: 12px;
+
+    border-top: 1px dashed #e4d9f6;
+  }
+
+  /* Timer */
+
+  .free-delivery-offer__timer {
+    flex: 1;
+
+    min-width: 0;
+
+    align-items: flex-start;
+
+    padding: 0;
+
+    background: transparent;
+    border: none;
+  }
+
+  .free-delivery-offer__timer-label {
+    font-size: 10px;
+
+    white-space: normal;
+    line-height: 1.4;
+  }
+
+  .free-delivery-offer__time {
+    font-size: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Install Button */
+
+  .free-delivery-offer__cta {
+    padding: 11px 14px;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+
+    gap: 6px;
+  }
+
+  .free-delivery-offer__arrow {
+    font-size: 15px;
+  }
+}
+
+/* ====================================
+   SMALL MOBILE
+==================================== */
+
+@media (max-width: 360px) {
+
+  .free-delivery-offer {
+    padding: 12px;
+    column-gap: 10px;
+  }
+
+  .free-delivery-offer__title {
+    font-size: 14px;
+  }
+
+  .free-delivery-offer__description {
+    font-size: 11px;
+  }
+
+  .free-delivery-offer__time {
+    font-size: 18px;
+  }
+
+  .free-delivery-offer__cta {
+    padding: 10px;
+    font-size: 11px;
+  }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .free-delivery-offer,
+  .free-delivery-offer__cta,
+  .free-delivery-offer__arrow {
+    transition: none;
+  }
 }

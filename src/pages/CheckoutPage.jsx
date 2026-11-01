@@ -173,9 +173,9 @@ const CheckoutPage = () => {
 
     const districtCharge = useCallback((district) => {
     if (changeText) return 0;
-    if (district === "Narayanganj") return 35//70;
-    if (district === "Dhaka") return 38//80;
-    return district ? 65 : 38//130 : 0;
+    if (district === "Narayanganj") return 80;
+    if (district === "Dhaka") return 80;
+    return district ? 130 : 0;
   }, [changeText]);
 
   const isPremiumUser = user?.role === "PREMIUM";
@@ -758,7 +758,7 @@ const CheckoutPage = () => {
                   {/* <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
 ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div> */}
                 </div>
-                <div className="opt-price">{changeText ? "Free" : "৳35"}</div>
+                <div className="opt-price">{changeText ? "Free" : "৳80"}</div>
               </div>
             )}
 
