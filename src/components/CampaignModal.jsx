@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useSelector } from "react-redux";
 import { FiArrowUpRight, FiX } from "react-icons/fi";
 import "../styles/CampaignModal.css";
@@ -14,6 +15,8 @@ export default function CampaignModal() {
   const dialogRef = useRef(null);
   const titleId = useId();
   const descriptionId = useId();
+  const supportsModalDialog = typeof HTMLDialogElement !== "undefined" &&
+    typeof HTMLDialogElement.prototype.showModal === "function";
   const isOpen = delayPassed && campaign?.campaingIsOn === true && !dismissed;
 
   // Start on the first visit, independently of API latency and route changes.
@@ -25,12 +28,20 @@ export default function CampaignModal() {
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!isOpen) {
-      if (dialog.open) dialog.close();
+      if (dialog.open) {
+        if (supportsModalDialog) dialog.close();
+        else dialog.removeAttribute("open");
+      }
       return undefined;
     }
 
     const previousFocus = document.activeElement;
-    dialog.showModal();
+    if (supportsModalDialog) {
+      dialog.showModal();
+    } else {
+      dialog.setAttribute("open", "");
+      dialog.querySelector("button")?.focus();
+    }
     // Contain scrolling within the dialog without changing page scroll rules.
     const preventBackgroundScroll = (event) => {
       if (!dialog.contains(event.target)) event.preventDefault();
@@ -39,21 +50,27 @@ export default function CampaignModal() {
     document.addEventListener("touchmove", preventBackgroundScroll, { passive: false });
 
     return () => {
-      dialog.close();
+      if (supportsModalDialog) dialog.close();
+      else dialog.removeAttribute("open");
       document.removeEventListener("wheel", preventBackgroundScroll);
       document.removeEventListener("touchmove", preventBackgroundScroll);
       if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [isOpen]);
+  }, [isOpen, supportsModalDialog]);
 
   const dismiss = () => setDismissed(true);
 
-  return (
+  return createPortal(
+    <div className={`campaign-modal-layer${!supportsModalDialog && isOpen ? " campaign-modal-layer--fallback" : ""}`}>
     <dialog
       ref={dialogRef}
       className="campaign-modal"
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
+      aria-modal="true"
+      onKeyDown={(event) => {
+        if (!supportsModalDialog && event.key === "Escape") dismiss();
+      }}
       onCancel={dismiss}
       onClose={dismiss}
     >
@@ -85,5 +102,7 @@ export default function CampaignModal() {
         </div>
       </div>
     </dialog>
+    </div>,
+    document.body
   );
 }
