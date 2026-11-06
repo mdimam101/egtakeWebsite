@@ -107,6 +107,10 @@ const router = createBrowserRouter([
             path: "tracking",
             lazy: lazyPage(() => import("../pages/AdminTracking")),
           },
+          {
+            path: "product-management",
+            lazy: lazyPage(() => import("../pages/ProductManagement")),
+          },
         ],
       },
     ],

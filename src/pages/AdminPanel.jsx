@@ -42,6 +42,7 @@ const AdminPanel = () => {
           <Link to="coupons" onClick={closeSidebar}>Coupons</Link>
            <Link to="chat" onClick={closeSidebar}>Customer Chat</Link>
            <Link to="tracking" onClick={closeSidebar}>Tracking</Link>
+           <Link to="product-management" onClick={closeSidebar}>Product Management</Link>
         </nav>
       </aside>
 
