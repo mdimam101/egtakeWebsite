@@ -1,6 +1,18 @@
 export const backendDomain ="https://api.pyzara.com" //"https://e4imbebbpb.execute-api.ap-southeast-1.amazonaws.com";//"http://192.168.1.4:8080"//import.meta.env.VITE_APP_BACKEND_URL;
 //"http://localhost:8080"//
 const SummaryApi = {
+  campaign_performance_create: {
+    url: `${backendDomain}/api/campaign-performance`,
+    method: "POST",
+  },
+  campaign_performance_list: {
+    url: `${backendDomain}/api/campaign-performance`,
+    method: "GET",
+  },
+  campaign_performance_delete: {
+    url: (campaignId) => `${backendDomain}/api/campaign-performance/${encodeURIComponent(campaignId)}`,
+    method: "DELETE",
+  },
   signUp: {
     url: `${backendDomain}/api/signup`,
     method: "post",

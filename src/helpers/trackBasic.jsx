@@ -1,6 +1,8 @@
 import SummaryApi from "../common";
+import { trackCampaignBasic } from "./campaignPerformance";
 
 export async function trackBasic(type, extra = {}) {
+  try { trackCampaignBasic(type); } catch { /* Campaign reporting is independent. */ }
   try {
     await fetch(SummaryApi.track_basic.url, {
       method: SummaryApi.track_basic.method.toUpperCase(),
