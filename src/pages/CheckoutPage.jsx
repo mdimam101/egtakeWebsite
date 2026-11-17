@@ -30,7 +30,7 @@ import { consumePendingCheckoutItems, removeGuestCartItems } from "../helpers/gu
 import GuidedCoachmark from "../components/GuidedCoachmark";
 import DistrictDropdown from "../components/DistrictDropdown";
 import { FiMapPin, FiShield } from "react-icons/fi";
-import { trackMetaCommerceEvent, trackMetaPurchaseOnce } from "../helpers/metaPixel";
+import { trackMetaCommerceEvent, trackMetaPurchaseOnce, readMetaCookie, getMetaPurchaseParams } from "../helpers/metaPixel";
 
 const PROCESSING_FEE = 0;
 
@@ -40,15 +40,6 @@ const getConfiguredNumber = (value, fallback) => {
   const parsedValue = Number(value);
   return Number.isFinite(parsedValue) ? parsedValue : fallback;
 };
-
-const getCookie = (name) =>
-  document.cookie
-    .split("; ")
-    .find((entry) => entry.startsWith(`${name}=`))
-    ?.split("=")
-    .slice(1)
-    .join("=");
-
 
 const CheckoutPage = () => {
   const { state } = useLocation();
@@ -70,8 +61,7 @@ const CheckoutPage = () => {
   const couponCode = "web";
   const discount = 0;
   const couponMeta = true;
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
+ const [isModalOpen, setIsModalOpen] = useState(false);
 
   // ⏳ submit locking (same as RN)
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -135,7 +125,7 @@ const CheckoutPage = () => {
     prefillShippingDetails();
   }, []);
 
-  // ✅ delivery option: "FREE" | "EXPRESS" | "NAR70" | "STD"
+   // ✅ delivery option: "FREE" | "EXPRESS" | "NAR70" | "STD"
   const [deliveryOption, setDeliveryOption] = useState("STD");
 
   // ✅ payment option (only COD)
@@ -201,8 +191,7 @@ const CheckoutPage = () => {
   const remainingForFree = formData.district
     ? Math.max(0, currentThreshold - baseTotal)
     : 0;
-
-  useEffect(() => {
+ useEffect(() => {
     if (!formData.district) return;
 
     if (formData.district === "Narayanganj") {
@@ -265,8 +254,7 @@ const CheckoutPage = () => {
     //   content_ids: contents.map((item) => item.id),
     //   contents,
     // });
-
-    trackMetaCommerceEvent("InitiateCheckout", {
+  trackMetaCommerceEvent("InitiateCheckout", {
   value: Number(baseTotal || 0) * 0.5,
   num_items: totalItems,
   content_type: "product",
@@ -382,8 +370,7 @@ const CheckoutPage = () => {
     const result = await deleteCartItemWhenOrderplace(productIdArray);
     if (result?.success) fetchUserAddToCart();
   };
-
-  // Save/update default shipping silently after a successful order.
+// Save/update default shipping silently after a successful order.
   const upsertUserShipping = async () => {
     try {
       const { name, phone, address, district, upazila } = formData;
@@ -432,7 +419,7 @@ const CheckoutPage = () => {
           image: item?.image,
           productCodeNumber: item?.productId?.productCodeNumber,
         })),
-        shippingDetails: { name, phone, address, district, upazila },
+        shippingDetails: { name, phone: `+88${phone}`, address, district, upazila },
         deliveryType: deliveryTimeline,
         deliveryCharge,
         paymentMethod,
@@ -440,8 +427,8 @@ const CheckoutPage = () => {
         discount,
         couponCode: couponMeta ? couponCode : "",
         meta: {
-          fbp: getCookie("_fbp"),
-          fbc: getCookie("_fbc"),
+          fbp: readMetaCookie("_fbp"),
+          fbc: readMetaCookie("_fbc"),
           eventSourceUrl: window.location.href,
         },
       };
@@ -456,7 +443,6 @@ const CheckoutPage = () => {
         credentials: "include",
         body: JSON.stringify(orderPayload),
       });
-
       const data = await response.json();
 
       if (!data?.success) {
@@ -464,83 +450,18 @@ const CheckoutPage = () => {
         return;
       }
 
-      const confirmedOrder = data?.data || data?.order || {};
-      const confirmedOrderId = 
-        confirmedOrder?._id ||
-        confirmedOrder?.orderId ||
-        data?.orderId ||
-        data?._id;
-      const metaEventId = data?.metaEventId;
+      const confirmedOrder = data.data;
+      const confirmedOrderId = confirmedOrder?._id || confirmedOrder?.orderId;
+      const metaEventId = data.metaEventId;
 
-       // The backend returns its CAPI event ID (`purchase_<orderId>`). Reuse that
-      // exact value in the Pixel event so Meta can deduplicate the pair.
-      if (!purchaseTrackedRef.current && confirmedOrderId && metaEventId) {
-        purchaseTrackedRef.current = true;
-        // trackMetaPurchaseOnce(
-        //   confirmedOrderId,
-        //   {
-        //     value: Math.max(0, Number(baseTotal) - Number(discount || 0)),
-        //     content_type: "product",
-        //     content_ids: orderPayload.items
-        //       .map((item) => item.productId)
-        //       .filter(Boolean)
-        //       .map(String),
-        //     contents: orderPayload.items
-        //       .filter((item) => item.productId)
-        //       .map((item) => {
-        //         const quantity = Number(item.quantity) || 1;
-        //         return {
-        //           id: String(item.productId),
-        //           quantity,
-        //           item_price: Number(item.price || 0) / quantity,
-        //         };
-        //       }),
-        //     num_items: orderPayload.items.reduce(
-        //       (total, item) => total + (item.quantity ?? 1),
-        //       0
-        //     ),
-        //   },
-        //   metaEventId
-        // );
-
-        trackMetaPurchaseOnce(
-  confirmedOrderId,
-  {
-    value:
-      Math.max(
-        0,
-        Number(baseTotal) - Number(discount || 0)
-      ) * 0.5,
-
-    content_type: "product",
-
-    content_ids: orderPayload.items
-      .map((item) => item.productId)
-      .filter(Boolean)
-      .map(String),
-
-    contents: orderPayload.items
-      .filter((item) => item.productId)
-      .map((item) => {
-        const quantity = Number(item.quantity) || 1;
-
-        return {
-          id: String(item.productId),
-          quantity,
-
-          // Meta-কে 50% unit price
-          item_price:
-            (Number(item.price || 0) / quantity) * 0.5,
-        };
-      }),
-
-    num_items: orderPayload.items.reduce(
-      (total, item) => total + (item.quantity ?? 1),
-      0
-    ),
-  },
-  metaEventId
-);
+      // Match the backend CAPI event ID and calculate from saved line totals.
+      if (!purchaseTrackedRef.current && confirmedOrderId && metaEventId &&
+          Array.isArray(confirmedOrder.items)) {
+        purchaseTrackedRef.current = trackMetaPurchaseOnce(
+          confirmedOrderId,
+          getMetaPurchaseParams(confirmedOrder),
+          metaEventId
+        );
       }
 
       trackBasic("checkout", { count: selectedItems.length });
@@ -584,8 +505,7 @@ const CheckoutPage = () => {
       submitLockRef.current = false;
     }
   };
-
-  if (!selectedItems.length) {
+   if (!selectedItems.length) {
     return (
       <div className="checkout-page">
         <div className="checkout-header">
@@ -653,8 +573,7 @@ const CheckoutPage = () => {
           disabled={isSubmitting}
         />
         {errors.name && <div className="error">{errors.name}</div>}
-
-        <label className="shipping-field-label" htmlFor="shipping-phone">Phone number</label>
+         <label className="shipping-field-label" htmlFor="shipping-phone">Phone number</label>
         <input
           id="shipping-phone"
           type="tel"
@@ -725,8 +644,7 @@ const CheckoutPage = () => {
                 <div className="opt-sub">
                   Premium users get free delivery after minimum order
                 </div>
-
-                {freeDisabled && (
+                  {freeDisabled && (
                   <div className="lock-hint">
                     {isPremiumUser ? `Add ৳${remainingForFree} more to unlock FREE` : "Only PREMIUM users can unlock FREE delivery"}
                   </div>
@@ -782,8 +700,7 @@ const CheckoutPage = () => {
                  <div className="opt-price">৳160</div>
               </div>
             )} */}
-
-            {/* Dhaka Std */}
+             {/* Dhaka Std */}
              {formData.district === "Dhaka" && (
               <div
                 className={`option-row ${deliveryOption === "STD" ? "active" : ""} ${isSubmitting ? "disabled" : ""}`}
@@ -829,9 +746,7 @@ const CheckoutPage = () => {
             )}
           </div>
         )}
-
-
-        {/* Payment */}
+          {/* Payment */}
         <div className="option-card">
           <div className="card-title">💳 Payment Option</div>
 
@@ -896,8 +811,7 @@ const CheckoutPage = () => {
               }, 0)}
             </div>
           </div> */}
-
-          <div className="sum-row">
+           <div className="sum-row">
             <div className="sum-label">
               Delivery Charge (
                {deliveryOption === "FREE"
@@ -963,8 +877,7 @@ const CheckoutPage = () => {
           delay={800}
         />
       </form>
-
-      <SuccessModal
+        <SuccessModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);

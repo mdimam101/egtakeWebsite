@@ -6,6 +6,10 @@ import { Provider } from "react-redux";
 import { store } from "./store/store.jsx";
 import { HelmetProvider } from "react-helmet-async";
 
+import { captureMetaClick } from "./helpers/metaPixel";
+
+captureMetaClick();
+
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
     {/* <RouterProvider router={router} /> */}
