@@ -6,7 +6,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 
 import SummaryApi from "../common/index";
-import { ensureDeviceId, getDeviceId } from "../helpers/deviceId";
+import { ensureDeviceId } from "../helpers/deviceId";
+import signInAsGuest from "../helpers/signInAsGuest";
 import Context from "../context";
 
 export default function SignupPage() {
@@ -34,75 +35,96 @@ export default function SignupPage() {
     [readyDeviceId, isGuestSubmitting]
   );
 
+  // const handleGuestContinue = async () => {
+  //   try {
+  //     setIsGuestSubmitting(true);
+
+  //     const deviceId = getDeviceId() || ensureDeviceId();
+  //     if (!deviceId) {
+  //       toast.error("Failed to get device id");
+  //       return;
+  //     }
+
+  //     let signedUp = false;
+
+  //     try {
+  //       const res = await axios({
+  //         method: SummaryApi.signUp.method,
+  //         url: SummaryApi.signUp.url,
+  //         headers: { "Content-Type": "application/json" },
+  //         data: { deviceId },
+  //         withCredentials: true,
+  //       });
+
+  //       signedUp = !!res?.data?.success;
+  //     } catch {
+  //       // already user থাকলে signUp fail করলেও signIn try করবো
+  //     }
+
+  //     try {
+  //       const response = await axios({
+  //         method: SummaryApi.signIn.method,
+  //         url: SummaryApi.signIn.url,
+  //         headers: { "Content-Type": "application/json" },
+  //         withCredentials: true,
+  //         data: { deviceId },
+  //       });
+
+  //       if (response?.data?.success) {
+  //         // backend যদি token return করে
+  //         if (response?.data?.data) {
+  //           localStorage.setItem("authToken", response.data.data);
+  //         }
+
+  //         toast.success("Login successful");
+  //         try {
+  //           await fetchUserDetails?.();
+  //         } catch {
+  //           console.log();
+  //         }
+
+  //         const from = location.state?.from || "/";
+  //         navigate(from, { state: location.state?.checkoutState, replace: true });
+  //         return;
+  //       }
+
+  //       toast.error(response?.data?.message || "Login failed");
+  //     } catch (error) {
+  //       toast.error(
+  //         error?.response?.data?.message || "Something went wrong during login"
+  //       );
+  //     }
+
+  //     if (!signedUp) {
+  //       toast.error("Guest login failed");
+  //     }
+  //   } catch (err) {
+  //     toast.error(err?.response?.data?.message || "Guest login error");
+  //   } finally {
+  //     setIsGuestSubmitting(false);
+  //   }
+  // };
+
   const handleGuestContinue = async () => {
+  try {
+    setIsGuestSubmitting(true);
+    await signInAsGuest();
+    toast.success("Login successful");
+
     try {
-      setIsGuestSubmitting(true);
-
-      const deviceId = getDeviceId() || ensureDeviceId();
-      if (!deviceId) {
-        toast.error("Failed to get device id");
-        return;
-      }
-
-      let signedUp = false;
-
-      try {
-        const res = await axios({
-          method: SummaryApi.signUp.method,
-          url: SummaryApi.signUp.url,
-          headers: { "Content-Type": "application/json" },
-          data: { deviceId },
-          withCredentials: true,
-        });
-
-        signedUp = !!res?.data?.success;
-      } catch {
-        // already user থাকলে signUp fail করলেও signIn try করবো
-      }
-
-      try {
-        const response = await axios({
-          method: SummaryApi.signIn.method,
-          url: SummaryApi.signIn.url,
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-          data: { deviceId },
-        });
-
-        if (response?.data?.success) {
-          // backend যদি token return করে
-          if (response?.data?.data) {
-            localStorage.setItem("authToken", response.data.data);
-          }
-
-          toast.success("Login successful");
-          try {
-            await fetchUserDetails?.();
-          } catch {
-            console.log();
-          }
-
-          const from = location.state?.from || "/";
-          navigate(from, { state: location.state?.checkoutState, replace: true });
-          return;
-        }
-
-        toast.error(response?.data?.message || "Login failed");
-      } catch (error) {
-        toast.error(
-          error?.response?.data?.message || "Something went wrong during login"
-        );
-      }
-
-      if (!signedUp) {
-        toast.error("Guest login failed");
-      }
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Guest login error");
-    } finally {
-      setIsGuestSubmitting(false);
+      await fetchUserDetails?.();
+    } catch {
+      console.log();
     }
-  };
+
+    const from = location.state?.from || "/";
+    navigate(from, { state: location.state?.checkoutState, replace: true });
+  } catch (error) {
+    toast.error(error?.response?.data?.message || error?.message || "Guest login error");
+  } finally {
+    setIsGuestSubmitting(false);
+  }
+};
 
   // ✅ Google Login Success
 const handleGoogleSuccess = async (credentialResponse) => {

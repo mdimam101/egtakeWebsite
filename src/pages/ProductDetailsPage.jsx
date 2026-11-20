@@ -52,6 +52,7 @@ import ActionFeedbackModal from "../components/ActionFeedbackModal";
 import { useDispatch, useSelector } from "react-redux";
 import { setTrendingProductList } from "../store/trendingProductSlice";
 import { normalizeProductCards, orderTrendingProducts } from "../helpers/homeProductCards";
+import signInAsGuest from "../helpers/signInAsGuest";
 
 
 /* =========================
@@ -485,6 +486,11 @@ const ProductDetailsPage = () => {
 
   const [hasScrolledForCoach, setHasScrolledForCoach] = useState(false);
 
+  const { cartCountProduct, fetchUserAddToCart, fetchUserDetails } = useContext(Context);
+  const currentUser = useSelector((state) => state.userState.user);
+  const [isOrdering, setIsOrdering] = useState(false);
+  const orderInProgress = useRef(false);
+
    const [cartModal, setCartModal] = useState({
     isOpen: false,
     title: "",
@@ -523,7 +529,7 @@ const ProductDetailsPage = () => {
   };
 
   const imageSliderRef = useRef();
-  const { cartCountProduct, fetchUserAddToCart } = useContext(Context);
+  // const { cartCountProduct, fetchUserAddToCart } = useContext(Context);
 
   // description block
   // ✅ Product Details preview state (RN style)
@@ -774,27 +780,30 @@ trackMetaCommerceEvent("ViewContent", {
       : 0;
 
   const addToCartHandle = async () => {
-   const hasVariantChoices = (data.variants || []).length > 1;
-    const missingSelections = [];
 
-    if (hasSizes && !selectedSize) missingSelections.push("সাইজ");
-    if (hasVariantChoices && !hasSelectedVariant) {
-      const variantLabel = (data.variants || []).some((variant) => variant.color)
-        ? "কালার"
-        : "টাইপ";
-      missingSelections.push(variantLabel);
-    }
+    if (!validatePurchaseSelection()) return;
 
-    if (missingSelections.length > 0) {
-      setCartModal({
-        isOpen: true,
-        title: "পছন্দ নির্বাচন করুন",
-        message: `দয়া করে পণ্যের পছন্দের ${missingSelections.join(" ও ")} নির্বাচন করুন।`,
-        tone: "warning",
-        showCartLink: false,
-      });
-      return;
-    }
+  //  const hasVariantChoices = (data.variants || []).length > 1;
+  //   const missingSelections = [];
+
+  //   if (hasSizes && !selectedSize) missingSelections.push("সাইজ");
+  //   if (hasVariantChoices && !hasSelectedVariant) {
+  //     const variantLabel = (data.variants || []).some((variant) => variant.color)
+  //       ? "কালার"
+  //       : "টাইপ";
+  //     missingSelections.push(variantLabel);
+  //   }
+
+  //   if (missingSelections.length > 0) {
+  //     setCartModal({
+  //       isOpen: true,
+  //       title: "পছন্দ নির্বাচন করুন",
+  //       message: `দয়া করে পণ্যের পছন্দের ${missingSelections.join(" ও ")} নির্বাচন করুন।`,
+  //       tone: "warning",
+  //       showCartLink: false,
+  //     });
+  //     return;
+  //   }
     const added = await addToCart({
       productId: data._id,
       productName: updateProductName,
@@ -841,11 +850,80 @@ trackMetaCommerceEvent("ViewContent", {
     });
   };
 
+  const validatePurchaseSelection = () => {
+  const hasVariantChoices = (data.variants || []).length > 1;
+  const missingSelections = [];
+
+  if (hasSizes && !selectedSize) missingSelections.push("সাইজ");
+  if (hasVariantChoices && !hasSelectedVariant) {
+    const variantLabel = (data.variants || []).some((variant) => variant.color)
+      ? "কালার"
+      : "টাইপ";
+    missingSelections.push(variantLabel);
+  }
+
+  if (missingSelections.length > 0) {
+    setCartModal({
+      isOpen: true,
+      title: "পছন্দ নির্বাচন করুন",
+      message: `দয়া করে পণ্যের পছন্দের ${missingSelections.join(" ও ")} নির্বাচন করুন।`,
+      tone: "warning",
+      showCartLink: false,
+    });
+    return false;
+  }
+
+  return true;
+};
+
+const handleOrderNow = async () => {
+  if (!data._id || buttonState.disabled || orderInProgress.current) return;
+  if (!validatePurchaseSelection()) return;
+
+  const checkoutState = {
+    selectedItemsDetails: [{
+      productId: {
+        _id: data._id,
+        productName: updateProductName,
+        productCodeNumber: data.productCodeNumber,
+        price: UpdatePrice,
+        selling: updateSelling,
+      },
+      productName: updateProductName,
+      price: UpdatePrice,
+      selling: updateSelling,
+      image: selectedVariant.images?.[0] || selectedImg,
+      size: hasSizes ? selectedSize : undefined,
+      color: selectedVariant.color,
+      quantity: 1,
+    }],
+  };
+
+  if (localStorage.getItem("authToken") || currentUser?._id || currentUser?.email) {
+    navigate("/checkout", { state: checkoutState });
+    return;
+  }
+
+  orderInProgress.current = true;
+  setIsOrdering(true);
+
+  try {
+    await signInAsGuest();
+    void fetchUserDetails();
+    navigate("/checkout", { state: checkoutState });
+  } catch {
+    navigate("/sign-up", { state: { from: "/checkout", checkoutState } });
+  } finally {
+    orderInProgress.current = false;
+    setIsOrdering(false);
+  }
+};
+
   // -------- Button label & disabled (matches your rule) --------
   const buttonState = (() => {
     if (hasSizes) {
       // has sizeDetails ⇒ must select size first
-      if (!selectedSize) return { label: "Select Size", disabled: false };
+      if (!selectedSize) return { label: "Add to cart", disabled: false };
       const stk = getStockBySize(selectedSize);
        if (selectedSize && stk <= 0)
         return { label: "Out of Stock", disabled: true };
@@ -1273,11 +1351,11 @@ trackMetaCommerceEvent("ViewContent", {
       {/* Price */}
       <div className="product-price-info">
         <span className="selling-price">
-          <span style={{paddingLeft:"10px", fontSize:"20px", paddingRight:"4px", color: "red"}}>৳</span>
+          {/* <span style={{paddingLeft:"10px", fontSize:"20px", paddingRight:"4px", color: "red"}}>৳</span> */}
           {updateSelling}
-          {/* <span>TK</span> */}
+          <span style={{fontSize:"24px", color: "black",paddingLeft:"2px" }}>TK</span>
         </span>
-        {discount > 0 && <span className="discount">Save {discount}%</span>}
+        {discount > 0 && <span className="discount"> {discount}%OFF</span>}
         {UpdatePrice ? (
           <span className="original-price">৳{UpdatePrice}</span>
         ) : null}
@@ -1760,7 +1838,7 @@ trackMetaCommerceEvent("ViewContent", {
       )}
 
       {/* Add to cart & cart button */}
-      <div className="addbar"> 
+      {/* <div className="addbar"> 
         <div className="p-cart-icon-container">
           <Link to={"/cart"} className="p-footer-icon">
             <FaCartArrowDown />
@@ -1781,7 +1859,30 @@ trackMetaCommerceEvent("ViewContent", {
             {buttonState.label}
           </button>
         </div>
-      </div>
+      </div> */}
+
+     <div className="addbar">
+  <button
+    type="button"
+    className="add-to-cart-fixed order-now-button"
+    disabled={!data._id || buttonState.disabled || isOrdering}
+    aria-busy={isOrdering}
+    onClick={handleOrderNow}
+  >
+    <span role="status">
+      {isOrdering ? "লগইন হচ্ছে…" : "Order Now"}
+    </span>
+  </button>
+
+  <button
+    type="button"
+    className="add-to-cart-fixed"
+    disabled={!data._id || buttonState.disabled || isOrdering}
+    onClick={addToCartHandle}
+  >
+    {buttonState.label}
+  </button>
+</div>
 
       <ActionFeedbackModal
         isOpen={cartModal.isOpen}
@@ -1797,7 +1898,7 @@ trackMetaCommerceEvent("ViewContent", {
 
         <GuidedCoachmark
         enabled={hasScrolledForCoach && !loading}
-        message="পছন্দের পণ্যটি কিনতে ‘Add to Cart’ বাটনে চাপ দিন।"
+        message="একাধিক পণ্য কিনতে ‘Add to Cart’ বাটনে চাপ দিয়ে কার্টে যোগ করুন।"
         bottom={88}
         right={8}
         width={270}
@@ -1982,7 +2083,7 @@ trackMetaCommerceEvent("ViewContent", {
         </div>
       )} 
        {/* apps logo */}
-      <a
+      {/* <a
         href={PLAY_STORE_URL}
         target="_blank"
         rel="noopener noreferrer"
@@ -1996,7 +2097,20 @@ trackMetaCommerceEvent("ViewContent", {
         />
 
         <span className="pyzara-floating-dot"></span>
-      </a>
+      </a> */}
+
+      {/* cart icone */}
+      <Link
+        to="/cart"
+        className="product-floating-cart"
+        aria-label={`কার্ট দেখুন, ${cartCountProduct}টি পণ্য`}
+      >
+        <FaCartArrowDown aria-hidden="true" />
+        <span className="product-floating-cart-count" role="status">
+          {cartCountProduct}
+        </span>
+      </Link>
+
     </div>
   );
 };

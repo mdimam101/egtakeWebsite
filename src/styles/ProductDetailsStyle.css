@@ -1729,7 +1729,7 @@
 } */
 
 /* -------------apps link style------------ */
-
+/* 
 .pyzara-floating-logo {
   position: fixed;
   right: 14px;
@@ -1774,7 +1774,9 @@
   border: 2px solid #ffffff;
   border-radius: 50%;
   box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14);
-}
+} */
+
+
 .sold-badge {
   display: inline-flex;
   align-items: center;
@@ -2408,4 +2410,110 @@
   .free-delivery-offer__arrow {
     transition: none;
   }
+}
+
+/* order now */
+.addbar {
+  position: fixed;
+  inset: auto 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.1);
+  z-index: 9998;
+}
+
+.product-details-container {
+  padding-bottom: 90px;
+}
+
+.add-to-cart-fixed {
+  flex: 1;
+  max-width: 220px;
+  min-height: 44px;
+  padding: 6px 12px;
+  background: #fff;
+  color: #b3153c;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.order-now-button {
+  background: #b3153c;
+  color: #fff;
+  border-color: #b3153c;
+}
+
+.add-to-cart-fixed:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.product-details-container {
+  padding: 5px 5px calc(74px + env(safe-area-inset-bottom));
+}
+
+.addbar {
+  height: auto;
+}
+
+.addbar > .add-to-cart-fixed {
+  position: static;
+  transform: none;
+  width: auto;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* cart logo */
+.product-floating-cart {
+  position: fixed;
+  right: 14px;
+  bottom: 90px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff 0%, #f4fff6 100%);
+  color: #b3153c;
+  font-size: 23px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.22);
+  border: 1px solid rgba(59, 175, 78, 0.28);
+  transition: all 0.22s ease;
+}
+
+.product-floating-cart:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(17, 24, 39, 0.28);
+}
+
+.product-floating-cart:active {
+  transform: scale(0.96);
+}
+
+.product-floating-cart-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 22px;
+  padding: 2px 5px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #b3153c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
 }
