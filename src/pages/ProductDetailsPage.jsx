@@ -67,7 +67,7 @@ import { FaFacebookMessenger } from "react-icons/fa6";
 const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.emamexp2.testeasupload";
 
-const MESSENGER_URL = "https://www.facebook.com/share/1CMsF42Jbo/?mibextid=wwXIfr"
+const MESSENGER_URL = "https://m.me/Pyzarashopwithconfidence"
 
 const ensureHttps = (u = "") =>
   String(u || "")
