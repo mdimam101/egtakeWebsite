@@ -593,19 +593,40 @@ const OrderList = () => {
     });
   }, [orders, query, statusFilter]);
 
-   const renderItems = (orderId, items = []) => {
-    return items.map((item, idx) => (
+const orderPriceFormatter = new Intl.NumberFormat("en-BD", {
+  maximumFractionDigits: 2,
+});
+
+const renderItems = (orderId, items = []) => {
+  return items.map((item, idx) => {
+    const quantity = Number(item.quantity);
+    const savedPrice = String(item.price ?? "").trim();
+    const itemTotal = savedPrice ? Number(savedPrice) : NaN;
+    const hasPrice = Number.isFinite(itemTotal);
+    const unitPrice = quantity > 0 ? itemTotal / quantity : itemTotal;
+
+    return (
       <li key={item?._id || idx} className="od-item">
         <img className="od-img" src={item.image} alt="product" />
+
         <div className="od-info">
           <p className="od-title">{item.productName}</p>
+
           <p className="od-meta">
             <span>Qty: {item.quantity}</span>
+            <span>
+              Unit Price: {hasPrice ? `৳${orderPriceFormatter.format(unitPrice)}` : "—"}
+            </span>
+            {hasPrice && quantity > 1 && (
+              <span>Item Total: ৳{orderPriceFormatter.format(itemTotal)}</span>
+            )}
             <span>Size: {item.size || "-"}</span>
             <span>Color: {item.color || "-"}</span>
           </p>
+
           <p className="od-id">Product ID: {item.productId}</p>
-           <div className="item-status-control">
+
+          <div className="item-status-control">
             <small className="item-status-label">Item Status</small>
             <select
               className="order-filter"
@@ -626,8 +647,9 @@ const OrderList = () => {
           </div>
         </div>
       </li>
-    ));
-  };
+    );
+  });
+};
 
   const getStatusBadgeClass = (status = "") => {
     const s = String(status).toLowerCase();
