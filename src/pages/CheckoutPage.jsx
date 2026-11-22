@@ -31,6 +31,7 @@ import GuidedCoachmark from "../components/GuidedCoachmark";
 import DistrictDropdown from "../components/DistrictDropdown";
 import { FiMapPin, FiShield } from "react-icons/fi";
 import { trackMetaCommerceEvent, trackMetaPurchaseOnce, readMetaCookie, getMetaPurchaseParams } from "../helpers/metaPixel";
+import CheckoutFreeDeliverySlider from "../components/CheckoutFreeDeliverySlider";
 
 const PROCESSING_FEE = 0;
 
@@ -147,26 +148,16 @@ const CheckoutPage = () => {
 
   // let changeText = baseTotal > OthersAreaMiniOrdr
   // const changeText = baseTotal >= OthersAreaMiniOrdr; //mini order er somuy aita use 
-  const changeText = formData.district
-  ? formData.district === "Dhaka"
-    ? selectedItems.length >= 20
-    : selectedItems.length >= 30
-  : false; //mini item er somuy aita use 
+  const hasFreeDeliveryProduct = selectedItems.some(
+  (item) => (item?.isFreeDelivery ?? item?.productId?.isFreeDelivery) === true,
+);
 
-      // ✅ district base charges (same as app)
-  // const districtCharge = (district) => {
-  //   if (baseTotal > OthersAreaMiniOrdr) return 0
-  //   if (district === "Narayanganj") return 70;
-  //   if (district === "Dhaka") return 80;
-  //   return district ? 130 : 0;
-  // };
-
-    const districtCharge = useCallback((district) => {
-    if (changeText) return 0;
-    if (district === "Narayanganj") return 80;
-    if (district === "Dhaka") return 80;
-    return district ? 130 : 0;
-  }, [changeText]);
+const districtCharge = useCallback((district) => {
+  if (hasFreeDeliveryProduct) return 0;
+  if (district === "Narayanganj") return 80;
+  if (district === "Dhaka") return 80;
+  return district ? 130 : 0;
+}, [hasFreeDeliveryProduct]);
 
   const isPremiumUser = user?.role === "PREMIUM";
 
@@ -268,7 +259,13 @@ const CheckoutPage = () => {
   }, [baseTotal, selectedItems, totalItems]);
 
 
-  const deliveryLabelValue = deliveryCharge === 0 ? "FREE" : `৳${deliveryCharge}`;
+  // const deliveryLabelValue = deliveryCharge === 0 ? "FREE" : `৳${deliveryCharge}`;
+  const deliveryLabelValue =
+  !formData.district && !hasFreeDeliveryProduct
+    ? "—"
+    : deliveryCharge === 0
+      ? "FREE"
+      : `৳${deliveryCharge}`;
 
   const freeTitleByArea = () => {
     if (formData.district === "Narayanganj") return `Premium Free Delivery ৳${MIN_FREE_NAR}+`;
@@ -671,12 +668,12 @@ const CheckoutPage = () => {
                   <div className={`dot ${deliveryOption === "NAR70" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-title">{hasFreeDeliveryProduct ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                   {/* <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
 ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div> */}
                 </div>
-                <div className="opt-price">{changeText ? "Free" : "৳80"}</div>
+                <div className="opt-price">{hasFreeDeliveryProduct ? "Free" : "৳80"}</div>
               </div>
             )}
 
@@ -715,10 +712,10 @@ const CheckoutPage = () => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-title">{hasFreeDeliveryProduct ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                 </div>
-                <div className="opt-price">{changeText ? "Free" : `৳${districtCharge("Dhaka")}`}</div>
+                <div className="opt-price">{hasFreeDeliveryProduct ? "Free" : `৳${districtCharge("Dhaka")}`}</div>
               </div>
             )}
 
@@ -736,12 +733,12 @@ const CheckoutPage = () => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{changeText ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-title">{hasFreeDeliveryProduct ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                   {/* <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
 ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div> */}
                 </div>
-                <div className="opt-price">{changeText ? "Free" : `৳${districtCharge(formData.district)}`}</div>
+                <div className="opt-price">{hasFreeDeliveryProduct ? "Free" : `৳${districtCharge(formData.district)}`}</div>
               </div>
             )}
           </div>
@@ -765,6 +762,8 @@ const CheckoutPage = () => {
             <div className="opt-price">—</div>
           </div>
         </div>
+
+        {!hasFreeDeliveryProduct && <CheckoutFreeDeliverySlider />}
 
         {/* Coupon */}
         {/* <div className="coupon-row">
@@ -816,7 +815,7 @@ const CheckoutPage = () => {
               Delivery Charge (
                {deliveryOption === "FREE"
                 ? "Premium Free"
-                : changeText 
+                : hasFreeDeliveryProduct 
                 ? "0"
                 : deliveryOption === "EXPRESS"
                 ? "Express"
@@ -824,7 +823,7 @@ const CheckoutPage = () => {
               )
             </div>
             <div className="sum-amount">
-               <span className="old-price">৳150</span> {changeText ? "FREE" : deliveryLabelValue}
+               <span className="old-price">৳150</span> {hasFreeDeliveryProduct ? "FREE" : deliveryLabelValue}
             </div>
           </div>
 

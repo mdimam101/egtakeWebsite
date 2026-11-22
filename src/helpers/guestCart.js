@@ -92,6 +92,7 @@ const toGuestCartItem = (item) => {
     quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : 1,
     price,
     selling,
+    isFreeDelivery: (item?.isFreeDelivery ?? item?.productId?.isFreeDelivery) === true,
     addedAt: item?.addedAt || Date.now(),
     isGuestCartItem: true,
   };

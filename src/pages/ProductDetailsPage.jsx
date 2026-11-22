@@ -86,23 +86,24 @@ const formatOfferTime = (milliseconds) => {
   return `${hours}h : ${String(minutes).padStart(2, "0")}m : ${String(seconds).padStart(2, "0")}s`;
 };
 
-const FreeDeliveryCountdown = ({ endTime }) => {
-  const commonInfo = useSelector((state) => state.commonState.commonInfoList);
-  const campaign = (Array.isArray(commonInfo) ? commonInfo[0] : commonInfo)?.campaingInfo;
+const FreeDeliveryCountdown = ({ endTime, campaign, isFreeDelivery }) => {
   const isCampaignOn = campaign?.campaingIsOn === true;
+  const showOffer = isCampaignOn || isFreeDelivery;
   const parsedEndTime = new Date(endTime).getTime();
   const hasValidEndTime = Boolean(endTime) && Number.isFinite(parsedEndTime);
+
   const [effectiveEndTime, setEffectiveEndTime] = useState(() =>
     hasValidEndTime && parsedEndTime > Date.now()
       ? parsedEndTime
       : Date.now() + 6 * 60 * 60 * 1000,
   );
-  const [remainingTime, setRemainingTime] = useState(() =>
-    effectiveEndTime - Date.now(),
+  const [remainingTime, setRemainingTime] = useState(
+    () => effectiveEndTime - Date.now(),
   );
 
   useEffect(() => {
     if (!hasValidEndTime) return;
+
     setEffectiveEndTime(
       parsedEndTime > Date.now()
         ? parsedEndTime
@@ -111,7 +112,7 @@ const FreeDeliveryCountdown = ({ endTime }) => {
   }, [hasValidEndTime, parsedEndTime]);
 
   useEffect(() => {
-    if (!isCampaignOn || !hasValidEndTime) return;
+    if (!showOffer || !hasValidEndTime) return;
 
     const updateRemainingTime = () => {
       const nextRemainingTime = effectiveEndTime - Date.now();
@@ -129,69 +130,60 @@ const FreeDeliveryCountdown = ({ endTime }) => {
     updateRemainingTime();
     const intervalId = window.setInterval(updateRemainingTime, 1000);
     return () => window.clearInterval(intervalId);
-  }, [effectiveEndTime, hasValidEndTime, isCampaignOn]);
+  }, [effectiveEndTime, hasValidEndTime, showOffer]);
 
-  if (!isCampaignOn || !hasValidEndTime) {
-    return null;
-  }
- return (
-  <a
-    className="free-delivery-offer"
-    href={PLAY_STORE_URL}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    {/* Logo */}
-    <div className="free-delivery-offer__logo-wrap">
-      <img
-        className="free-delivery-offer__logo"
-        src="/PyzaraWebIcone.png"
-        alt="Pyzara"
-        width="64"
-        height="64"
-      />
-    </div>
+  if (!showOffer) return null;
 
-    {/* Offer Content */}
-    <div className="free-delivery-offer__content">
-      <span className="free-delivery-offer__badge">
-        ✨ SPECIAL OFFER
-      </span>
-
-      <strong className="free-delivery-offer__title">
-        {campaign?.headingTitle}
-      </strong>
-
-      <p className="free-delivery-offer__description">
-        {campaign?.Ptitle}
-      </p>
-    </div>
-
-    {/* Timer & CTA */}
-    <div className="free-delivery-offer__footer">
-      <div
-        className="free-delivery-offer__timer"
-        role="timer"
-        aria-live="off"
-      >
-        <span className="free-delivery-offer__timer-label">
-          ⏳ অফার শেষ হবে যেকোনো মুহূর্তে
-        </span>
-
-        <b className="free-delivery-offer__time">
-          {formatOfferTime(remainingTime)}
-        </b>
+  return (
+    <a
+      className="free-delivery-offer"
+      href={PLAY_STORE_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <div className="free-delivery-offer__logo-wrap">
+        <img
+          className="free-delivery-offer__logo"
+          src="/PyzaraWebIcone.png"
+          alt="Pyzara"
+          width="64"
+          height="64"
+        />
       </div>
 
-      <span className="free-delivery-offer__cta">
-        Install App
-        <span className="free-delivery-offer__arrow">
-          →
-        </span>
-      </span>
-    </div>
-  </a>
-);
+      <div className="free-delivery-offer__content">
+        <span className="free-delivery-offer__badge">✨ SPECIAL OFFER</span>
+
+        <strong className="free-delivery-offer__title">
+          {isCampaignOn ? campaign.headingTitle : "Free Delivery"}
+        </strong>
+
+        {isCampaignOn && (
+          <p className="free-delivery-offer__description">{campaign.Ptitle}</p>
+        )}
+      </div>
+
+      <div className="free-delivery-offer__footer">
+        {hasValidEndTime && (
+          <div className="free-delivery-offer__timer" role="timer" aria-live="off">
+            <span className="free-delivery-offer__timer-label">
+              ⏳ অফার শেষ হবে যেকোনো মুহূর্তে
+            </span>
+            <b className="free-delivery-offer__time">
+              {formatOfferTime(remainingTime)}
+            </b>
+          </div>
+        )}
+
+        {isCampaignOn && 
+        <span className="free-delivery-offer__cta">
+          Install App
+          <span className="free-delivery-offer__arrow">→</span>
+        </span>}
+        
+      </div>
+    </a>
+  );
 };
 
 
@@ -372,6 +364,7 @@ const ProductDetailsPage = () => {
   const commonInfo = useSelector(
     (state) => state?.commonState?.commonInfoList || [],
   );
+  const offerInfo = Array.isArray(commonInfo) ? commonInfo[0] : commonInfo;
 
   const handleBackNavigation = () => {
     const historyIndex = Number(window.history.state?.idx ?? 0);
@@ -812,6 +805,7 @@ trackMetaCommerceEvent("ViewContent", {
       image: selectedImg,
       price: UpdatePrice,
       selling: updateSelling,
+      isFreeDelivery: data.isFreeDelivery === true,
       subCategory: data?.subCategory || data?.category,
      showToast: false,
     });
@@ -892,6 +886,7 @@ const handleOrderNow = async () => {
       productName: updateProductName,
       price: UpdatePrice,
       selling: updateSelling,
+      isFreeDelivery: data.isFreeDelivery === true,
       image: selectedVariant.images?.[0] || selectedImg,
       size: hasSizes ? selectedSize : undefined,
       color: selectedVariant.color,
@@ -1371,6 +1366,9 @@ const handleOrderNow = async () => {
       <div className="color-selector-thumbnail">
         {(data.variants || []).map((variant, idx) => {
           const thumbImage = variant.images?.[0] || null;
+          const isOutOfStock =
+            Array.isArray(variant.sizes) &&
+            !variant.sizes.some((size) => Number(size?.stock) > 0);
           return (
             <div
               key={idx}
@@ -1407,6 +1405,10 @@ const handleOrderNow = async () => {
             >
               {thumbImage && (
                 <img src={thumbImage} alt={variant.color || "variant"} />
+              )}
+
+              {isOutOfStock && (
+                <span className="thumbnail-color-stock-badge">Out of Stock</span>
               )}
             </div>
           );
@@ -1659,7 +1661,11 @@ const handleOrderNow = async () => {
         </div>
       )}
 
-      <FreeDeliveryCountdown endTime={commonInfo[0]?.DiscountTime} />
+      <FreeDeliveryCountdown
+        endTime={offerInfo?.DiscountTime}
+        campaign={offerInfo?.campaingInfo}
+        isFreeDelivery={data.isFreeDelivery === true}
+      />
 
       {/* // Suppose API returns PQualityType in data.qualityType  (normal|good|premium|luxury) */}
       {data?.qualityType && (

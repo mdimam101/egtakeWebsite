@@ -25,7 +25,8 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     priorityProduct: "0",
     handCraft: false,
     salesOn: false,
-    isPublished: true,
+    isPublished: false,
+    isFreeDelivery: false,
     productCodeNumber: "",
     qualityType: "",
     sizeDetails: [],
@@ -111,6 +112,8 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
     // product published unpublished
     isPublished:
       typeof paramData.isPublished === "boolean" ? paramData.isPublished : true,
+
+    isFreeDelivery: paramData.isFreeDelivery === true,
 
     // numbers keep as editable string
     price:
@@ -941,6 +944,20 @@ const AdminProductEdit = ({ onClose, paramData = {}, fatchData }) => {
               <span className="slider round"></span>
             </label>
           </div>
+
+          <label className="switch-wrapper">
+            <span className="switch-label">Free Delivery?</span>
+            <span className="switch">
+              <input
+                type="checkbox"
+                role="switch"
+                checked={data.isFreeDelivery}
+                name="isFreeDelivery"
+                onChange={handleOnChange}
+              />
+              <span className="slider round" aria-hidden="true"></span>
+            </span>
+          </label>
 
            <h3 style={{ marginTop: 20 }}>Product Description Image</h3>
           <div

@@ -15,7 +15,7 @@ import { trackMetaCommerceEvent } from './metaPixel';
 
 const META_VALUE_RATIO = 0.5;
 
-const addToCart = async ({ productId,productName, size, color, image, price, selling, subCategory, showToast = true }) => {
+const addToCart = async ({ productId,productName, size, color, image, price, selling,isFreeDelivery, subCategory, showToast = true }) => {
   const t = localStorage.getItem('authToken');
 
   const cartItem = {
@@ -26,6 +26,7 @@ const addToCart = async ({ productId,productName, size, color, image, price, sel
     image,
     price,
     selling,
+    isFreeDelivery
   };
 
   // Guest cart is browser-owned. Writing it immediately makes the footer

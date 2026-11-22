@@ -42,7 +42,7 @@ const findStockFromLatest = (item, latestProducts) => {
       : item?.productId?.selling) || 0;
 
       
-  return { inStock: true, price };
+  return { inStock: true, price, isFreeDelivery: latest.isFreeDelivery };
 };
 
 const Cart = () => {
@@ -178,10 +178,17 @@ const Cart = () => {
 
   // ---- Checkout ----
   const handleCheckout = () => {
-    const selectedItemsDetails = cartItems.filter((item) => {
-      const res = findStockFromLatest(item, latestProducts);
-      return res.inStock && selectedItems.includes(item._id);
-    });
+    const selectedItemsDetails = cartItems.flatMap((item) => {
+    const { inStock, isFreeDelivery } = findStockFromLatest(item, latestProducts);
+    if (!inStock || !selectedItems.includes(item._id)) return [];
+
+    const freeDelivery =
+      typeof isFreeDelivery === "boolean"
+        ? isFreeDelivery
+        : (item.isFreeDelivery ?? item.productId?.isFreeDelivery) === true;
+
+    return [{ ...item, isFreeDelivery: freeDelivery }];
+  });
 
    if (!isLoggedIn) {
       savePendingCheckoutItems(selectedItemsDetails);

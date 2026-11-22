@@ -2517,3 +2517,17 @@
   line-height: 1.2;
   text-align: center;
 }
+
+/* stock out badge */
+.thumbnail-color-stock-badge {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 2px;
+  background: #991b1b;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  pointer-events: none;
+}
