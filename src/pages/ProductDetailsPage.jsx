@@ -52,6 +52,7 @@ import ActionFeedbackModal from "../components/ActionFeedbackModal";
 import { useDispatch, useSelector } from "react-redux";
 import { setTrendingProductList } from "../store/trendingProductSlice";
 import { normalizeProductCards, orderTrendingProducts } from "../helpers/homeProductCards";
+import { FaFacebookMessenger } from "react-icons/fa6";
 
 
 /* =========================
@@ -65,6 +66,8 @@ import { normalizeProductCards, orderTrendingProducts } from "../helpers/homePro
 
 const PLAY_STORE_URL =
   "https://play.google.com/store/apps/details?id=com.emamexp2.testeasupload";
+
+const MESSENGER_URL = "https://www.facebook.com/share/1CMsF42Jbo/?mibextid=wwXIfr"
 
 const ensureHttps = (u = "") =>
   String(u || "")
@@ -1249,6 +1252,16 @@ const handleOrderNow = () => {
     .replace(/\\r\\n/g, "\n")
     .replace(/\\n/g, "\n");
   // onClick={window.scrollTo({ top: 0, behavior: "auto" })}
+
+
+  const productName = updateProductName || data.productName;
+  const messengerUrl = MESSENGER_URL ? new URL(MESSENGER_URL) : null;
+
+  if (messengerUrl && productName) {
+    messengerUrl.searchParams.set("ref", productName);
+  }
+
+
   return (
     <div className="product-details-container">
       <Helmet>
@@ -2140,6 +2153,16 @@ const handleOrderNow = () => {
 
         <span className="pyzara-floating-dot"></span>
       </a> */}
+
+      {messengerUrl && (
+        <a
+          href={messengerUrl.toString()}
+          className="product-floating-messenger"
+          aria-label="Messenger-এ যোগাযোগ করুন"
+        >
+          <FaFacebookMessenger aria-hidden="true" />
+        </a>
+      )}
 
       {/* cart icone */}
       <Link

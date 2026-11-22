@@ -2531,3 +2531,22 @@
   text-align: center;
   pointer-events: none;
 }
+
+
+.product-floating-messenger {
+  position: fixed;
+  right: 14px;
+  bottom: 156px;
+  z-index: 999;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border: 1px solid #0866ff;
+  border-radius: 50%;
+  background: #0866ff;
+  color: #fff;
+  font-size: 23px;
+  text-decoration: none;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.22);
+}
