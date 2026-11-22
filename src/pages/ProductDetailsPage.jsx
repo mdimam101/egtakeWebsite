@@ -52,7 +52,6 @@ import ActionFeedbackModal from "../components/ActionFeedbackModal";
 import { useDispatch, useSelector } from "react-redux";
 import { setTrendingProductList } from "../store/trendingProductSlice";
 import { normalizeProductCards, orderTrendingProducts } from "../helpers/homeProductCards";
-import signInAsGuest from "../helpers/signInAsGuest";
 
 
 /* =========================
@@ -479,10 +478,10 @@ const ProductDetailsPage = () => {
 
   const [hasScrolledForCoach, setHasScrolledForCoach] = useState(false);
 
-  const { cartCountProduct, fetchUserAddToCart, fetchUserDetails } = useContext(Context);
-  const currentUser = useSelector((state) => state.userState.user);
-  const [isOrdering, setIsOrdering] = useState(false);
-  const orderInProgress = useRef(false);
+  const { cartCountProduct, fetchUserAddToCart } = useContext(Context);
+  // const currentUser = useSelector((state) => state.userState.user);
+  // const [isOrdering, setIsOrdering] = useState(false);
+  // const orderInProgress = useRef(false);
 
    const [cartModal, setCartModal] = useState({
     isOpen: false,
@@ -870,48 +869,77 @@ trackMetaCommerceEvent("ViewContent", {
   return true;
 };
 
-const handleOrderNow = async () => {
-  if (!data._id || buttonState.disabled || orderInProgress.current) return;
+// const handleOrderNow = async () => {
+//   if (!data._id || buttonState.disabled || orderInProgress.current) return;
+//   if (!validatePurchaseSelection()) return;
+
+//   const checkoutState = {
+//     selectedItemsDetails: [{
+//       productId: {
+//         _id: data._id,
+//         productName: updateProductName,
+//         productCodeNumber: data.productCodeNumber,
+//         price: UpdatePrice,
+//         selling: updateSelling,
+//       },
+//       productName: updateProductName,
+//       price: UpdatePrice,
+//       selling: updateSelling,
+//       isFreeDelivery: data.isFreeDelivery === true,
+//       image: selectedVariant.images?.[0] || selectedImg,
+//       size: hasSizes ? selectedSize : undefined,
+//       color: selectedVariant.color,
+//       quantity: 1,
+//     }],
+//   };
+
+//   if (localStorage.getItem("authToken") || currentUser?._id || currentUser?.email) {
+//     navigate("/checkout", { state: checkoutState });
+//     return;
+//   }
+
+//   orderInProgress.current = true;
+//   setIsOrdering(true);
+
+//   try {
+//     await signInAsGuest();
+//     void fetchUserDetails();
+//     navigate("/checkout", { state: checkoutState });
+//   } catch {
+//     navigate("/sign-up", { state: { from: "/checkout", checkoutState } });
+//   } finally {
+//     orderInProgress.current = false;
+//     setIsOrdering(false);
+//   }
+// };
+
+const handleOrderNow = () => {
+  if (!data._id || buttonState.disabled) return;
   if (!validatePurchaseSelection()) return;
 
   const checkoutState = {
-    selectedItemsDetails: [{
-      productId: {
-        _id: data._id,
+    selectedItemsDetails: [
+      {
+        productId: {
+          _id: data._id,
+          productName: updateProductName,
+          productCodeNumber: data.productCodeNumber,
+          price: UpdatePrice,
+          selling: updateSelling,
+        },
         productName: updateProductName,
-        productCodeNumber: data.productCodeNumber,
         price: UpdatePrice,
         selling: updateSelling,
+        isFreeDelivery: data.isFreeDelivery === true,
+        image: selectedVariant.images?.[0] || selectedImg,
+        size: hasSizes ? selectedSize : undefined,
+        color: selectedVariant.color,
+        quantity: 1,
       },
-      productName: updateProductName,
-      price: UpdatePrice,
-      selling: updateSelling,
-      isFreeDelivery: data.isFreeDelivery === true,
-      image: selectedVariant.images?.[0] || selectedImg,
-      size: hasSizes ? selectedSize : undefined,
-      color: selectedVariant.color,
-      quantity: 1,
-    }],
+    ],
   };
 
-  if (localStorage.getItem("authToken") || currentUser?._id || currentUser?.email) {
-    navigate("/checkout", { state: checkoutState });
-    return;
-  }
-
-  orderInProgress.current = true;
-  setIsOrdering(true);
-
-  try {
-    await signInAsGuest();
-    void fetchUserDetails();
-    navigate("/checkout", { state: checkoutState });
-  } catch {
-    navigate("/sign-up", { state: { from: "/checkout", checkoutState } });
-  } finally {
-    orderInProgress.current = false;
-    setIsOrdering(false);
-  }
+  navigate("/checkout", { state: checkoutState });
 };
 
   // -------- Button label & disabled (matches your rule) --------
@@ -1868,7 +1896,7 @@ const handleOrderNow = async () => {
       </div> */}
 
      <div className="addbar">
-  <button
+  {/* <button
     type="button"
     className="add-to-cart-fixed order-now-button"
     disabled={!data._id || buttonState.disabled || isOrdering}
@@ -1878,12 +1906,20 @@ const handleOrderNow = async () => {
     <span role="status">
       {isOrdering ? "লগইন হচ্ছে…" : "Order Now"}
     </span>
-  </button>
+  </button> */}
+  <button
+  type="button"
+  className="add-to-cart-fixed order-now-button"
+  disabled={!data._id || buttonState.disabled}
+  onClick={handleOrderNow}
+>
+  <span>Order Now</span>
+</button>
 
   <button
     type="button"
     className="add-to-cart-fixed"
-    disabled={!data._id || buttonState.disabled || isOrdering}
+    disabled={!data._id || buttonState.disabled }
     onClick={addToCartHandle}
   >
     {buttonState.label}

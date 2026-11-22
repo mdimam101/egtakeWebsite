@@ -32,6 +32,7 @@ import DistrictDropdown from "../components/DistrictDropdown";
 import { FiMapPin, FiShield } from "react-icons/fi";
 import { trackMetaCommerceEvent, trackMetaPurchaseOnce, readMetaCookie, getMetaPurchaseParams } from "../helpers/metaPixel";
 import CheckoutFreeDeliverySlider from "../components/CheckoutFreeDeliverySlider";
+import signInAsGuest from "../helpers/signInAsGuest";
 
 const PROCESSING_FEE = 0;
 
@@ -52,7 +53,8 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const user = useSelector((state) => state?.userState?.user);
   const commonInfo = useSelector((state) => state?.commonState?.commonInfoList || []);
-  const { fetchUserAddToCart } = useContext(Context);
+  // const { fetchUserAddToCart } = useContext(Context);
+  const { fetchUserAddToCart, fetchUserDetails } = useContext(Context);
 
   // ✅ UI states (same flow as RN)
   const [errors, setErrors] = useState({});
@@ -399,8 +401,20 @@ const districtCharge = useCallback((district) => {
 
     setIsSubmitting(true);
     submitLockRef.current = true;
+    
 
     try {
+
+       if (!localStorage.getItem("authToken") && !user?._id && !user?.email) {
+        try {
+          await signInAsGuest();
+          void fetchUserDetails();
+        } catch {
+          toast.error("Guest sign-in failed. Please try again.");
+          return;
+        }
+      }
+
       const { name, phone, address, district, upazila } = formData;
 
       const deliveryTimeline = deliveryOption === "EXPRESS" ? "Express" : "Normal";
