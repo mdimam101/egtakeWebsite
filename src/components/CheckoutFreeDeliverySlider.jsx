@@ -110,8 +110,6 @@ const CheckoutFreeDeliverySlider = () => {
             <Link
               className="checkout-free-delivery__link"
               to={getProductUrlPath(product)}
-              target="_blank"
-              rel="noopener noreferrer"
             >
               <img
                 className="checkout-free-delivery__image"
