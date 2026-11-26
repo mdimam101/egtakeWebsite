@@ -33,6 +33,7 @@ import { FiMapPin, FiShield } from "react-icons/fi";
 import { trackMetaCommerceEvent, trackMetaPurchaseOnce, readMetaCookie, getMetaPurchaseParams } from "../helpers/metaPixel";
 import CheckoutFreeDeliverySlider from "../components/CheckoutFreeDeliverySlider";
 import signInAsGuest from "../helpers/signInAsGuest";
+import ActionFeedbackModal from "../components/ActionFeedbackModal";
 
 const PROCESSING_FEE = 0;
 
@@ -86,6 +87,20 @@ const CheckoutPage = () => {
   const OthersAreaMiniOrdr = getConfiguredNumber(
     commonInfo[0]?.OthersAreaMiniOrdr,
     1599
+  );
+
+  const campaignEnabled = commonInfo[0]?.dVFreeCampaignEnabled === true;
+  const configuredCampaignMinimum = commonInfo[0]?.dVFreeCampaignMiniOrder;
+  const campaignMinimum =
+   Number.isSafeInteger(configuredCampaignMinimum) && configuredCampaignMinimum >= 0
+     ? configuredCampaignMinimum
+     : 300;
+
+  const [isMinimumOrderModalOpen, setIsMinimumOrderModalOpen] = useState(false);
+
+  const closeMinimumOrderModal = useCallback(
+    () => setIsMinimumOrderModalOpen(false),
+    [],
   );
 
   const handlingCharge = 0//commonInfo[0]?.handlingCharge ? Number(commonInfo[0].handlingCharge) : 15;
@@ -154,12 +169,16 @@ const CheckoutPage = () => {
   (item) => (item?.isFreeDelivery ?? item?.productId?.isFreeDelivery) === true,
 );
 
+const merchandisePayable = Math.max(0, baseTotal - discount);
+const isCampaignDeliveryFree = campaignEnabled && Boolean(formData.district);
+const hasFreeStandardDelivery = hasFreeDeliveryProduct || isCampaignDeliveryFree;
+
 const districtCharge = useCallback((district) => {
-  if (hasFreeDeliveryProduct) return 0;
+  if (hasFreeStandardDelivery) return 0;
   if (district === "Narayanganj") return 80;
   if (district === "Dhaka") return 80;
   return district ? 130 : 0;
-}, [hasFreeDeliveryProduct]);
+}, [hasFreeStandardDelivery]);
 
   const isPremiumUser = user?.role === "PREMIUM";
 
@@ -393,6 +412,12 @@ const districtCharge = useCallback((district) => {
     e.preventDefault();
 
     if (isSubmitting || submitLockRef.current) return;
+
+    
+    if (campaignEnabled && merchandisePayable < campaignMinimum) {
+      setIsMinimumOrderModalOpen(true);
+      return;
+    }
 
     if (!validate()) {
       toast.error("Please fill up shipping details");
@@ -682,12 +707,12 @@ const districtCharge = useCallback((district) => {
                   <div className={`dot ${deliveryOption === "NAR70" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{hasFreeDeliveryProduct ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-title">{hasFreeStandardDelivery ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                   {/* <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
 ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div> */}
                 </div>
-                <div className="opt-price">{hasFreeDeliveryProduct ? "Free" : "৳80"}</div>
+                <div className="opt-price">{hasFreeStandardDelivery  ? "Free" : "৳80"}</div>
               </div>
             )}
 
@@ -726,10 +751,10 @@ const districtCharge = useCallback((district) => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{hasFreeDeliveryProduct ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-title">{hasFreeStandardDelivery  ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                 </div>
-                <div className="opt-price">{hasFreeDeliveryProduct ? "Free" : `৳${districtCharge("Dhaka")}`}</div>
+                <div className="opt-price">{hasFreeStandardDelivery  ? "Free" : `৳${districtCharge("Dhaka")}`}</div>
               </div>
             )}
 
@@ -747,12 +772,12 @@ const districtCharge = useCallback((district) => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{hasFreeDeliveryProduct ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-title">{hasFreeStandardDelivery  ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                   {/* <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
 ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div> */}
                 </div>
-                <div className="opt-price">{hasFreeDeliveryProduct ? "Free" : `৳${districtCharge(formData.district)}`}</div>
+                <div className="opt-price">{hasFreeStandardDelivery  ? "Free" : `৳${districtCharge(formData.district)}`}</div>
               </div>
             )}
           </div>
@@ -833,11 +858,16 @@ const districtCharge = useCallback((district) => {
                 ? "0"
                 : deliveryOption === "EXPRESS"
                 ? "Express"
+                : isCampaignDeliveryFree
+                ? "Campaign Free"
                 : "Standard"}
               )
             </div>
             <div className="sum-amount">
-               <span className="old-price">৳150</span> {hasFreeDeliveryProduct ? "FREE" : deliveryLabelValue}
+              {(!isCampaignDeliveryFree || deliveryCharge !== 0) && (
+                <span className="old-price">৳150</span>
+              )}{" "}
+              {hasFreeDeliveryProduct ? "FREE" : deliveryLabelValue}
             </div>
           </div>
 
@@ -890,6 +920,16 @@ const districtCharge = useCallback((district) => {
           delay={800}
         />
       </form>
+
+      <ActionFeedbackModal
+        isOpen={isMinimumOrderModalOpen}
+        title="ন্যূনতম অর্ডার"
+        message={`অর্ডার করতে ন্যূনতম ${campaignMinimum} টাকার পণ্য কার্টে যোগ করুন।`}
+        tone="warning"
+        confirmLabel="ঠিক আছে"
+        onClose={closeMinimumOrderModal}
+      />
+
         <SuccessModal
         isOpen={isModalOpen}
         onClose={() => {

@@ -88,9 +88,16 @@ const formatOfferTime = (milliseconds) => {
   return `${hours}h : ${String(minutes).padStart(2, "0")}m : ${String(seconds).padStart(2, "0")}s`;
 };
 
-const FreeDeliveryCountdown = ({ endTime, campaign, isFreeDelivery }) => {
+const FreeDeliveryCountdown = ({
+  endTime,
+  campaign,
+  isFreeDelivery,
+  freeDeliveryCampaignEnabled,
+}) => {
   const isCampaignOn = campaign?.campaingIsOn === true;
   const showOffer = isCampaignOn || isFreeDelivery;
+  const showInstallButton = isCampaignOn && !freeDeliveryCampaignEnabled;
+
   const parsedEndTime = new Date(endTime).getTime();
   const hasValidEndTime = Boolean(endTime) && Number.isFinite(parsedEndTime);
 
@@ -165,25 +172,27 @@ const FreeDeliveryCountdown = ({ endTime, campaign, isFreeDelivery }) => {
         )}
       </div>
 
-      <div className="free-delivery-offer__footer">
-        {hasValidEndTime && (
-          <div className="free-delivery-offer__timer" role="timer" aria-live="off">
-            <span className="free-delivery-offer__timer-label">
-              ⏳ অফার শেষ হবে যেকোনো মুহূর্তে
-            </span>
-            <b className="free-delivery-offer__time">
-              {formatOfferTime(remainingTime)}
-            </b>
-          </div>
-        )}
+      {(hasValidEndTime || showInstallButton) && (
+        <div className="free-delivery-offer__footer">
+          {hasValidEndTime && (
+            <div className="free-delivery-offer__timer" role="timer" aria-live="off">
+              <span className="free-delivery-offer__timer-label">
+                ⏳ অফার শেষ হবে যেকোনো মুহূর্তে
+              </span>
+              <b className="free-delivery-offer__time">
+                {formatOfferTime(remainingTime)}
+              </b>
+            </div>
+          )}
 
-        {isCampaignOn && 
-        <span className="free-delivery-offer__cta">
-          Install App
-          <span className="free-delivery-offer__arrow">→</span>
-        </span>}
-        
-      </div>
+          {showInstallButton && (
+            <span className="free-delivery-offer__cta">
+              Install App
+              <span className="free-delivery-offer__arrow">→</span>
+            </span>
+          )}
+        </div>
+      )}
     </a>
   );
 };
@@ -1706,6 +1715,7 @@ const handleOrderNow = () => {
         endTime={offerInfo?.DiscountTime}
         campaign={offerInfo?.campaingInfo}
         isFreeDelivery={data.isFreeDelivery === true}
+        freeDeliveryCampaignEnabled={offerInfo?.dVFreeCampaignEnabled === true}
       />
 
       {/* // Suppose API returns PQualityType in data.qualityType  (normal|good|premium|luxury) */}
