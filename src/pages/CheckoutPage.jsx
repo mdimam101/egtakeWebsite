@@ -707,7 +707,7 @@ const districtCharge = useCallback((district) => {
                   <div className={`dot ${deliveryOption === "NAR70" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{hasFreeStandardDelivery ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-title">{hasFreeStandardDelivery ? "Free Delivery" : "Standard Delivery"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                   {/* <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
 ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div> */}
@@ -751,7 +751,7 @@ const districtCharge = useCallback((district) => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{hasFreeStandardDelivery  ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-title">{hasFreeStandardDelivery  ? "Free Delivery" : "Standard Delivery"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                 </div>
                 <div className="opt-price">{hasFreeStandardDelivery  ? "Free" : `৳${districtCharge("Dhaka")}`}</div>
@@ -772,7 +772,7 @@ const districtCharge = useCallback((district) => {
                   <div className={`dot ${deliveryOption === "STD" ? "dot-on" : ""}`} />
                 </div>
                 <div className="opt-mid">
-                  <div className="opt-title">{hasFreeStandardDelivery  ? "Free Delivery" : "Standard Delivery 50%OFF"}</div>
+                  <div className="opt-title">{hasFreeStandardDelivery  ? "Free Delivery" : "Standard Delivery"}</div>
                   <div className="opt-sub">Handed over to courier within 24 hours</div>
                   {/* <div className="opt-sub">ঢাকায় ২+ পণ্যে ফ্রি ডেলিভারি <br />
 ঢাকার বাইরে ৩+ পণ্যে ফ্রি ডেলিভারি</div> */}
