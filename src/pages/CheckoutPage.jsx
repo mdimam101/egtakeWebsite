@@ -89,7 +89,7 @@ const CheckoutPage = () => {
     1599
   );
 
-  const campaignEnabled = commonInfo[0]?.dVFreeCampaignEnabled === true;
+  const campaignEnabled = commonInfo[0]?.WebdVFreeCampaignEnabled === true;
   const configuredCampaignMinimum = commonInfo[0]?.dVFreeCampaignMiniOrder;
   const campaignMinimum =
    Number.isSafeInteger(configuredCampaignMinimum) && configuredCampaignMinimum >= 0

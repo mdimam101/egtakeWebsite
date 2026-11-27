@@ -1715,7 +1715,7 @@ const handleOrderNow = () => {
         endTime={offerInfo?.DiscountTime}
         campaign={offerInfo?.campaingInfo}
         isFreeDelivery={data.isFreeDelivery === true}
-        freeDeliveryCampaignEnabled={offerInfo?.dVFreeCampaignEnabled === true}
+        freeDeliveryCampaignEnabled={offerInfo?.WebdVFreeCampaignEnabled === true}
       />
 
       {/* // Suppose API returns PQualityType in data.qualityType  (normal|good|premium|luxury) */}
